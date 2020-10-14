@@ -44,9 +44,13 @@ def test_purchase_tower():
 
     assert existing_test_towers[0] is test_fire_tower_1
 
+    # Create the towers
     TDP.purchase_Tower("Fire", existing_test_towers, (200,200))
     TDP.purchase_Tower("Ice", existing_test_towers, (300,300))
+    TDP.purchase_Tower("Arrow", existing_test_towers, (400,400))
+    TDP.purchase_Tower("Wall", existing_test_towers, (500,500))
 
+    # Test typing and initialization
     assert isinstance(existing_test_towers[1], TDP.Tower)
     assert isinstance(existing_test_towers[1], TDP.Fire_Tower)
     assert existing_test_towers[1].x == 200
@@ -56,6 +60,21 @@ def test_purchase_tower():
     assert isinstance(existing_test_towers[2], TDP.Ice_Tower)
     assert existing_test_towers[2].x == 300
     assert existing_test_towers[2].y == 300
+
+    assert isinstance(existing_test_towers[3], TDP.Tower)
+    assert isinstance(existing_test_towers[3], TDP.Arrow_Tower)
+    assert existing_test_towers[3].x == 400
+    assert existing_test_towers[3].y == 400
+
+    assert isinstance(existing_test_towers[4], TDP.Tower)
+    assert isinstance(existing_test_towers[4], TDP.Wall)
+    assert existing_test_towers[4].x == 500
+    assert existing_test_towers[4].y == 500
+
+    # Test collision detection for tower placement
+    assert TDP.purchase_Tower("Ice", existing_test_towers, (200, 200)) == "Ice"
+
+
 
 
     pass

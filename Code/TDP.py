@@ -7,8 +7,9 @@ window_width = 1000
 window_height = 800
 
 # FOR FUTURE: Adjust tower size to playing screen size
-tower_width = 50
-tower_height = 50
+# Set to be equal to the .gif files for more accurate placement
+tower_width = 42
+tower_height = 40
 
 
 # FOR FUTURE: Create functionality to set path dynamically based on install or relative to files
@@ -17,7 +18,7 @@ image_path = base_path + "Assets/Images/"
 audio_path = base_path + "Assets/Audio/"
 
 # For Future: Replace with images
-tower_graphic_list = {"Fire":(255,0,0), "Ice":(0,0,255)}
+tower_graphic_list = {"Fire":(255,0,0), "Ice":(0,0,255), "Arrow":(100,100,0), "Wall":(100,100,100)}
 
 # Create the game screen
 window = pygame.display.set_mode((window_width, window_height))
@@ -48,6 +49,7 @@ class Tower():
         self.tower_kind = kind
         self.value = self.tower_value_dict[kind]
         
+    # FOR FUTURE: Move generalized draw_tower here.
     def draw_tower(self):
         pass
 
@@ -94,23 +96,72 @@ class Ice_Tower(Tower):
     def draw_attack(self):
         pass
 
+class Arrow_Tower(Tower):
+    L0_path = image_path + "ArrowTowerL0.gif"
+
+    def __init__(self, x_ord, y_ord):
+        self.x = x_ord
+        self.y = y_ord
+        self.damage = 5
+        self.range = 600
+        self.attack_rate = 2
+        self.crit_chance = .05
+
+    def draw_tower(self, window):
+        L0_tower_image = pygame.image.load(self.L0_path)
+        window.blit(L0_tower_image, (self.x, self.y))
+
+    def draw_attack(self):
+        pass
+
+class Wall(Tower):
+    L0_path = image_path + "WallL0.gif"
+
+    def __init__(self, x_ord, y_ord):
+        self.x = x_ord
+        self.y = y_ord
+        self.damage = 0
+        self.range = 0
+        self.attack_rate = 0
+
+    def draw_tower(self, window):
+        L0_tower_image = pygame.image.load(self.L0_path)
+        print("Width = ", L0_tower_image.get_width())
+        print("Height = ", L0_tower_image.get_height())
+        window.blit(L0_tower_image, (self.x, self.y))
+
+    def draw_attack(self):
+        pass
+
 def draw_interface():
     pass
 
 def purchase_Tower(kind, existing_Towers, position):
+    for tower in existing_Towers:
+        if (abs(tower.x - position[0]) < (tower_width + 1)) and (abs(tower.y - position[1]) < (tower_height + 1)):
+            return kind
+
     if kind == "Fire":
         new_Tower = Fire_Tower(position[0], position[1])
         existing_Towers.append(new_Tower)
     elif kind == "Ice":
         new_Tower = Ice_Tower(position[0], position[1])
         existing_Towers.append(new_Tower)
+    elif kind == "Arrow":
+        new_Tower = Arrow_Tower(position[0], position[1])
+        existing_Towers.append(new_Tower)
+    elif kind == "Wall":
+        new_Tower = Wall(position[0], position[1])
+        existing_Towers.append(new_Tower)
     return ""
 
 def create_combat_interface(): 
     # The list to store the interface objects: buttons, etc
-    fire_tower_button = (pygame.Rect(0, 50, 50, 50), (255, 0, 0), "Fire")
-    ice_tower_button = (pygame.Rect(100, 50, 50, 50), (0, 0, 255), "Ice")
-    return (fire_tower_button, ice_tower_button)
+    fire_tower_button = (pygame.Rect(0, 50, tower_width, tower_height), (255, 0, 0), "Fire")
+    ice_tower_button = (pygame.Rect(100, 50, tower_width, tower_height), (0, 0, 255), "Ice")
+    arrow_tower_button = (pygame.Rect(200, 50, tower_width, tower_height), (100, 100, 0), "Arrow")
+    wall_button = (pygame.Rect(300, 50, tower_width, tower_height), (100, 100, 100), "Wall")
+    return (fire_tower_button, ice_tower_button, arrow_tower_button, wall_button)
 
 
 def main(window):
@@ -160,7 +211,8 @@ def main(window):
 
                 # Player trying to place a tower
                 if prospective_Tower != "":
-                    prospective_Tower = purchase_Tower(prospective_Tower, existing_Towers, event.pos)
+                    tower_position = (event.pos[0] - tower_width//2, event.pos[1] - tower_height//2)
+                    prospective_Tower = purchase_Tower(prospective_Tower, existing_Towers, tower_position)
 
                 else:
                     mouse_position = event.pos
