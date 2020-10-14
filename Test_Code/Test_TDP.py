@@ -37,6 +37,28 @@ def test_fire_tower_class():
     assert test_fire_tower.range_ == 200
     assert test_fire_tower.attack_rate == .5
 
+def test_purchase_tower():
+    existing_test_towers = []
+    test_fire_tower_1 = TDP.Fire_Tower(100, 100)
+    existing_test_towers.append(test_fire_tower_1)
+
+    assert existing_test_towers[0] is test_fire_tower_1
+
+    TDP.purchase_Tower("Fire", existing_test_towers, (200,200))
+    TDP.purchase_Tower("Ice", existing_test_towers, (300,300))
+
+    assert isinstance(existing_test_towers[1], TDP.Tower)
+    assert isinstance(existing_test_towers[1], TDP.Fire_Tower)
+    assert existing_test_towers[1].x == 200
+    assert existing_test_towers[1].y == 200
+
+    assert isinstance(existing_test_towers[2], TDP.Tower)
+    assert isinstance(existing_test_towers[2], TDP.Ice_Tower)
+    assert existing_test_towers[2].x == 300
+    assert existing_test_towers[2].y == 300
+
+
+    pass
 
     
 
