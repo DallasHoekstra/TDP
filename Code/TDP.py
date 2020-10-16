@@ -80,16 +80,22 @@ def purchase_Tower(kind, existing_Towers, position, gold):
 
 def spawn_Creatures(kind, quantity, spawn_center, existing_Creatures):
     if kind == "Skeleton":
-        for _ in range(quantity):
-            spawn_x, spawn_y = spawn_center[0] + _, spawn_center[1] + _
-            skeleton = crt.Skeleton(spawn_x, spawn_y)
+        for counter in range(quantity):
+            # FOR FUTURE: edit offsets to use the dimensions of the creatures image
+            x_offset = 18
+            if (counter % 2) == 1:
+                x_offset = x_offset * -1
+            y_offset = 22
+
+            spawn_x, spawn_y = spawn_center[0], spawn_center[1]
+            skeleton = crt.Skeleton(spawn_x + x_offset, spawn_y - y_offset*counter)
             existing_Creatures.append(skeleton)
 
 def create_combat_interface(): 
     combat_interface_font = pygame.font.SysFont("comicsans", 20, bold=True)
 
     # FOR FUTURE: this won't re-create the window height and width if the size changes. Add dynamic functionality
-    window_width, window_height  = window.get_size()
+    window_width, window_height = window.get_size()
     # Purchase Container, Wave Info Container, Play/Pause Container, Health Container
     # (start_x, start_y, %window_width_to_right, %window_height_down)
     container_dimensions_percent = [(0, 0, .1, .33), (.25, 0, .5, .05), (.95, 0, .05, .05), (.5, .95, .1, .05)]
@@ -156,9 +162,15 @@ def main(window):
     # Per-Level properties. 
     # FOR FUTURE: Create separate class to contain these properties? 
     starting_gold = 500
-    enemy_path_1 = []
+
+    # Spawn points:
+    spawn_point_1 = (800, 10)
+    spawn_point_2 = (200, 200)
+
+    # Paths consist of a list of coordinate tuples. Enemies move from one to the next until they reach the end of the path.
+    enemy_path_1 = [(800, 100), (700, 150), (650, 400), (700, 350), (500, 700)]
     enemy_path_2 = []
-    enemy_list = [("Skeleton", 1, (500,500))]
+    enemy_list = [("Skeleton", 10, spawn_point_1)]
     wave_timer = [5]
     # backgroundImage = 
     wave = 0
@@ -223,26 +235,20 @@ def main(window):
         for tower in existing_Towers:
             tower.draw_tower(window)
 
-        # Draw the creatures
-        for creature in existing_Creatures:
-            creature.draw_creature(window)
-
         # Draw the village
         pygame.draw.rect(window, (128,128,128), village)
+
+        # Draw the creatures, move them, check for creatures reaching village
+        for creature in existing_Creatures:
+            creature.move()
+            creature.draw_creature(window)
+            if village.collidepoint((creature.x, creature.y)) and creature.foe == True:
+                health -= creature.life_damage
         
         # Draw prospective purchased tower
         if prospective_Tower != "":
             mouse_position = pygame.mouse.get_pos()
             pygame.draw.rect(window, tower_graphic_list[prospective_Tower], (mouse_position[0] - tower_width//2, mouse_position[1] - tower_height//2, tower_width, tower_height))
-
-
-
-        # Check if monsters have reached the village
-        for creature in existing_Creatures:
-            if village.collidepoint((creature.x, creature.y)) and creature.foe == True:
-                health -= creature.life_damage
-
-
 
 
         # Event triggers
