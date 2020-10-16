@@ -86,22 +86,72 @@ def spawn_Creatures(kind, quantity, spawn_center, existing_Creatures):
             existing_Creatures.append(skeleton)
 
 def create_combat_interface(): 
+    combat_interface_font = pygame.font.SysFont("comicsans", 20, bold=True)
+
+    # FOR FUTURE: this won't re-create the window height and width if the size changes. Add dynamic functionality
+    window_width, window_height  = window.get_size()
+    # Purchase Container, Wave Info Container, Play/Pause Container, Health Container
+    # (start_x, start_y, %window_width_to_right, %window_height_down)
+    container_dimensions_percent = [(0, 0, .1, .33), (.25, 0, .5, .05), (.95, 0, .05, .05), (.5, .95, .1, .05)]
+    container_dimensions = []
+    for container in container_dimensions_percent:
+        container_dimensions.append((container[0]*window_width, container[1]* window_height, container[2]*window_width, container[3]*window_height))
+            
+
+    
     # The list to store the interface objects: buttons, etc
-    fire_tower_button = (pygame.Rect(0, 50, tower_width, tower_height), (255, 0, 0), "Fire")
-    ice_tower_button = (pygame.Rect(100, 50, tower_width, tower_height), (0, 0, 255), "Ice")
-    arrow_tower_button = (pygame.Rect(200, 50, tower_width, tower_height), (100, 100, 0), "Arrow")
-    wall_button = (pygame.Rect(300, 50, tower_width, tower_height), (100, 100, 100), "Wall")
-    return (fire_tower_button, ice_tower_button, arrow_tower_button, wall_button)
+
+    # Tower purchasing buttons
+    tower_start = container_dimensions[0]
+    fire_tower_button = (pygame.Rect(tower_start[0] + 10, tower_start[1] + 10, tower_width, tower_height), (255, 0, 0), "Fire")
+    ice_tower_button = (pygame.Rect(tower_start[0] + 10, tower_start[1] + 60, tower_width, tower_height), (0, 0, 255), "Ice")
+    arrow_tower_button = (pygame.Rect(tower_start[0] + 10, tower_start[1] + 110, tower_width, tower_height), (100, 100, 0), "Arrow")
+    wall_button = (pygame.Rect(tower_start[0] + 10, tower_start[1] + 160, tower_width, tower_height), (100, 100, 100), "Wall")
+    purchase_Container = [fire_tower_button, ice_tower_button, arrow_tower_button, wall_button]
+
+    # Level data
+    data_start = container_dimensions[1]
+    # gold_amount_text = combat_interface_font.render("Gold: 0", 1, (255, 255, 0))
+    # time_past_text = combat_interface_font.render("Time: 0", 1, (255,255,255))
+    # current_wave_text = combat_interface_font.render("Wave: 0", 1, (255,255,255))
+    text_Positions = [(data_start[0] + 10, data_start[1] + 10), (data_start[0] + int(data_start[2]*.33), data_start[1] + 10), 
+                        (data_start[0] + int(data_start[2]*.66), data_start[1] + 10)]
+    text_Values = ["Gold: ", "Time: ", "Wave: "]
+    text_Colors = [(255,255,0), (255,255,255), (255,255,255)]
+
+    text_Container = []
+    for counter in range(len(text_Positions)):
+        text_Container.append((text_Positions[counter], text_Values[counter], text_Colors[counter]))
+
+    # Game flow control container
+    control_start = container_dimensions[2]
+    play_button = (pygame.Rect(control_start[0] + 10, control_start[1] + 10, tower_width, tower_height), (255, 125, 125), "PLAY")
+    pause_button = (pygame.Rect(control_start[0] + 10, control_start[1] + 60, tower_width, tower_height), (125, 125, 255), "PAUSE")
+    control_Container = (play_button, pause_button)
+
+    # Health container
+    health_start = container_dimensions[3]
+    health_Container = [((health_start[0] + 10, health_start[1] + 10), "Health: ", (255, 0, 0))]
+
+    return (combat_interface_font, text_Container, control_Container, purchase_Container, health_Container)
+
+
+
+
+
+
 
 
 def main(window):
     run = True
     in_combat = True
-    interface_created = False
     combat_interface = create_combat_interface()
+    combat_interface_font = combat_interface[0]
     prospective_Tower = ""
-    interface_font = pygame.font.SysFont("comicsans", 40, bold=True)
-    game_paused = False
+
+    # FOR FUTURE: possibly add skills that alter health level-to-level. Add a get/set method in that case?
+    health = 20
+    game_paused = True
 
     # Per-Level properties. 
     # FOR FUTURE: Create separate class to contain these properties? 
@@ -113,6 +163,8 @@ def main(window):
     # backgroundImage = 
     wave = 0
     time_past = 0
+    village_position = (window_width//2, window_height - 100)
+    village = pygame.Rect(village_position[0], village_position[1], 50, 50)
 
     global gold
     gold = starting_gold
@@ -148,14 +200,24 @@ def main(window):
         window.fill((0,0,0))
 
         # Draw the combat interface
-        for button, color, kind in combat_interface:
+        # Draw the tower purchase container
+        for button, color, kind in combat_interface[3]:
             pygame.draw.rect(window, color, button)
         
-        # Draw gold quantity
-        gold_amount_text = interface_font.render("Gold: " + str(gold), 1, (255, 255, 0))
-        window.blit(gold_amount_text, (600, 100))
-        time_past_text = interface_font.render("Time: " + str(time_past//60), 1, (255,255,255))
-        window.blit(time_past_text, (600, 150))
+        # Draw the wave data container
+        for position, text, color in combat_interface[1]:
+            text = combat_interface_font.render(text, 1, color)
+            window.blit(text, position)
+
+        # Draw the game control container
+        for button, color, kind in combat_interface[2]:
+            pygame.draw.rect(window, color, button)
+
+        # Draw the health container
+        for position, text, color in combat_interface[4]:
+            fulltext = text + str(health)
+            displaytext = combat_interface_font.render(fulltext, 1, color)
+            window.blit(displaytext, position)
 
         # Draw the towers
         for tower in existing_Towers:
@@ -164,6 +226,9 @@ def main(window):
         # Draw the creatures
         for creature in existing_Creatures:
             creature.draw_creature(window)
+
+        # Draw the village
+        pygame.draw.rect(window, (128,128,128), village)
         
         # Draw prospective purchased tower
         if prospective_Tower != "":
@@ -171,10 +236,14 @@ def main(window):
             pygame.draw.rect(window, tower_graphic_list[prospective_Tower], (mouse_position[0] - tower_width//2, mouse_position[1] - tower_height//2, tower_width, tower_height))
 
 
-        # Draw the red circle
-        red_circle_path = "C:/Users/Anonymous/Desktop/PythonProjects/TowerDefenseProject/Assets/Images/RedCircle.jpg"
-        red_circle = pygame.image.load(red_circle_path)
-        window.blit(red_circle, (0,0))
+
+        # Check if monsters have reached the village
+        for creature in existing_Creatures:
+            if village.collidepoint((creature.x, creature.y)) and creature.foe == True:
+                health -= creature.life_damage
+
+
+
 
         # Event triggers
         for event in pygame.event.get():
@@ -191,9 +260,18 @@ def main(window):
                     mouse_position = event.pos
 
                     # Check to see if player is using combat interface
-                    for button, _, kind in combat_interface:
+                    for button, _, kind in combat_interface[3]:
                         if button.collidepoint(mouse_position):
                             prospective_Tower = kind
+                    for button, _, kind in combat_interface[2]:
+                        
+                        if button.collidepoint(mouse_position):
+                            if kind == "PLAY":
+                                game_paused = False
+                            elif kind == "PAUSE":
+                                game_paused = True
+                    
+
 
                     # FOR FUTURE: 
                     # Check if player is selecting a hero

@@ -11,6 +11,7 @@ class Creature():
     health = 0
     attack = 0
     speed = 0
+    foe = False
     
     def __init__(self, x_ord, y_ord):
         self.x = x_ord
@@ -27,6 +28,8 @@ class Skeleton(Creature):
     health = 25
     attack = 5
     speed = 10
+    foe = True
+    life_damage = 1
 
     def __init__(self, x_ord, y_ord):
         self.x = x_ord
