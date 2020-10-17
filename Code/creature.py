@@ -12,7 +12,7 @@ class Creature():
     y = 0
     health = 0
     attack = 0
-    speed = 0
+    move_speed = 0
     foe = False
     path = []
     width = 0
@@ -37,21 +37,37 @@ class Creature():
             if self.L0_Image != "":
                 window.blit(self.L0_Image, (self.x, self.y))
             
+    def set_path(self, path):
+        self.path = path.copy() 
 
     def draw_attack(self):
         pass
 
-    def set_path(self, path):
-        self.path = path
-
     def move(self):
-        pass
+        if len(self.path) > 0:
+            x_diff = self.path[-1][0] - self.x
+            y_diff = self.path[-1][1] - self.y
+            if abs(x_diff) > self.move_speed or abs(y_diff) > self.move_speed:
+                if x_diff > 0:
+                    self.x += self.move_speed
+                else:
+                    self.x -= self.move_speed
+                if y_diff > 0:
+                    self.y += self.move_speed
+                else:
+                    self.y -= self. move_speed
+            else:
+                self.path.pop()
+        
+        
+            
+
 
 class Skeleton(Creature):
     L0_Path = image_path + "L0Skeleton.gif"
     health = 25
     attack = 5
-    speed = 10
+    move_speed = 1
     foe = True
     life_damage = 1
 

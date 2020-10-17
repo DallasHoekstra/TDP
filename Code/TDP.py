@@ -2,6 +2,7 @@ import pygame
 import tower as twr
 import creature as crt
 
+# FOR FUTURE: add option to alter the framerate? Reasons?
 framerate = 60
 
 # FOR FUTURE: Create functionality that dynamically adjusts to playing screen size and full/partial window
@@ -78,7 +79,7 @@ def purchase_Tower(kind, existing_Towers, position, gold):
             return (kind, gold)
     return ("", gold)
 
-def spawn_Creatures(kind, quantity, spawn_center, existing_Creatures):
+def spawn_Creatures(kind, quantity, spawn_center, path, existing_Creatures):
     if kind == "Skeleton":
         for counter in range(quantity):
             # FOR FUTURE: edit offsets to use the dimensions of the creatures image
@@ -89,6 +90,7 @@ def spawn_Creatures(kind, quantity, spawn_center, existing_Creatures):
 
             spawn_x, spawn_y = spawn_center[0], spawn_center[1]
             skeleton = crt.Skeleton(spawn_x + x_offset, spawn_y - y_offset*counter)
+            skeleton.set_path(path)
             existing_Creatures.append(skeleton)
 
 def create_combat_interface(): 
@@ -148,7 +150,7 @@ def create_combat_interface():
 
 
 
-def main(window):
+def level_one(window):
     run = True
     in_combat = True
     combat_interface = create_combat_interface()
@@ -167,21 +169,23 @@ def main(window):
     spawn_point_1 = (800, 10)
     spawn_point_2 = (200, 200)
 
-    # Paths consist of a list of coordinate tuples. Enemies move from one to the next until they reach the end of the path.
-    enemy_path_1 = [(800, 100), (700, 150), (650, 400), (700, 350), (500, 700)]
-    enemy_path_2 = []
-    enemy_list = [("Skeleton", 10, spawn_point_1)]
-    wave_timer = [5]
+
+    # Add background image including background terrain, paths, etc
     # backgroundImage = 
     wave = 0
     time_past = 0
     village_position = (window_width//2, window_height - 100)
     village = pygame.Rect(village_position[0], village_position[1], 50, 50)
+    # Paths consist of a list of coordinate tuples. Enemies move from one to the next until they reach the end of the path.
+    # Begin with the end so that creature.move() can use pop to progress between nodes
+    enemy_path_1 = [(int(village_position[0] + 25), int(village_position[1] + 25)), (700, 350), (650, 400), (700, 150), (800, 100)]
+    enemy_path_2 = []
+    enemy_list = [("Skeleton", 10, spawn_point_1, enemy_path_1)]
+    wave_timer = [5]
 
+    # FOR FUTURE: Clean up the way that gold is handled and possibly move it to the tower purchase container
     global gold
     gold = starting_gold
-
-
 
     # A list to hold the purchased tower objects 
     # FOR FUTURE: Is there a better way to manage this? Needs to be on a level by level basis
@@ -194,16 +198,23 @@ def main(window):
     window.fill((0,0,0))
     while run:
         clock = pygame.time.Clock()
-        clock.tick(framerate)
 
+        # If the game is paused, then the drawing functions should continue but movement/projectiles/etc should not
         if not game_paused:
             time_past += 1
-        if wave < len(enemy_list):
-            if wave_timer[wave]*framerate < time_past:
-    
-                wave_makeup = enemy_list[wave]
-                spawn_Creatures(wave_makeup[0], wave_makeup[1], wave_makeup[2], existing_Creatures) 
-                wave += 1
+            clock.tick(framerate)
+
+            for creature in existing_Creatures:
+                creature.move()
+                if village.collidepoint((creature.x, creature.y)) and creature.foe == True:
+                    health -= creature.life_damage
+
+            if wave < len(enemy_list):
+                if wave_timer[wave]*framerate < time_past:
+        
+                    wave_makeup = enemy_list[wave]
+                    spawn_Creatures(wave_makeup[0], wave_makeup[1], wave_makeup[2], wave_makeup[3], existing_Creatures) 
+                    wave += 1
 
         # Window drawing. 
         # FOR FUTURE move to seperate method
@@ -238,17 +249,18 @@ def main(window):
         # Draw the village
         pygame.draw.rect(window, (128,128,128), village)
 
-        # Draw the creatures, move them, check for creatures reaching village
+        # Draw the creatures
         for creature in existing_Creatures:
-            creature.move()
             creature.draw_creature(window)
-            if village.collidepoint((creature.x, creature.y)) and creature.foe == True:
-                health -= creature.life_damage
-        
+
         # Draw prospective purchased tower
         if prospective_Tower != "":
             mouse_position = pygame.mouse.get_pos()
             pygame.draw.rect(window, tower_graphic_list[prospective_Tower], (mouse_position[0] - tower_width//2, mouse_position[1] - tower_height//2, tower_width, tower_height))
+
+        # Draw waypoints for debugging
+        # for waypoint in enemy_path_1:
+        #     pygame.draw.rect(window, (255,0,0), (waypoint[0], waypoint[1], 30, 30))
 
 
         # Event triggers
@@ -295,5 +307,23 @@ def main(window):
 
     pygame.display.quit()
 
+def main():
+    run = True
+    while run:
+        main_menu_font = pygame.font.SysFont("comicsans", 100, bold=True)
+        play_level_one = main_menu_font.render("Play Level One", 1, (255,255,255))
+        window.blit(play_level_one, (250,250))
 
-main(window) 
+        level_one_button = pygame.Rect(250, 250, 500, 250)
+
+        pygame.display.update()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_position = event.pos
+                if level_one_button.collidepoint(mouse_position):
+                    level_one(window) 
+                    
+main()

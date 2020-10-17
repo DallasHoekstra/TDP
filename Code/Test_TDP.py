@@ -14,7 +14,7 @@ def test_creature_class():
     assert creature.x == 10
     assert creature.y == 15
     assert creature.attack == 0
-    assert creature.speed == 0
+    assert creature.move_speed == 0
     assert creature.health == 0
 
     x_ord = 15
@@ -24,7 +24,7 @@ def test_creature_class():
     assert test_skeleton.y == y_ord
     assert test_skeleton.health == 25
     assert test_skeleton.attack == 5
-    assert test_skeleton.speed == 10
+    assert test_skeleton.move_speed == 1
     
 
 
