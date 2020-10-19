@@ -159,6 +159,9 @@ def level_one(window):
     combat_interface_font = combat_interface[0]
     prospective_Tower = ""
 
+    # FOR FUTURE: clean up attack handling so that orphaned attacks don't occur. Relevant once a sell feature is created
+    orphaned_attacks = []
+
     # FOR FUTURE: possibly add skills that alter health level-to-level. Add a get/set method in that case?
     health = 20
     game_paused = True
@@ -221,7 +224,11 @@ def level_one(window):
                 if village.collidepoint((creature.x, creature.y)) and creature.foe == True:
                     health -= creature.life_damage
 
+            # Handle tower firing and attack movement
             for tower in existing_Towers:
+                if len(tower.attack_objects) > 0:
+                    for attack in tower.attack_objects:
+                        attack.move()
                 if tower.can_attack(math.floor(time_past/2)):
                     tower.attack(existing_Creatures, math.floor(time_past/2))
                     if tower.last_attack == math.floor(time_past/2):
@@ -262,9 +269,14 @@ def level_one(window):
             displaytext = combat_interface_font.render(fulltext, 1, color)
             window.blit(displaytext, position)
 
-        # Draw the towers
+        # Draw the towers and the projectiles/attacks
         for tower in existing_Towers:
             tower.draw_tower(window)
+            if len(tower.attack_objects) > 0:
+                for attack in tower.attack_objects:
+                    attack.draw(window)
+                    if attack.remove_attack == True:
+                        tower.attack_objects.remove(attack)
 
         # Draw the village
         pygame.draw.rect(window, (128,128,128), village)
