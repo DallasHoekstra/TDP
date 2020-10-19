@@ -1,4 +1,5 @@
 import pygame
+import math
 
 # FOR FUTURE: Create functionality to set path dynamically based on install or relative to files
 base_path = "c:/Users/Anonymous/Desktop/PythonProjects/TowerDefenseProject/"
@@ -11,9 +12,13 @@ class Tower():
     kind = ""
     value = 0
     damage = 0
+    damage_type = ""
     range_ = 0
+
+    # Last attack should assume a 30 fps rate
     last_attack = 0
-    attack_rate = 0.0
+    attack_rate = 0
+
     
     def __init__(self, x_ord, y_ord, kind):
         pass
@@ -25,31 +30,66 @@ class Tower():
     def draw_attack(self):
         pass
 
+    # FOR FUTURE: add status affects (frozen, etc) that prevent towers from firing to this method
+    def can_attack(self, timestamp):
+        # timestamp should be in 30ths of a second. if framerate = 60, timestamp = framerate//2, etc)
+        if self.attack_rate > 0:
+            return (timestamp - self.last_attack)/self.attack_rate > 1
+        else:
+            return False
+
+    def attack(self, timestamp):
+        pass
+
 class Fire_Tower(Tower):
+    # FOR FUTURE: higher level towers will have multiple Fire_Attack objects, allowing them to hit enemies
+    # multiple times in the same frame.
+    attack_objects = []
+
+    # FOR FUTURE: future tower level branches will allow for Fire_Attack objects to attach themselves to a target
+    # and move with the target dealing damage as they go. 
+    targets = []
     L0_path = image_path + "FireTowerL0.gif"
+    L0_tower_image = pygame.image.load(L0_path)
     value = 100
     damage = 1
+    damage_type = "Fire"
     range_ = 200
-    attack_rate = .5
+    attack_rate = 15
     kind = "Fire"
+    dimension = (L0_tower_image.get_width(), L0_tower_image.get_height())
 
     def __init__(self, x_ord, y_ord):
         self.x = x_ord
         self.y = y_ord
+        self.attack_objects.append(Fire_Attack(self.x, self.y, self.range_,
+                                    self.damage, self.damage_type))
 
     def draw_tower(self, window):
-        L0_tower_image = pygame.image.load(self.L0_path)
-        window.blit(L0_tower_image, (self.x, self.y))
+        window.blit(self.L0_tower_image, (self.x - math.floor(self.dimension[0]/2), 
+                                            self.y - math.floor(self.dimension[1]/2)))
         
-    
-    def draw_attack(self):
-        pass
+    # Draw the attack animation, not the attack object
+    def draw_attack(self, window):
+        if len(self.attack_objects) > 0:
+            for attack_object in self.attack_objects:
+                attack_object.draw(window)
+
+    # Attack objects are centered on the tower and the attack functionality is carried out by the tower
+    def attack(self, existing_Creatures, timestamp):
+        if len(existing_Creatures) > 0 and len(self.attack_objects) > 0:
+            for attack_object in self.attack_objects:
+                for creature in existing_Creatures:
+                    if abs(creature.x - attack_object.x) and abs(creature.y - attack_object.y) < attack_object.range_:                    
+                        attack_object.hit(creature)
+                        self.last_attack = timestamp
+                    
 
 class Ice_Tower(Tower):
     L0_path = image_path + "IceTowerL0.gif"
     damage = 2
     range = 500
-    attack_rate = 5
+    attack_rate = 150
     slow_affect = 2
     value = 150
     kind = "Ice"
@@ -69,7 +109,7 @@ class Arrow_Tower(Tower):
     L0_path = image_path + "ArrowTowerL0.gif"
     damage = 5
     range = 600
-    attack_rate = 2
+    attack_rate = 60
     crit_chance = .05
     value = 200
     kind = "Arrow"
@@ -101,3 +141,57 @@ class Wall(Tower):
     def draw_tower(self, window):
         L0_tower_image = pygame.image.load(self.L0_path)
         window.blit(L0_tower_image, (self.x, self.y))
+
+# ----------------- Attack Class -------------------------------------------------------------------
+class Attack():
+    # FOR FUTURE: maybe create a class for all objects that use assets? Some other way of inserting 
+    # the base file paths other than manually adding it to each code file?
+    image_path = image_path
+    x = 0
+    y = 0
+    damage = 0
+    damage_Type = ""
+    move_Speed = 0
+    targets = []
+
+    # FOR FUTURE: add animations/gifs for when attacks hit the target
+    # impact_animation
+
+    def __init__(self):
+        pass
+
+    def move(self, targets):
+        pass
+
+    def draw(self):
+        pass
+
+    def hit(self):
+        pass
+
+class Fire_Attack(Attack):
+    range_ = 0
+    image_path = image_path + "Fire_Attack.gif"
+    attack_image = pygame.image.load(image_path)
+    dimension = (attack_image.get_width(), attack_image.get_height())
+    attack_image.set_alpha(100)
+
+    def __init__(self, x_ord, y_ord, range_, damage, damage_type):
+        self.x = x_ord
+        self.y = y_ord
+        self.range_ = range_
+        self.damage = damage
+        self.damage_Type = damage_type
+        self.move_Speed = 0
+    
+    def hit(self, creature):
+        # FOR FUTURE: possibly add on-hit animation that is different from the attack animation?
+    
+        # apply damage 
+        # FOR FUTURE: work out how to handle vulnerabilities, resistances, immunities, etc
+        creature.health -= self.damage
+
+    def draw(self, window):
+        window.blit(self.attack_image, (self.x - math.floor(self.dimension[0]/2), self.y - math.floor(self.dimension[1]/2)))
+
+

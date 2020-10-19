@@ -1,6 +1,7 @@
 import pygame
 import tower as twr
 import creature as crt
+import math
 
 # FOR FUTURE: add option to alter the framerate? Reasons?
 framerate = 60
@@ -198,6 +199,9 @@ def level_one(window):
 
     window.fill((0,0,0))
     while run:
+
+        # Draw background onto the screen
+        window.fill((0,0,0))
         clock = pygame.time.Clock()
 
         # If the game is paused, then the drawing functions should continue but movement/projectiles/etc should not
@@ -206,9 +210,22 @@ def level_one(window):
             clock.tick(framerate)
 
             for creature in existing_Creatures:
+                if creature.health <= 0:
+                    # FOR FUTURE: add functionality for creature death: death animations, gold increase, etc
+                    # creature.die()
+                    # gold += creature.value
+                    # etc
+                    existing_Creatures.remove(creature)
+                    continue     
                 creature.move()
                 if village.collidepoint((creature.x, creature.y)) and creature.foe == True:
                     health -= creature.life_damage
+
+            for tower in existing_Towers:
+                if tower.can_attack(math.floor(time_past/2)):
+                    tower.attack(existing_Creatures, math.floor(time_past/2))
+                    if tower.last_attack == math.floor(time_past/2):
+                        tower.draw_attack(window)
 
             if wave < len(enemy_list):
                 if wave_timer[wave]*framerate < time_past:
@@ -220,8 +237,7 @@ def level_one(window):
         # Window drawing. 
         # FOR FUTURE move to seperate method
 
-        # Draw background onto the screen
-        window.fill((0,0,0))
+
 
         # Draw the combat interface
         # Draw the tower purchase container
