@@ -127,6 +127,7 @@ def create_combat_interface():
     text_Values = ["Gold: ", "Time: ", "Wave: "]
     text_Colors = [(255,255,0), (255,255,255), (255,255,255)]
 
+
     text_Container = []
     for counter in range(len(text_Positions)):
         text_Container.append((text_Positions[counter], text_Values[counter], text_Colors[counter]))
@@ -228,9 +229,12 @@ def level_one(window):
             pygame.draw.rect(window, color, button)
         
         # Draw the wave data container
+        wave_data = (gold, time_past//framerate, wave)
+        i = 0
         for position, text, color in combat_interface[1]:
-            text = combat_interface_font.render(text, 1, color)
+            text = combat_interface_font.render(text + str(wave_data[i]), 1, color)
             window.blit(text, position)
+            i += 1
 
         # Draw the game control container
         for button, color, kind in combat_interface[2]:
