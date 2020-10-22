@@ -212,6 +212,7 @@ def level_one(window):
             time_past += 1
             clock.tick(framerate)
 
+            # Manage creture functions: death, movement, attacking village
             for creature in existing_Creatures:
                 if creature.health <= 0:
                     # FOR FUTURE: add functionality for creature death: death animations, gold increase, etc
@@ -234,6 +235,7 @@ def level_one(window):
                     if tower.last_attack == math.floor(time_past/2):
                         tower.draw_attack(window)
 
+            # Handle wave spawning
             if wave < len(enemy_list):
                 if wave_timer[wave]*framerate < time_past:
         

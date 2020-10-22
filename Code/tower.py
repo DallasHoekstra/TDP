@@ -1,5 +1,6 @@
 import pygame
 import math
+import random
 
 # FOR FUTURE: Create functionality to set path dynamically based on install or relative to files
 base_path = "c:/Users/Anonymous/Desktop/PythonProjects/TowerDefenseProject/"
@@ -115,10 +116,8 @@ class Ice_Tower(Tower):
 
 class Arrow_Tower(Tower):
     L0_path = image_path + "ArrowTowerL0.gif"
-    damage = 5
-    range = 600
-    attack_rate = 60
-    crit_chance = .05
+    range_ = 600
+    attack_rate = 30
     value = 200
     kind = "Arrow"
 
@@ -126,13 +125,21 @@ class Arrow_Tower(Tower):
         self.x = x_ord
         self.y = y_ord
 
-
     def draw_tower(self, window):
         L0_tower_image = pygame.image.load(self.L0_path)
         window.blit(L0_tower_image, (self.x, self.y))
 
-    def draw_attack(self):
+    def draw_attack(self, window):
         pass
+
+    def attack(self, existing_Creatures, timestamp):
+        if len(existing_Creatures) > 0:
+            for creature in existing_Creatures:
+                if abs(creature.x - self.x) and abs(creature.y - self.y) < self.range_:                    
+                    self.attack_objects.append(Arrow_Attack(self.x, self.y, [creature]))
+                    self.last_attack = timestamp
+                    break
+
 
 class Wall(Tower):
     L0_path = image_path + "WallL0.gif"
@@ -241,3 +248,45 @@ class Ice_Attack(Attack):
     def hit(self):
         self.targets[-1].health -= self.damage
         #self.targets[-1].status
+
+class Arrow_Attack(Attack):
+    image_path = image_path + "Arrow.gif"
+    attack_image = pygame.image.load(image_path)
+    dimension = (attack_image.get_width(), attack_image.get_height())
+    attack_image.set_alpha(255)
+    damage = 5
+    crit_chance = .05
+    damage_Type = "Ice"
+    move_speed = 20
+    crit_multiplier = 2
+
+    def __init__(self, x_ord, y_ord, target):
+        self.x = x_ord
+        self.y = y_ord
+        self.targets = target
+
+    def move(self):
+        if len(self.targets) > 0:
+            x_diff = self.targets[-1].x - self.x
+            y_diff = self.targets[-1].y - self.y
+            if abs(x_diff) > self.move_speed or abs(y_diff) > self.move_speed:
+                if x_diff > 0:
+                    self.x += self.move_speed
+                else:
+                    self.x -= self.move_speed
+                if y_diff > 0:
+                    self.y += self.move_speed
+                else:
+                    self.y -= self. move_speed
+            else:
+                self.x, self.y = self.targets[-1].x, self.targets[-1].y
+                self.hit()
+                self.targets.pop()
+                if len(self.targets) == 0:
+                    self.remove_attack = True
+
+    def hit(self):
+        if math.floor(self.crit_chance * random.randrange(1, 20, 1) >= 1):
+            self.targets[-1].health -= self.crit_multiplier*self.damage
+        else:
+            self.targets[-1].health -= self.damage
