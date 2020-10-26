@@ -37,7 +37,7 @@ class Creature():
         else:
             if self.L0_Image != "":
                 window.blit(self.L0_Image, (self.x, self.y))
-                # draw health bar
+                pygame.draw.rect(window, (255,0,0), (self.x, self.y - 5, int((self.width/self.maxhealth)*self.health) + 1, 5))
                         
     def set_path(self, path):
         self.path = path.copy() 

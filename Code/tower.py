@@ -56,7 +56,7 @@ class Fire_Tower(Tower):
     value = 100
     damage = 1
     damage_type = "Fire"
-    range_ = 125
+    range_ = 100
     attack_rate = 15
     kind = "Fire"
     dimension = (L0_tower_image.get_width(), L0_tower_image.get_height())
