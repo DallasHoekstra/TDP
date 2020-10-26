@@ -82,7 +82,7 @@ class Fire_Tower(Tower):
         if len(existing_Creatures) > 0 and len(self.attack_objects) > 0:
             for attack_object in self.attack_objects:
                 for creature in existing_Creatures:
-                    if abs(creature.x - attack_object.x) and abs(creature.y - attack_object.y) < attack_object.range_:                    
+                    if math.sqrt(math.pow((creature.x - attack_object.x), 2) + math.pow((creature.y - attack_object.y), 2)) < attack_object.range_:                    
                         attack_object.hit(creature)
                         self.last_attack = timestamp
                 
@@ -178,7 +178,7 @@ class Attack():
     def __init__(self):
         pass
 
-    def move(self, targets):
+    def move(self):
         pass
 
     def draw(self, window):

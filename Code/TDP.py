@@ -168,7 +168,7 @@ def level_one(window):
 
     # Per-Level properties. 
     # FOR FUTURE: Create separate class to contain these properties? 
-    starting_gold = 500
+    starting_gold = 2000
 
     # Spawn points:
     spawn_point_1 = (800, 10)
@@ -184,9 +184,9 @@ def level_one(window):
     # Paths consist of a list of coordinate tuples. Enemies move from one to the next until they reach the end of the path.
     # Begin with the end so that creature.move() can use pop to progress between nodes
     enemy_path_1 = [(int(village_position[0] + 25), int(village_position[1] + 25)), (700, 350), (650, 400), (700, 150), (800, 100)]
-    enemy_path_2 = []
-    enemy_list = [("Skeleton", 10, spawn_point_1, enemy_path_1)]
-    wave_timer = [5]
+    enemy_path_2 = [(int(village_position[0] + 25), int(village_position[1] + 25)), (300, 800), (100,600), (400,300), (300,200)]
+    enemy_list = [("Skeleton", 100, spawn_point_2, enemy_path_2), ("Skeleton", 20, spawn_point_1, enemy_path_1)]
+    wave_timer = [5, 15]
 
     # FOR FUTURE: Clean up the way that gold is handled and possibly move it to the tower purchase container
     global gold
@@ -212,18 +212,18 @@ def level_one(window):
             time_past += 1
             clock.tick(framerate)
 
-            # Manage creture functions: death, movement, attacking village
+            # Manage creature functions: death, movement, attacking village
             for creature in existing_Creatures:
                 if creature.health <= 0:
                     # FOR FUTURE: add functionality for creature death: death animations, gold increase, etc
                     # creature.die()
-                    # gold += creature.value
-                    # etc
+                    gold += creature.value
                     existing_Creatures.remove(creature)
                     continue     
                 creature.move()
                 if village.collidepoint((creature.x, creature.y)) and creature.foe == True:
                     health -= creature.life_damage
+                    existing_Creatures.remove(creature)
 
             # Handle tower firing and attack movement
             for tower in existing_Towers:
@@ -244,7 +244,7 @@ def level_one(window):
                     wave += 1
 
         # Window drawing. 
-        # FOR FUTURE move to seperate method
+        # FOR FUTURE move to seperate GUI Class
 
 
 
@@ -330,15 +330,7 @@ def level_one(window):
                     # Check if player is selecting a tower
                     # Check if player is selecting an enemy 
                     # Check if player is selecting something else
-                            
-                        
-
-
-
-
-
         pygame.display.update()
-
     pygame.display.quit()
 
 def main():

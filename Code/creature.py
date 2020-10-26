@@ -10,6 +10,7 @@ class Creature():
     L0_Image = ""
     x = 0
     y = 0
+    maxhealth = 0
     health = 0
     attack = 0
     move_speed = 0
@@ -36,7 +37,8 @@ class Creature():
         else:
             if self.L0_Image != "":
                 window.blit(self.L0_Image, (self.x, self.y))
-            
+                # draw health bar
+                        
     def set_path(self, path):
         self.path = path.copy() 
 
@@ -60,15 +62,14 @@ class Creature():
                 self.path.pop()
         
         
-            
-
-
 class Skeleton(Creature):
     L0_Path = image_path + "L0Skeleton.gif"
+    maxhealth = 25
     health = 25
     attack = 5
     move_speed = 1
     foe = True
     life_damage = 1
+    value = 10
 
         
