@@ -15,7 +15,7 @@ class Tower():
     damage = 0
     damage_type = ""
     range_ = 0
-    attack_objects = []
+    
 
     # Last attack should assume a 30 fps rate
     last_attack = 0
@@ -23,6 +23,7 @@ class Tower():
 
     
     def __init__(self, x_ord, y_ord, kind):
+        self.attack_objects = []
         pass
         
     # FOR FUTURE: Move generalized draw_tower here.
@@ -44,13 +45,9 @@ class Tower():
         pass
 
 class Fire_Tower(Tower):
-    # FOR FUTURE: higher level towers will have multiple Fire_Attack objects, allowing them to hit enemies
-    # multiple times in the same frame.
-    attack_objects = []
-
     # FOR FUTURE: future tower level branches will allow for Fire_Attack objects to attach themselves to a target
     # and move with the target dealing damage as they go. 
-    targets = []
+    
     L0_path = image_path + "FireTowerL0.gif"
     L0_tower_image = pygame.image.load(L0_path)
     value = 100
@@ -64,8 +61,8 @@ class Fire_Tower(Tower):
     def __init__(self, x_ord, y_ord):
         self.x = x_ord
         self.y = y_ord
-        self.attack_objects.append(Fire_Attack(self.x, self.y, self.range_,
-                                    self.damage, self.damage_type))
+        self.targets = []
+        self.attack_objects = []
 
     def draw_tower(self, window):
         window.blit(self.L0_tower_image, (self.x - math.floor(self.dimension[0]/2), 
@@ -79,6 +76,9 @@ class Fire_Tower(Tower):
 
     # Attack objects are centered on the tower and the attack functionality is carried out by the tower
     def attack(self, existing_Creatures, timestamp):
+        if len(self.attack_objects) <= 0:
+            self.attack_objects.append(Fire_Attack(self.x, self.y, self.range_,
+                                    self.damage, self.damage_type))
         if len(existing_Creatures) > 0 and len(self.attack_objects) > 0:
             for attack_object in self.attack_objects:
                 for creature in existing_Creatures:
