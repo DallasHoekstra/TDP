@@ -61,7 +61,6 @@ class Creature():
             else:
                 self.path.pop()
         
-        
 class Skeleton(Creature):
     L0_Path = image_path + "L0Skeleton.gif"
     maxhealth = 25

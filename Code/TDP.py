@@ -349,16 +349,19 @@ def level_one(window):
         window.blit(loss_text, (150, int(window_height/2) - 50))
     pygame.display.update()
     time.sleep(5)
-    pygame.display.quit()
+    return()
 
 def main():
     run = True
     while run:
+        window.fill((0,0,0))
         main_menu_font = pygame.font.SysFont("comicsans", 100, bold=True)
         play_level_one = main_menu_font.render("Play Level One", 1, (255,255,255))
         window.blit(play_level_one, (250,250))
 
         level_one_button = pygame.Rect(250, 250, 500, 250)
+        
+
 
         pygame.display.update()
 

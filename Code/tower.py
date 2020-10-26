@@ -88,7 +88,6 @@ class Fire_Tower(Tower):
                 
 class Ice_Tower(Tower):
     L0_path = image_path + "IceTowerL0.gif"
-    #damage = 2
     range_ = 500
     attack_rate = 150
     slow_affect = 2
@@ -98,6 +97,7 @@ class Ice_Tower(Tower):
     def __init__(self, x_ord, y_ord):
         self.x = x_ord
         self.y = y_ord
+        self.attack_objects = []
 
     def draw_tower(self, window):
         L0_tower_image = pygame.image.load(self.L0_path)
@@ -124,6 +124,7 @@ class Arrow_Tower(Tower):
     def __init__(self, x_ord, y_ord):
         self.x = x_ord
         self.y = y_ord
+        self.attack_objects = []
 
     def draw_tower(self, window):
         L0_tower_image = pygame.image.load(self.L0_path)
@@ -168,14 +169,13 @@ class Attack():
     damage = 0
     damage_Type = ""
     move_speed = 0
-    targets = []
     remove_attack = False
 
     # FOR FUTURE: add animations/gifs for when attacks hit the target
     # impact_animation
 
     def __init__(self):
-        pass
+        self.targets = []
 
     def move(self):
         pass
