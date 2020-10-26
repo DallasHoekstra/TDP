@@ -2,6 +2,7 @@ import pygame
 import tower as twr
 import creature as crt
 import math
+import time
 
 # FOR FUTURE: add option to alter the framerate? Reasons?
 framerate = 60
@@ -155,6 +156,7 @@ def create_combat_interface():
 def level_one(window):
     run = True
     in_combat = True
+    victory = False
     combat_interface = create_combat_interface()
     combat_interface_font = combat_interface[0]
     prospective_Tower = ""
@@ -184,8 +186,8 @@ def level_one(window):
     # Paths consist of a list of coordinate tuples. Enemies move from one to the next until they reach the end of the path.
     # Begin with the end so that creature.move() can use pop to progress between nodes
     enemy_path_1 = [(int(village_position[0] + 25), int(village_position[1] + 25)), (700, 350), (650, 400), (700, 150), (800, 100)]
-    enemy_path_2 = [(int(village_position[0] + 25), int(village_position[1] + 25)), (300, 800), (100,600), (400,300), (300,200)]
-    enemy_list = [("Skeleton", 100, spawn_point_2, enemy_path_2), ("Skeleton", 20, spawn_point_1, enemy_path_1)]
+    enemy_path_2 = [(int(village_position[0] + 25), int(village_position[1] + 25))] #, (300, 800), (100,600), (400,300), (300,200)
+    enemy_list = [("Skeleton", 10, spawn_point_2, enemy_path_2), ("Skeleton", 10, spawn_point_1, enemy_path_1)]
     wave_timer = [5, 15]
 
     # FOR FUTURE: Clean up the way that gold is handled and possibly move it to the tower purchase container
@@ -225,6 +227,9 @@ def level_one(window):
                     health -= creature.life_damage
                     existing_Creatures.remove(creature)
 
+            if health == 0:
+                run = False
+
             # Handle tower firing and attack movement
             for tower in existing_Towers:
                 if len(tower.attack_objects) > 0:
@@ -236,12 +241,15 @@ def level_one(window):
                         tower.draw_attack(window)
 
             # Handle wave spawning
-            if wave < len(enemy_list):
+            if len(enemy_list) > 0:
                 if wave_timer[wave]*framerate < time_past:
-        
-                    wave_makeup = enemy_list[wave]
+                    wave_makeup = enemy_list[-1]
                     spawn_Creatures(wave_makeup[0], wave_makeup[1], wave_makeup[2], wave_makeup[3], existing_Creatures) 
                     wave += 1
+                    enemy_list.pop()
+            elif len(existing_Creatures) <= 0:
+                victory = True
+                run = False
 
         # Window drawing. 
         # FOR FUTURE move to seperate GUI Class
@@ -331,6 +339,16 @@ def level_one(window):
                     # Check if player is selecting an enemy 
                     # Check if player is selecting something else
         pygame.display.update()
+
+    game_end_font = pygame.font.SysFont("comicsans", 80, bold=True)
+    if victory:
+        win_text = game_end_font.render("Victory", 1, (0, 255, 0))
+        window.blit(win_text, (int(window_width/2 - win_text.get_width()/2), int(window_height/2 - win_text.get_height()/2) ))
+    else:
+        loss_text = game_end_font.render("Your village has fallen!", 1, (255, 0, 0))
+        window.blit(loss_text, (150, int(window_height/2) - 50))
+    pygame.display.update()
+    time.sleep(5)
     pygame.display.quit()
 
 def main():
