@@ -291,7 +291,7 @@ def level_one(window):
         if prospective_Tower != "":
             mouse_position = pygame.mouse.get_pos()
             pygame.draw.rect(window, tower_graphic_list[prospective_Tower], (mouse_position[0] - tower_width//2, mouse_position[1] - tower_height//2, tower_width, tower_height))
-
+            pygame.draw.circle(window, (128, 0, 0, 128), mouse_position, 125)
         # Draw waypoints for debugging
         # for waypoint in enemy_path_1:
         #     pygame.draw.rect(window, (255,0,0), (waypoint[0], waypoint[1], 30, 30))

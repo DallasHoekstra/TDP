@@ -56,7 +56,7 @@ class Fire_Tower(Tower):
     value = 100
     damage = 1
     damage_type = "Fire"
-    range_ = 200
+    range_ = 125
     attack_rate = 15
     kind = "Fire"
     dimension = (L0_tower_image.get_width(), L0_tower_image.get_height())
@@ -139,7 +139,6 @@ class Arrow_Tower(Tower):
                     self.attack_objects.append(Arrow_Attack(self.x, self.y, [creature]))
                     self.last_attack = timestamp
                     break
-
 
 class Wall(Tower):
     L0_path = image_path + "WallL0.gif"
