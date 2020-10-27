@@ -23,7 +23,7 @@ image_path = base_path + "Assets/Images/"
 audio_path = base_path + "Assets/Audio/"
 
 # For Future: Replace with images
-tower_graphic_list = {"Fire":(255,0,0), "Ice":(0,0,255), "Arrow":(100,100,0), "Wall":(100,100,100)}
+tower_graphic_list = {"Fire":(255,0,0), "Ice":(0,0,255), "Arrow":(100,100,0), "Wall":(100,100,100), "Sell":(100, 100, 0)}
 
 # Create the game screen
 window = pygame.display.set_mode((window_width, window_height))
@@ -39,16 +39,18 @@ def draw_interface():
     pass
 
 def purchase_Tower(kind, existing_Towers, position, gold):
-    for tower in existing_Towers:
+    for tower, tower_rect in existing_Towers:
         if (abs(tower.x - position[0]) < (tower_width + 1)) and (abs(tower.y - position[1]) < (tower_height + 1)):
             # play_sound("collision")
             return (kind, gold)
     # FOR FUTURE: Create loop instead of extended if-elif block?
+    
     if kind == "Fire":
         if gold >= twr.Fire_Tower.value:            
             gold -= twr.Fire_Tower.value
             new_Tower = twr.Fire_Tower(position[0], position[1])
-            existing_Towers.append(new_Tower)
+            tower_Rect = pygame.Rect(position[0] - int(tower_width/2), position[1] - int(tower_height/2), tower_width, tower_height)
+            existing_Towers.append((new_Tower, tower_Rect))
         else:
             # play_sound("poverty")
             return (kind, gold)
@@ -57,7 +59,8 @@ def purchase_Tower(kind, existing_Towers, position, gold):
         if gold >= twr.Ice_Tower.value:
             gold -= twr.Ice_Tower.value
             new_Tower = twr.Ice_Tower(position[0], position[1])
-            existing_Towers.append(new_Tower)
+            tower_Rect = pygame.Rect(position[0], position[1], tower_width, tower_height)
+            existing_Towers.append((new_Tower, tower_Rect))
         else:
             # play_sound("poverty")
             return (kind, gold)
@@ -66,7 +69,8 @@ def purchase_Tower(kind, existing_Towers, position, gold):
         if gold >= twr.Arrow_Tower.value:
             gold -= twr.Arrow_Tower.value
             new_Tower = twr.Arrow_Tower(position[0], position[1])
-            existing_Towers.append(new_Tower)
+            tower_Rect = pygame.Rect(position[0], position[1], tower_width, tower_height)
+            existing_Towers.append((new_Tower, tower_Rect))
         else:
             # play_sound("poverty")
             return (kind, gold)
@@ -75,7 +79,8 @@ def purchase_Tower(kind, existing_Towers, position, gold):
         if gold >= twr.Wall.value:
             gold -= twr.Wall.value
             new_Tower = twr.Wall(position[0], position[1])
-            existing_Towers.append(new_Tower)
+            tower_Rect = pygame.Rect(position[0], position[1], tower_width, tower_height)
+            existing_Towers.append((new_Tower, tower_Rect))
         else:
             # play_sound("poverty")
             return (kind, gold)
@@ -122,7 +127,10 @@ def create_combat_interface():
     arrow_tower_image = pygame.image.load(image_path + "ArrowTowerL0.gif")
     arrow_tower_button = (pygame.Rect(tower_start[0] + 10, tower_start[1] + 110, arrow_tower_image.get_width(), arrow_tower_image.get_height()), arrow_tower_image, "Arrow")
 
-    purchase_Container = [fire_tower_button, ice_tower_button, arrow_tower_button]
+    sell_image = pygame.image.load(image_path + "Sell.gif")
+    sell_button = (pygame.Rect(tower_start[0] + 10, tower_start[1] + 160, tower_width, tower_height), sell_image, "Sell")
+
+    purchase_Container = [fire_tower_button, ice_tower_button, arrow_tower_button, sell_button]
 
     # Level data
     data_start = container_dimensions[1]
@@ -218,7 +226,7 @@ def level_one(window):
                 run = False
 
             # Handle tower firing and attack movement
-            for tower in existing_Towers:
+            for tower, tower_rect in existing_Towers:
                 if len(tower.attack_objects) > 0:
                     for attack in tower.attack_objects:
                         attack.move()
@@ -226,6 +234,8 @@ def level_one(window):
                     tower.attack(existing_Creatures, math.floor(time_past/2))
                     if tower.last_attack == math.floor(time_past/2):
                         tower.draw_attack(window)
+            for attack in orphaned_attacks:
+                attack.move()
 
             # Handle wave spawning
             if wave <= (len(waves) - 1):
@@ -267,13 +277,18 @@ def level_one(window):
             window.blit(displaytext, position)
 
         # Draw the towers and the projectiles/attacks
-        for tower in existing_Towers:
+        for tower, tower_rect in existing_Towers:
+            pygame.draw.rect(window, (0,0,0), tower_rect)
             tower.draw_tower(window)
             if len(tower.attack_objects) > 0:
                 for attack in tower.attack_objects:
                     attack.draw(window)
                     if attack.remove_attack == True:
                         tower.attack_objects.remove(attack)
+        for attack in orphaned_attacks:
+            attack.draw(window)
+            if attack.remove_attack == True:
+                orphaned_attacks.remove(attack)
 
         # Draw the village
         pygame.draw.rect(window, (128,128,128), village)
@@ -286,7 +301,7 @@ def level_one(window):
         if prospective_Tower != "":
             mouse_position = pygame.mouse.get_pos()
             pygame.draw.rect(window, tower_graphic_list[prospective_Tower], (mouse_position[0] - tower_width//2, mouse_position[1] - tower_height//2, tower_width, tower_height))
-            pygame.draw.circle(window, (128, 0, 0, 128), mouse_position, 125)
+            #pygame.draw.circle(window, (128, 0, 0, 128), mouse_position, 125)
         # Draw waypoints for debugging
         # for waypoint in enemy_path_1:
         #     pygame.draw.rect(window, (255,0,0), (waypoint[0], waypoint[1], 30, 30))
@@ -297,14 +312,20 @@ def level_one(window):
             if event.type == pygame.QUIT:
                 run = False
             if event.type == pygame.MOUSEBUTTONDOWN:
-
+                mouse_position = event.pos  
                 # Player trying to place a tower
-                if prospective_Tower != "":
+                if prospective_Tower != "" and prospective_Tower != "Sell":
                     tower_position = (event.pos[0] - tower_width//2, event.pos[1] - tower_height//2)
                     prospective_Tower, gold = purchase_Tower(prospective_Tower, existing_Towers, tower_position, gold)
-
+                elif prospective_Tower == "Sell":
+                    for tower, tower_rect in existing_Towers:
+                        if tower_rect.collidepoint(mouse_position):
+                            gold += int(tower.value/2)
+                            orphaned_attacks.extend(tower.attack_objects)
+                            existing_Towers.remove((tower, tower_rect))
+                            prospective_Tower = ""
+                        
                 else:
-                    mouse_position = event.pos
 
                     # Check to see if player is using combat interface
                     for button, _, kind in combat_interface[3]:
