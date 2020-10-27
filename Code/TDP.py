@@ -3,7 +3,7 @@ import tower as twr
 import creature as crt
 import math
 import time
-
+import level as lvl
 # FOR FUTURE: add option to alter the framerate? Reasons?
 framerate = 60
 
@@ -178,38 +178,16 @@ def level_one(window):
     health = 20
     game_paused = True
 
-    # Per-Level properties. 
-    # FOR FUTURE: Create separate class to contain these properties? 
-    starting_gold = 2000
-
-    # Spawn points:
-    spawn_point_1 = (720, 10)
-    spawn_point_2 = (140, 10)
-
-
-    # Add background image including background terrain, paths, etc
-    # backgroundImage = 
+    level = lvl.Level()
     wave = 0
-    time_past = 0
-    village_position = (window_width//2, window_height - 100)
-    village = pygame.Rect(village_position[0], village_position[1], 50, 50)
-    # Paths consist of a list of coordinate tuples. Enemies move from one to the next until they reach the end of the path.
-    # Begin with the end so that creature.move() can use pop to progress between nodes
-    enemy_path_1 = [(int(village_position[0] + 25), int(village_position[1] + 25)), (475, 660), (450, 625), (425, 590), (400, 540), (445, 520), (490, 490), (565, 430), (650, 360), (775, 285), (700, 285), (615, 255), (585,225), (585,155), (725, 130)]
-    enemy_path_2 = [(int(village_position[0] + 25), int(village_position[1] + 25)), (475, 660), (450, 625), (425, 590), (400, 540), (330, 515), (260, 500), (190, 490), (120, 470), (130, 330), (370, 330), (370, 240), (240, 240), (140, 160)] 
-    enemy_list = [("Skeleton", 10, spawn_point_2, enemy_path_2), ("Skeleton", 10, spawn_point_1, enemy_path_1), ("Skeleton", 20, spawn_point_1, enemy_path_1), ("Skeleton", 20, spawn_point_2, enemy_path_2)]
-    wave_timer = [5, 15, 30, 40]
-
-    # FOR FUTURE: Clean up the way that gold is handled and possibly move it to the tower purchase container
     global gold
-    gold = starting_gold
+    time_past = 0
 
-    # A list to hold the purchased tower objects 
-    # FOR FUTURE: Is there a better way to manage this? Needs to be on a level by level basis
+    gold = level.starting_gold
+    village = pygame.Rect(level.village[0]*window_width, level.village[1]*window_height, level.village[2], level.village[3])
+    waves = level.waves.copy()
+
     existing_Towers = []
-
-    # A list to hold the existing creatures
-    # FOR FUTURE: Is there a better way to manage this? Needs to be on a level by level basis
     existing_Creatures = []
 
     while run:
@@ -250,12 +228,10 @@ def level_one(window):
                         tower.draw_attack(window)
 
             # Handle wave spawning
-            if len(enemy_list) > 0:
-                if wave_timer[wave]*framerate < time_past:
-                    wave_makeup = enemy_list[-1]
-                    spawn_Creatures(wave_makeup[0], wave_makeup[1], wave_makeup[2], wave_makeup[3], existing_Creatures) 
+            if wave <= (len(waves) - 1):
+                if waves[wave][0]*framerate < time_past:
+                    spawn_Creatures(waves[wave][1], waves[wave][2], waves[wave][3], waves[wave][4], existing_Creatures) 
                     wave += 1
-                    enemy_list.pop()
             elif len(existing_Creatures) <= 0 and health > 0:
                 victory = True
                 run = False
