@@ -113,11 +113,16 @@ def create_combat_interface():
 
     # Tower purchasing buttons
     tower_start = container_dimensions[0]
-    fire_tower_button = (pygame.Rect(tower_start[0] + 10, tower_start[1] + 10, tower_width, tower_height), (255, 0, 0), "Fire")
-    ice_tower_button = (pygame.Rect(tower_start[0] + 10, tower_start[1] + 60, tower_width, tower_height), (0, 0, 255), "Ice")
-    arrow_tower_button = (pygame.Rect(tower_start[0] + 10, tower_start[1] + 110, tower_width, tower_height), (100, 100, 0), "Arrow")
-    wall_button = (pygame.Rect(tower_start[0] + 10, tower_start[1] + 160, tower_width, tower_height), (100, 100, 100), "Wall")
-    purchase_Container = [fire_tower_button, ice_tower_button, arrow_tower_button, wall_button]
+    fire_tower_image = pygame.image.load(image_path + "FireTowerL0.gif")
+    fire_tower_button = (pygame.Rect(tower_start[0] + 10, tower_start[1] + 10, fire_tower_image.get_width(), fire_tower_image.get_height()), fire_tower_image, "Fire")
+
+    ice_tower_image = pygame.image.load(image_path + "IceTowerL0.gif")
+    ice_tower_button = (pygame.Rect(tower_start[0] + 10, tower_start[1] + 60, ice_tower_image.get_width(), ice_tower_image.get_height()), ice_tower_image, "Ice")
+
+    arrow_tower_image = pygame.image.load(image_path + "ArrowTowerL0.gif")
+    arrow_tower_button = (pygame.Rect(tower_start[0] + 10, tower_start[1] + 110, arrow_tower_image.get_width(), arrow_tower_image.get_height()), arrow_tower_image, "Arrow")
+
+    purchase_Container = [fire_tower_button, ice_tower_button, arrow_tower_button]
 
     # Level data
     data_start = container_dimensions[1]
@@ -136,8 +141,12 @@ def create_combat_interface():
 
     # Game flow control container
     control_start = container_dimensions[2]
-    play_button = (pygame.Rect(control_start[0] + 10, control_start[1] + 10, tower_width, tower_height), (255, 125, 125), "PLAY")
-    pause_button = (pygame.Rect(control_start[0] + 10, control_start[1] + 60, tower_width, tower_height), (125, 125, 255), "PAUSE")
+
+    play_image = pygame.image.load(image_path + "PlayButton.gif")
+    play_button = (pygame.Rect(control_start[0] + 10, control_start[1] + 10, play_image.get_width(), play_image.get_height()), play_image, "PLAY")
+
+    pause_image = pygame.image.load(image_path + "PauseButton.gif")
+    pause_button = (pygame.Rect(control_start[0] + 10, control_start[1] + 60, pause_image.get_width(), pause_image.get_height()), pause_image, "PAUSE")
     control_Container = (play_button, pause_button)
 
     # Health container
@@ -160,6 +169,7 @@ def level_one(window):
     combat_interface = create_combat_interface()
     combat_interface_font = combat_interface[0]
     prospective_Tower = ""
+    background_image = pygame.image.load(image_path + "L1_Background.png")
 
     # FOR FUTURE: clean up attack handling so that orphaned attacks don't occur. Relevant once a sell feature is created
     orphaned_attacks = []
@@ -173,8 +183,8 @@ def level_one(window):
     starting_gold = 2000
 
     # Spawn points:
-    spawn_point_1 = (800, 10)
-    spawn_point_2 = (200, 200)
+    spawn_point_1 = (720, 10)
+    spawn_point_2 = (140, 10)
 
 
     # Add background image including background terrain, paths, etc
@@ -185,10 +195,10 @@ def level_one(window):
     village = pygame.Rect(village_position[0], village_position[1], 50, 50)
     # Paths consist of a list of coordinate tuples. Enemies move from one to the next until they reach the end of the path.
     # Begin with the end so that creature.move() can use pop to progress between nodes
-    enemy_path_1 = [(int(village_position[0] + 25), int(village_position[1] + 25)), (700, 350), (650, 400), (700, 150), (800, 100)]
-    enemy_path_2 = [(int(village_position[0] + 25), int(village_position[1] + 25))] #, (300, 800), (100,600), (400,300), (300,200)
-    enemy_list = [("Skeleton", 10, spawn_point_2, enemy_path_2), ("Skeleton", 10, spawn_point_1, enemy_path_1)]
-    wave_timer = [5, 15]
+    enemy_path_1 = [(int(village_position[0] + 25), int(village_position[1] + 25)), (475, 660), (450, 625), (425, 590), (400, 540), (445, 520), (490, 490), (565, 430), (650, 360), (775, 285), (700, 285), (615, 255), (585,225), (585,155), (725, 130)]
+    enemy_path_2 = [(int(village_position[0] + 25), int(village_position[1] + 25)), (475, 660), (450, 625), (425, 590), (400, 540), (330, 515), (260, 500), (190, 490), (120, 470), (130, 330), (370, 330), (370, 240), (240, 240), (140, 160)] 
+    enemy_list = [("Skeleton", 10, spawn_point_2, enemy_path_2), ("Skeleton", 10, spawn_point_1, enemy_path_1), ("Skeleton", 20, spawn_point_1, enemy_path_1), ("Skeleton", 20, spawn_point_2, enemy_path_2)]
+    wave_timer = [5, 15, 30, 40]
 
     # FOR FUTURE: Clean up the way that gold is handled and possibly move it to the tower purchase container
     global gold
@@ -202,11 +212,10 @@ def level_one(window):
     # FOR FUTURE: Is there a better way to manage this? Needs to be on a level by level basis
     existing_Creatures = []
 
-    window.fill((0,0,0))
     while run:
 
         # Draw background onto the screen
-        window.fill((0,0,0))
+        window.blit(background_image, (0,0))
         clock = pygame.time.Clock()
 
         # If the game is paused, then the drawing functions should continue but movement/projectiles/etc should not
@@ -247,7 +256,7 @@ def level_one(window):
                     spawn_Creatures(wave_makeup[0], wave_makeup[1], wave_makeup[2], wave_makeup[3], existing_Creatures) 
                     wave += 1
                     enemy_list.pop()
-            elif len(existing_Creatures) <= 0:
+            elif len(existing_Creatures) <= 0 and health > 0:
                 victory = True
                 run = False
 
@@ -258,8 +267,9 @@ def level_one(window):
 
         # Draw the combat interface
         # Draw the tower purchase container
-        for button, color, kind in combat_interface[3]:
-            pygame.draw.rect(window, color, button)
+        for button, image, kind in combat_interface[3]:
+            pygame.draw.rect(window, (0,0,0), button)
+            window.blit(image, (button[0], button[1]))
         
         # Draw the wave data container
         wave_data = (gold, time_past//framerate, wave)
@@ -270,8 +280,9 @@ def level_one(window):
             i += 1
 
         # Draw the game control container
-        for button, color, kind in combat_interface[2]:
-            pygame.draw.rect(window, color, button)
+        for button, image, kind in combat_interface[2]:
+            pygame.draw.rect(window, (0,0,0), button)
+            window.blit(image, (button[0], button[1]))
 
         # Draw the health container
         for position, text, color in combat_interface[4]:
