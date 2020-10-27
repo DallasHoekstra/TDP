@@ -49,7 +49,7 @@ def purchase_Tower(kind, existing_Towers, position, gold):
         if gold >= twr.Fire_Tower.value:            
             gold -= twr.Fire_Tower.value
             new_Tower = twr.Fire_Tower(position[0], position[1])
-            tower_Rect = pygame.Rect(position[0] - int(tower_width/2), position[1] - int(tower_height/2), tower_width, tower_height)
+            tower_Rect = pygame.Rect(position[0], position[1], tower_width, tower_height)
             existing_Towers.append((new_Tower, tower_Rect))
         else:
             # play_sound("poverty")

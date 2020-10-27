@@ -65,8 +65,8 @@ class Fire_Tower(Tower):
         self.attack_objects = []
 
     def draw_tower(self, window):
-        window.blit(self.L0_tower_image, (self.x - math.floor(self.dimension[0]/2), 
-                                            self.y - math.floor(self.dimension[1]/2)))
+        L0_tower_image = pygame.image.load(self.L0_path)
+        window.blit(L0_tower_image, (self.x, self.y))
         
     # Draw the attack animation, not the attack object
     def draw_attack(self, window):
@@ -76,14 +76,14 @@ class Fire_Tower(Tower):
 
     # Attack objects are centered on the tower and the attack functionality is carried out by the tower
     def attack(self, existing_Creatures, timestamp):
-        if len(self.attack_objects) <= 0:
-            self.attack_objects.append(Fire_Attack(self.x, self.y, self.range_,
-                                    self.damage, self.damage_type))
-        if len(existing_Creatures) > 0 and len(self.attack_objects) > 0:
+        if len(existing_Creatures) > 0:
             for attack_object in self.attack_objects:
                 for creature in existing_Creatures:
                     if math.sqrt(math.pow((creature.x - attack_object.x), 2) + math.pow((creature.y - attack_object.y), 2)) < attack_object.range_:                    
-                        attack_object.hit(creature)
+                        self.attack_objects.append(Fire_Attack(self.x, self.y, self.range_, self.damage, self.damage_type))
+                        for attack in self.attack_objects:
+                            attack.hit(creature)
+                            attack.remove_attack = True
                         self.last_attack = timestamp
                 
 class Ice_Tower(Tower):
