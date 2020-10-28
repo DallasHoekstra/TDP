@@ -172,13 +172,14 @@ def create_combat_interface():
 
 def level_one(window):
     run = True
-    in_combat = True
+    settings_menu_open = False
     victory = False
     combat_interface = create_combat_interface()
     combat_interface_font = combat_interface[0]
     prospective_Tower = ""
     background_image = pygame.image.load(image_path + "L1_Background.png")
-
+    game_end_font = pygame.font.SysFont("comicsans", 80, bold=True)
+    settings_menu_font = pygame.font.SysFont("comicsans", 40, bold=True)
     # FOR FUTURE: clean up attack handling so that orphaned attacks don't occur. Relevant once a sell feature is created
     orphaned_attacks = []
 
@@ -246,65 +247,82 @@ def level_one(window):
                 victory = True
                 run = False
 
+
+
+
         # Window drawing. 
         # FOR FUTURE move to seperate GUI Class
-
-
-
         # Draw the combat interface
         # Draw the tower purchase container
-        for button, image, kind in combat_interface[3]:
-            pygame.draw.rect(window, (0,0,0), button)
-            window.blit(image, (button[0], button[1]))
+        if settings_menu_open == False:
+            for button, image, kind in combat_interface[3]:
+                pygame.draw.rect(window, (0,0,0), button)
+                window.blit(image, (button[0], button[1]))
+            
+            # Draw the wave data container
+            wave_data = (gold, time_past//framerate, wave)
+            i = 0
+            for position, text, color in combat_interface[1]:
+                text = combat_interface_font.render(text + str(wave_data[i]), 1, color)
+                window.blit(text, position)
+                i += 1
+
+            # Draw the game control container
+            for button, image, kind in combat_interface[2]:
+                pygame.draw.rect(window, (0,0,0), button)
+                window.blit(image, (button[0], button[1]))
+
+            # Draw the health container
+            for position, text, color in combat_interface[4]:
+                fulltext = text + str(health)
+                displaytext = combat_interface_font.render(fulltext, 1, color)
+                window.blit(displaytext, position)
+
+            # Draw the towers and the projectiles/attacks
+            for tower, tower_rect in existing_Towers:
+                pygame.draw.rect(window, (0,0,0), tower_rect)
+                tower.draw_tower(window)
+                if len(tower.attack_objects) > 0:
+                    for attack in tower.attack_objects:
+                        attack.draw(window)
+                        if attack.remove_attack == True:
+                            tower.attack_objects.remove(attack)
+            for attack in orphaned_attacks:
+                attack.draw(window)
+                if attack.remove_attack == True:
+                    orphaned_attacks.remove(attack)
+
+            # Draw the village
+            pygame.draw.rect(window, (128,128,128), village)
+
+            # Draw the creatures
+            for creature in existing_Creatures:
+                creature.draw_creature(window)
+
+            # Draw prospective purchased tower
+            if prospective_Tower != "":
+                mouse_position = pygame.mouse.get_pos()
+                pygame.draw.rect(window, tower_graphic_list[prospective_Tower], (mouse_position[0] - tower_width//2, mouse_position[1] - tower_height//2, tower_width, tower_height))
         
-        # Draw the wave data container
-        wave_data = (gold, time_past//framerate, wave)
-        i = 0
-        for position, text, color in combat_interface[1]:
-            text = combat_interface_font.render(text + str(wave_data[i]), 1, color)
-            window.blit(text, position)
-            i += 1
+        else:
+            # Open the settings menu
+            # FOR FUTURE: automate centering and export to GUI?
+            window.fill((0,0,0))
 
-        # Draw the game control container
-        for button, image, kind in combat_interface[2]:
-            pygame.draw.rect(window, (0,0,0), button)
-            window.blit(image, (button[0], button[1]))
+            # Create the buttons
+            return_to_main_menu_button = pygame.Rect(100, 300, 300, 200)
+            return_to_game_button = pygame.Rect(500, 300, 300, 200)
+            
+            # Create the text
+            return_to_main_menu_text = settings_menu_font.render("Main Menu", 1, (255, 255, 255))
+            return_to_game_text = settings_menu_font.render("Return to Game", 1, (255, 255, 255))
 
-        # Draw the health container
-        for position, text, color in combat_interface[4]:
-            fulltext = text + str(health)
-            displaytext = combat_interface_font.render(fulltext, 1, color)
-            window.blit(displaytext, position)
+            # Draw the buttons
+            pygame.draw.rect(window, (50, 0, 0), return_to_main_menu_button)
+            pygame.draw.rect(window, (0, 50, 0), return_to_game_button)
+            window.blit(return_to_main_menu_text, (175, 380))
+            window.blit(return_to_game_text, (525, 380))
 
-        # Draw the towers and the projectiles/attacks
-        for tower, tower_rect in existing_Towers:
-            pygame.draw.rect(window, (0,0,0), tower_rect)
-            tower.draw_tower(window)
-            if len(tower.attack_objects) > 0:
-                for attack in tower.attack_objects:
-                    attack.draw(window)
-                    if attack.remove_attack == True:
-                        tower.attack_objects.remove(attack)
-        for attack in orphaned_attacks:
-            attack.draw(window)
-            if attack.remove_attack == True:
-                orphaned_attacks.remove(attack)
-
-        # Draw the village
-        pygame.draw.rect(window, (128,128,128), village)
-
-        # Draw the creatures
-        for creature in existing_Creatures:
-            creature.draw_creature(window)
-
-        # Draw prospective purchased tower
-        if prospective_Tower != "":
-            mouse_position = pygame.mouse.get_pos()
-            pygame.draw.rect(window, tower_graphic_list[prospective_Tower], (mouse_position[0] - tower_width//2, mouse_position[1] - tower_height//2, tower_width, tower_height))
-            #pygame.draw.circle(window, (128, 0, 0, 128), mouse_position, 125)
-        # Draw waypoints for debugging
-        # for waypoint in enemy_path_1:
-        #     pygame.draw.rect(window, (255,0,0), (waypoint[0], waypoint[1], 30, 30))
 
 
         # Event triggers
@@ -312,32 +330,42 @@ def level_one(window):
             if event.type == pygame.QUIT:
                 run = False
             if event.type == pygame.MOUSEBUTTONDOWN:
-                mouse_position = event.pos  
-                # Player trying to place a tower
-                if prospective_Tower != "" and prospective_Tower != "Sell":
-                    tower_position = (event.pos[0] - tower_width//2, event.pos[1] - tower_height//2)
-                    prospective_Tower, gold = purchase_Tower(prospective_Tower, existing_Towers, tower_position, gold)
-                elif prospective_Tower == "Sell":
-                    for tower, tower_rect in existing_Towers:
-                        if tower_rect.collidepoint(mouse_position):
-                            gold += int(tower.value/2)
-                            orphaned_attacks.extend(tower.attack_objects)
-                            existing_Towers.remove((tower, tower_rect))
-                            prospective_Tower = ""
-                        
-                else:
-
-                    # Check to see if player is using combat interface
-                    for button, _, kind in combat_interface[3]:
-                        if button.collidepoint(mouse_position):
-                            prospective_Tower = kind
-                    for button, _, kind in combat_interface[2]:
-                        
-                        if button.collidepoint(mouse_position):
-                            if kind == "PLAY":
-                                game_paused = False
-                            elif kind == "PAUSE":
-                                game_paused = True
+                mouse_position = event.pos
+                if settings_menu_open == False:  
+                    # Player trying to place a tower
+                    if prospective_Tower != "" and prospective_Tower != "Sell":
+                        tower_position = (event.pos[0] - tower_width//2, event.pos[1] - tower_height//2)
+                        prospective_Tower, gold = purchase_Tower(prospective_Tower, existing_Towers, tower_position, gold)
+                    elif prospective_Tower == "Sell":
+                        for tower, tower_rect in existing_Towers:
+                            if tower_rect.collidepoint(mouse_position):
+                                gold += int(tower.value/2)
+                                orphaned_attacks.extend(tower.attack_objects)
+                                existing_Towers.remove((tower, tower_rect))
+                                prospective_Tower = ""   
+                    else:
+                        # Check to see if player is using combat interface
+                        for button, _, kind in combat_interface[3]:
+                            if button.collidepoint(mouse_position):
+                                prospective_Tower = kind
+                        for button, _, kind in combat_interface[2]:
+                            
+                            if button.collidepoint(mouse_position):
+                                if kind == "PLAY":
+                                    game_paused = False
+                                elif kind == "PAUSE":
+                                    game_paused = True
+                elif settings_menu_open == True:
+                    if return_to_game_button.collidepoint(mouse_position):
+                        settings_menu_open = False
+                    elif return_to_main_menu_button.collidepoint(mouse_position):
+                        run = False
+                
+                    
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    settings_menu_open = True
+                    pass
                     
 
 
@@ -348,7 +376,7 @@ def level_one(window):
                     # Check if player is selecting something else
         pygame.display.update()
 
-    game_end_font = pygame.font.SysFont("comicsans", 80, bold=True)
+    
     if victory:
         win_text = game_end_font.render("Victory", 1, (0, 255, 0))
         window.blit(win_text, (int(window_width/2 - win_text.get_width()/2), int(window_height/2 - win_text.get_height()/2) ))
