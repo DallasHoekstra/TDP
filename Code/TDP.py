@@ -111,6 +111,17 @@ def spawn_Creatures(kind, quantity, spawn_center, path, existing_Creatures):
             troll = crt.Troll(spawn_x + x_offset, spawn_y - y_offset*counter)
             troll.set_path(path)
             existing_Creatures.append(troll)
+    if kind == "Accelerator":
+        for counter in range(quantity):
+            x_offset = 25
+            if (counter % 2) == 1:
+                x_offset = x_offset * -1
+            y_offset = 40
+
+            spawn_x, spawn_y = spawn_center[0], spawn_center[1]
+            accelerator = crt.Accelerator(spawn_x + x_offset, spawn_y - y_offset*counter)
+            accelerator.set_path(path)
+            existing_Creatures.append(accelerator)
 
 def create_combat_interface(): 
     combat_interface_font = pygame.font.SysFont("comicsans", 20, bold=True)
@@ -167,7 +178,11 @@ def create_combat_interface():
 
     pause_image = pygame.image.load(image_path + "PauseButton.gif")
     pause_button = (pygame.Rect(control_start[0] + 10, control_start[1] + 60, pause_image.get_width(), pause_image.get_height()), pause_image, "PAUSE")
-    control_Container = (play_button, pause_button)
+
+    call_wave_image = pygame.image.load(image_path + "CallWave.gif")
+    call_wave_button = (pygame.Rect(control_start[0] + 10, control_start[1] + 110, pause_image.get_width(), pause_image.get_height()), call_wave_image, "CallWave")
+
+    control_Container = (play_button, pause_button, call_wave_button)
 
     # Health container
     health_start = container_dimensions[3]
@@ -233,6 +248,7 @@ def play_level(window, level_number):
                     existing_Creatures.remove(creature)
                     continue     
                 creature.move()
+                creature.tick_status()
                 if village.collidepoint((creature.x, creature.y)) and creature.foe == True:
                     health -= creature.life_damage
                     existing_Creatures.remove(creature)
@@ -369,6 +385,9 @@ def play_level(window, level_number):
                                     game_paused = False
                                 elif kind == "PAUSE":
                                     game_paused = True
+                                if kind == "CallWave":
+                                    if wave <= (len(waves) - 1):
+                                        time_past = waves[wave][0]*framerate + 1
                 elif settings_menu_open == True:
                     if return_to_game_button.collidepoint(mouse_position):
                         settings_menu_open = False

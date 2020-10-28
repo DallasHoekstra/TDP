@@ -13,6 +13,7 @@ class Creature():
     maxhealth = 0
     health = 0
     attack = 0
+    default_move_speed = 0
     move_speed = 0
     foe = False
     path = []
@@ -26,6 +27,7 @@ class Creature():
         if self.L0_Path != "":
             self.L0_Image = pygame.image.load(self.L0_Path)
             self.width, self.height = self.L0_Image.get_rect().size
+        self.statuses = {"Chilled":[False, 0, 0]}
 
     def draw_creature(self, window):
         
@@ -50,25 +52,54 @@ class Creature():
             x_diff = self.path[-1][0] - self.x
             y_diff = self.path[-1][1] - self.y
             if abs(x_diff) > self.move_speed or abs(y_diff) > self.move_speed:
-                if x_diff > 0:
-                    self.x += self.move_speed
+                if abs(x_diff) > self.move_speed:
+                    if x_diff > 0:
+                        self.x += self.move_speed
+                    else:
+                        self.x -= self.move_speed
                 else:
-                    self.x -= self.move_speed
-                if y_diff > 0:
-                    self.y += self.move_speed
+                    self.x = self.path[-1][0]
+                if abs(y_diff) > self.move_speed:
+                    if y_diff > 0:
+                        self.y += self.move_speed
+                    else:
+                        self.y -= self.move_speed
                 else:
-                    self.y -= self.move_speed
+                    self.y = self.path[-1][1]
             else:
                 self.x = self.path[-1][0]
                 self.y = self.path[-1][1]
                 self.path.pop()
+
+    def apply_status(self, statusType, duration, severity):
+        self.statuses[statusType][0] = True
+        self.statuses[statusType][1] = duration
+        self.statuses[statusType][2] = severity 
+
+    def tick_status(self):
+        for status in self.statuses:
+            isActive = self.statuses[status][0]
+            timeLeft = self.statuses[status][1]
+            severity = self.statuses[status][2]
+            if isActive == True:
+                if timeLeft > 0:
+                    timeLeft -= 1
+                else:
+                    isActive = False
+
+                # SWITCH based on status
+                # FOR FUTURE: find a way to do this without a SWITCH STYLE
+                if status == "Chilled":
+                    self.move_speed = self.default_move_speed*severity
+
         
 class Skeleton(Creature):
     L0_Path = image_path + "L0Skeleton.gif"
     maxhealth = 25
     health = 25
     attack = 5
-    move_speed = 1
+    default_move_speed = 1
+    move_speed = default_move_speed
     foe = True
     life_damage = 1
     value = 10
@@ -78,7 +109,47 @@ class Troll(Creature):
     maxhealth = 500
     health = 500
     attack = 50
-    move_speed = 1
+    default_move_speed = 1
+    move_speed = default_move_speed
     foe = True
     life_damage = 10
     value = 100
+
+class Accelerator(Creature):
+    L0_Path = image_path + "L0Accelerator.gif"
+    maxhealth = 10
+    health = 10
+    attack = 2
+    default_move_speed = 1
+    move_speed = default_move_speed
+    foe = True
+    life_damage = 1
+    value = 20
+    acceleration_counter = 0
+
+    def move(self):
+        self.acceleration_counter += 1
+        if len(self.path) > 0:
+            x_diff = self.path[-1][0] - self.x
+            y_diff = self.path[-1][1] - self.y
+            
+            if abs(x_diff) > self.move_speed or abs(y_diff) > self.move_speed:
+                if abs(x_diff) > self.move_speed:
+                    if x_diff > 0:
+                        self.x += self.move_speed
+                    else:
+                        self.x -= self.move_speed
+                else:
+                    self.x = self.path[-1][0]
+                if abs(y_diff) > self.move_speed:
+                    if y_diff > 0:
+                        self.y += self.move_speed
+                    else:
+                        self.y -= self.move_speed
+                else:
+                    self.y = self.path[-1][1]
+                
+            else:
+                self.x = self.path[-1][0]
+                self.y = self.path[-1][1]
+                self.path.pop()

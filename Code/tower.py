@@ -89,7 +89,8 @@ class Ice_Tower(Tower):
     L0_path = image_path + "IceTowerL0.gif"
     range_ = 500
     attack_rate = 150
-    slow_affect = 2
+    slow_affect = .5
+    slow_duration = 300
     value = 150
     kind = "Ice"
 
@@ -106,7 +107,7 @@ class Ice_Tower(Tower):
         if len(existing_Creatures) > 0:
             for creature in existing_Creatures:
                 if abs(creature.x - self.x) and abs(creature.y - self.y) < self.range_:                    
-                    self.attack_objects.append(Ice_Attack(self.x, self.y, [creature]))
+                    self.attack_objects.append(Ice_Attack(self.x, self.y, [creature], self.slow_affect, self.slow_duration))
                     self.last_attack = timestamp
                     break
 
@@ -218,10 +219,14 @@ class Ice_Attack(Attack):
 
     # Leaving target in the plural for future implementation of bouncing attacks
     # Interpret as target(s)
-    def __init__(self, x_ord, y_ord, targets):
+    def __init__(self, x_ord, y_ord, targets, slow_affect, slow_duration):
         self.x = x_ord
         self.y = y_ord
         self.targets = targets
+        self.slow_affect = slow_affect
+
+        # FOR FUTURE: adjust this for framerate (currently 300/60 = 5 seconds)
+        self.slow_duration = slow_duration
 
     def move(self):
         if len(self.targets) > 0:
@@ -245,6 +250,7 @@ class Ice_Attack(Attack):
 
     def hit(self):
         self.targets[-1].health -= self.damage
+        self.targets[-1].apply_status("Chilled", self.slow_duration, self.slow_affect)
         #self.targets[-1].status
 
 class Arrow_Attack(Attack):
