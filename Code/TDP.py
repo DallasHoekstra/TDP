@@ -100,6 +100,18 @@ def spawn_Creatures(kind, quantity, spawn_center, path, existing_Creatures):
             skeleton.set_path(path)
             existing_Creatures.append(skeleton)
 
+    if kind == "Troll":
+        for counter in range(quantity):
+            x_offset = 25
+            if (counter % 2) == 1:
+                x_offset = x_offset * -1
+            y_offset = 40
+
+            spawn_x, spawn_y = spawn_center[0], spawn_center[1]
+            troll = crt.Troll(spawn_x + x_offset, spawn_y - y_offset*counter)
+            troll.set_path(path)
+            existing_Creatures.append(troll)
+
 def create_combat_interface(): 
     combat_interface_font = pygame.font.SysFont("comicsans", 20, bold=True)
 
@@ -170,7 +182,7 @@ def create_combat_interface():
 
 
 
-def level_one(window):
+def play_level(window, level_number):
     run = True
     settings_menu_open = False
     victory = False
@@ -180,6 +192,7 @@ def level_one(window):
     background_image = pygame.image.load(image_path + "L1_Background.png")
     game_end_font = pygame.font.SysFont("comicsans", 80, bold=True)
     settings_menu_font = pygame.font.SysFont("comicsans", 40, bold=True)
+
     # FOR FUTURE: clean up attack handling so that orphaned attacks don't occur. Relevant once a sell feature is created
     orphaned_attacks = []
 
@@ -187,13 +200,14 @@ def level_one(window):
     health = 20
     game_paused = True
 
-    level = lvl.Level()
+    level = lvl.Level(level_number)
     wave = 0
     global gold
     time_past = 0
 
     gold = level.starting_gold
-    village = pygame.Rect(level.village[0]*window_width, level.village[1]*window_height, level.village[2], level.village[3])
+    #village = pygame.Rect(level.village[0]*window_width, level.village[1]*window_height, level.village[2], level.village[3])
+    village = pygame.Rect(level.village[0], level.village[1], level.village[2], level.village[3])
     waves = level.waves.copy()
 
     existing_Towers = []
@@ -391,11 +405,17 @@ def main():
     run = True
     while run:
         window.fill((0,0,0))
-        main_menu_font = pygame.font.SysFont("comicsans", 100, bold=True)
+        main_menu_font = pygame.font.SysFont("comicsans", 50, bold=True)
         play_level_one = main_menu_font.render("Play Level One", 1, (255,255,255))
-        window.blit(play_level_one, (250,250))
+        window.blit(play_level_one, (200,250))
+        play_level_two = main_menu_font.render("Play Level Two", 1, (255, 255, 255))
+        window.blit(play_level_two, (550, 250))
+        play_level_three = main_menu_font.render("Play Level Three", 1, (255, 255, 255))
+        window.blit(play_level_three, (200, 550))
 
-        level_one_button = pygame.Rect(250, 250, 500, 250)
+        level_one_button = pygame.Rect(150, 250, 300, 250)
+        level_two_button = pygame.Rect(500, 250, 300, 250)
+        level_three_button = pygame.Rect(150, 550, 300, 250)
         
 
 
@@ -407,6 +427,10 @@ def main():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_position = event.pos
                 if level_one_button.collidepoint(mouse_position):
-                    level_one(window) 
+                    play_level(window, 1) 
+                elif level_two_button.collidepoint(mouse_position):
+                    play_level(window, 2)
+                elif level_three_button.collidepoint(mouse_position):
+                    play_level(window, 3)
                     
 main()

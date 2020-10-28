@@ -57,8 +57,10 @@ class Creature():
                 if y_diff > 0:
                     self.y += self.move_speed
                 else:
-                    self.y -= self. move_speed
+                    self.y -= self.move_speed
             else:
+                self.x = self.path[-1][0]
+                self.y = self.path[-1][1]
                 self.path.pop()
         
 class Skeleton(Creature):
@@ -71,4 +73,12 @@ class Skeleton(Creature):
     life_damage = 1
     value = 10
 
-        
+class Troll(Creature):
+    L0_Path = image_path + "L0Troll.gif"
+    maxhealth = 500
+    health = 500
+    attack = 50
+    move_speed = 1
+    foe = True
+    life_damage = 10
+    value = 100
