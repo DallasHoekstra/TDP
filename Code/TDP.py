@@ -208,6 +208,13 @@ def play_level(window, level_number):
     game_end_font = pygame.font.SysFont("comicsans", 80, bold=True)
     settings_menu_font = pygame.font.SysFont("comicsans", 40, bold=True)
 
+    wave_timer = 0
+    wave = 0
+    global gold
+    existing_Towers = []
+    existing_Creatures = []
+    time_past = 0
+
     # FOR FUTURE: clean up attack handling so that orphaned attacks don't occur. Relevant once a sell feature is created
     orphaned_attacks = []
 
@@ -215,18 +222,15 @@ def play_level(window, level_number):
     health = 20
     game_paused = True
 
-    level = lvl.Level(level_number)
-    wave = 0
-    global gold
-    time_past = 0
 
+    # Initialize level
+    level = lvl.Level(level_number)
     gold = level.starting_gold
-    #village = pygame.Rect(level.village[0]*window_width, level.village[1]*window_height, level.village[2], level.village[3])
     village = pygame.Rect(level.village[0], level.village[1], level.village[2], level.village[3])
     waves = level.waves.copy()
+    wave_timer = waves[wave][0]*framerate
 
-    existing_Towers = []
-    existing_Creatures = []
+
 
     while run:
 
@@ -237,7 +241,9 @@ def play_level(window, level_number):
         # If the game is paused, then the drawing functions should continue but movement/projectiles/etc should not
         if not game_paused:
             time_past += 1
+            wave_timer -= 1
             clock.tick(framerate)
+            
 
             # Manage creature functions: death, movement, attacking village
             for creature in existing_Creatures:
@@ -270,9 +276,11 @@ def play_level(window, level_number):
 
             # Handle wave spawning
             if wave <= (len(waves) - 1):
-                if waves[wave][0]*framerate < time_past:
+                if wave_timer <= 0:
                     spawn_Creatures(waves[wave][1], waves[wave][2], waves[wave][3], waves[wave][4], existing_Creatures) 
-                    wave += 1
+                    if wave < (len(waves) - 1):
+                        wave += 1
+                        wave_timer = waves[wave][0]*framerate
             elif len(existing_Creatures) <= 0 and health > 0:
                 victory = True
                 run = False
@@ -387,7 +395,10 @@ def play_level(window, level_number):
                                     game_paused = True
                                 if kind == "CallWave":
                                     if wave <= (len(waves) - 1):
-                                        time_past = waves[wave][0]*framerate + 1
+                                        spawn_Creatures(waves[wave][1], waves[wave][2], waves[wave][3], waves[wave][4], existing_Creatures) 
+                                        wave += 1
+                                        if wave <= (len(waves) - 1):
+                                            wave_timer = waves[wave][0]*framerate
                 elif settings_menu_open == True:
                     if return_to_game_button.collidepoint(mouse_position):
                         settings_menu_open = False
