@@ -76,15 +76,14 @@ class Fire_Tower(Tower):
 
     # Attack objects are centered on the tower and the attack functionality is carried out by the tower
     def attack(self, existing_Creatures, timestamp):
-        if len(existing_Creatures) > 0:
-            for attack_object in self.attack_objects:
-                for creature in existing_Creatures:
-                    if math.sqrt(math.pow((creature.x - attack_object.x), 2) + math.pow((creature.y - attack_object.y), 2)) < attack_object.range_:                    
-                        self.attack_objects.append(Fire_Attack(self.x, self.y, self.range_, self.damage, self.damage_type))
-                        for attack in self.attack_objects:
-                            attack.hit(creature)
-                            attack.remove_attack = True
-                        self.last_attack = timestamp
+        if len(existing_Creatures) > 0:            
+            for creature in existing_Creatures:
+                if math.sqrt(math.pow((creature.x - self.x), 2) + math.pow((creature.y - self.y), 2)) < self.range_:                    
+                    self.attack_objects.append(Fire_Attack(self.x, self.y, self.range_, self.damage, self.damage_type))
+                    for attack in self.attack_objects:
+                        attack.hit(creature)
+                        attack.remove_attack = True
+                    self.last_attack = timestamp
                 
 class Ice_Tower(Tower):
     L0_path = image_path + "IceTowerL0.gif"
