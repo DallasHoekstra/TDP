@@ -4,6 +4,7 @@ import creature as crt
 import math
 import time
 import level as lvl
+import experiment
 # FOR FUTURE: add option to alter the framerate? Reasons?
 framerate = 60
 
@@ -214,7 +215,7 @@ def play_level(window, level_number):
     existing_Towers = []
     existing_Creatures = []
     time_past = 0
-
+    experiment_object = experiment.PygameListener()
     # FOR FUTURE: clean up attack handling so that orphaned attacks don't occur. Relevant once a sell feature is created
     orphaned_attacks = []
 
@@ -364,7 +365,8 @@ def play_level(window, level_number):
 
 
         # Event triggers
-        for event in pygame.event.get():
+        #for event in pygame.event.get():
+        for event in experiment_object.get_pygame_events():
             if event.type == pygame.QUIT:
                 run = False
             if event.type == pygame.MOUSEBUTTONDOWN:
