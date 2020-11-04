@@ -1,19 +1,22 @@
-import entity
+import math
 
-class Tower(entity.Entity):
-
+class Entity():
     x, y = 0,0
     max_health = 0
     current_health = 0
     name = ""
     range_ = 0
-    foe = False
-    image_postfix = ""
-    
+    foe = True
+    image_path = ""
+
     def __init__(self, position):
         self.status_affects = []
         self.x, self.y = position[0], position[1]
-        self.current_health = self.max_health
+
+    def target(self, entities):
+        for entity in entities:
+            if (math.sqrt(pow((entity.x - self.x), 2) + pow((entity.y - self.y), 2)) < self.range_):
+                return entity
 
     def attack(self):
         pass
@@ -36,26 +39,15 @@ class Tower(entity.Entity):
     def change_health(self, number):
         pass
 
+    def draw(self):
+        return (self.image_path, (self.x, self.y))
+
     def spawn(self):
         pass
 
     def despawn(self):
         pass
 
+    def isFoe(self):
+        return self.foe
 
-class Fire_Tower(Tower):
-    max_health = 100
-    name = "FIRE_TOWER"
-    range_ = 100
-
-    def __init__(self, position):
-        self.current_health = self.max_health
-        self.status_affects = []
-        self.x, self.y = position[0], position[1]
-
-
-
-
-# class ice_tower(tower):
-
-# class arrow_tower(tower):
