@@ -7,8 +7,10 @@ import gameclock as gc
 import main
 import entity
 import tower
+import level
 
 
+# Game Clock Tests
 def test_initialize_game_clock():
     fps = 60
     game_clock_1 = gc.GameClock(fps)
@@ -45,7 +47,7 @@ def test_fps_can_be_changed_multiple_times():
 
 
 
-
+# Tower Tests
 def test_entity_uses_proper_GUI_formatting():
     test_entity = entity.Entity((100,200))
     image_path, position = test_entity.draw()
@@ -84,5 +86,27 @@ def test_entity_targets_first_within_range_by_default():
 
 
 
+# Main Tests
+@pytest.mark.parametrize("kind, position, type_", [("Fire_Tower", (100, 100), tower.Fire_Tower), 
+                                                    ("Ice_Tower", (200, 200), tower.Ice_Tower),
+                                                     ("Arrow_Tower", (300, 300), tower.Arrow_Tower)])
+def test_purchase_tower_type_creates_tower_type(kind, position, type_):
+    test_level = level.Level(1)
+
+    main.purchase_tower(test_level, kind, position)
+    assert isinstance(test_level.existing_towers[0], type_)
+
+def test_purchase_tower_type_prevents_colliding_tower_placement():
+    test_level = level.Level(1)
+    
+    kind = "Fire_Tower"
+    position = (100, 100)
+    main.purchase_tower(test_level, kind, position)
+
+    kind = "Ice_Tower"
+    position = (120, 120)
+    main.purchase_tower(test_level, kind, position)
+
+    assert len(test_level.existing_towers) == 1
 
 

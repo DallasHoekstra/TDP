@@ -5,7 +5,7 @@ import time
 import level as lvl
 import GUI
 import gameclock as gc
-
+import tower
 
 
 
@@ -16,16 +16,15 @@ def play_level(level_number, display):
     clock = gc.GameClock(fps)
     score = 0
     game_paused = False
+    tower_selection = ""
+    tower_names = ["Fire", "Ice", "Arrow"]
+    selection_location = (0,0)
 
     
     while run:
-        
+
         clock.tick()
-        update_screen(level, display)
-
-        
-
-
+    
         if game_paused == False:
             pass
         #   is it time to spawn a wave
@@ -45,31 +44,90 @@ def play_level(level_number, display):
         
         # draw combat interface
         display.draw_screen()
+        update_screen(level, display)
 
         user_input = get_user_input(display, "level")
         if user_input == False:
             return False
-
+        if user_input in tower_names:
+            tower_purchase_selection = user_input
+        if isinstance(user_input, tuple):
+            selection_location = user_input
     return (score)
+
+
+
+
+def purchase_tower(level, kind, position):
+    new_tower = None
+    if kind == "Fire_Tower":
+        new_tower = tower.Fire_Tower(position)
+    elif kind == "Ice_Tower":
+        new_tower = tower.Ice_Tower(position)
+    elif kind == "Arrow_Tower":
+        new_tower = tower.Arrow_Tower(position)
+    if len(level.existing_towers) > 0:
+            for existing_tower in level.existing_towers:
+                if existing_tower.collision(new_tower):
+                    new_tower = None
+                else:
+                    level.existing_towers.append(new_tower)
+    else:
+        level.existing_towers.append(new_tower)
+
+def sell_tower(level):
+    pass
+
+
+
 
 def update_screen(level, display):
     display.draw_image(level.draw_background())
     display.draw_image(level.draw_village())
 
     for creature in level.existing_creatures:
-        creature.draw()
+        display.draw_image(creature.draw())
     for tower in level.existing_towers:
-        tower.draw()
+        display.draw_image(tower.draw())
     for attack in level.existing_attacks:
-        attack.draw()
-    
+        display.draw_image(attack.draw())
+
+    # Call for creature attacks
+    # Call for creature deaths
+
+    # Draw prospective purchased tower
+
+
+    # if # game is over
+    #     if # ended in victory:
+    #         win_text = self.game_end_font.render("Victory", 1, (0, 255, 0))
+    #         self.window.blit(win_text, (int(self.window_width/2 - win_text.get_width()/2), int(self.window_height/2 - win_text.get_height()/2) ))
+    #     else: # ended in defeat
+    #         loss_text = self.game_end_font.render("Your village has fallen!", 1, (255, 0, 0))
+    #         self.window.blit(loss_text, (150, int(window_height/2) - 50))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 def get_user_input(display, caller):
     if caller == "level":
         user_input = display.return_user_input("level")
         if user_input == "QUIT":
             return exit_to_os(display)
-        #elif user_input == :
+        else:
+            return user_input
 
     if caller == "main":
         user_input = display.return_user_input("main")
@@ -105,4 +163,3 @@ def main():
             # save the score to a file
 
 
-main()

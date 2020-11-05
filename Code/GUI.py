@@ -63,6 +63,7 @@ class TDDisplay():
                         if button_tuple[0].collidepoint(mouse_position):
                             print(button_tuple[2])
                             return button_tuple[2]
+                    return mouse_position
 
             
             # MOUSE BUTTON events
@@ -192,30 +193,7 @@ class TDDisplay():
             displaytext = self.combat_interface_font.render(fulltext, 1, color)
             self.window.blit(displaytext, position)
 
-        # Draw the towers and the projectiles/attacks
-        # Call for tower positions
-        # Call for tower attacks
-        # Call for attack positions
-        # Call for attack hits
 
-        # Draw the village
-        # pygame.draw.rect(self.window, (128,128,128), village)
-
-        # Draw the creatures
-        # Call for creature positions
-        # Call for creature attacks
-        # Call for creature deaths
-
-        # Draw prospective purchased tower
-        # Call for whether tower purchase is a thing
-
-        # if # game is over
-        #     if # ended in victory:
-        #         win_text = self.game_end_font.render("Victory", 1, (0, 255, 0))
-        #         self.window.blit(win_text, (int(self.window_width/2 - win_text.get_width()/2), int(self.window_height/2 - win_text.get_height()/2) ))
-        #     else: # ended in defeat
-        #         loss_text = self.game_end_font.render("Your village has fallen!", 1, (255, 0, 0))
-        #         self.window.blit(loss_text, (150, int(window_height/2) - 50))
 
         pygame.display.update()
 

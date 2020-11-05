@@ -9,6 +9,8 @@ class Tower(entity.Entity):
     range_ = 0
     foe = False
     image_postfix = ""
+    width = 40
+    height = 42
     
     def __init__(self, position):
         self.status_affects = []
@@ -53,9 +55,22 @@ class Fire_Tower(Tower):
         self.status_affects = []
         self.x, self.y = position[0], position[1]
 
+class Ice_Tower(Tower):
+    max_health = 100
+    name = "Ice_Tower"
+    range_ = 300
 
+    def __init__(self, position):
+        self.current_health = self.max_health
+        self.status_affects = []
+        self.x, self.y = position[0], position[1]
 
+class Arrow_Tower(Tower):
+    max_health = 100
+    name = "Arrow_Tower"
+    range_ = 500
 
-# class ice_tower(tower):
-
-# class arrow_tower(tower):
+    def __init__(self, position):
+        self.current_health = self.max_health
+        self.status_affects = []
+        self.x, self.y = position[0], position[1]

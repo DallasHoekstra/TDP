@@ -8,6 +8,9 @@ class Entity():
     range_ = 0
     foe = True
     image_path = ""
+    width = 0
+    height = 0
+
 
     def __init__(self, position):
         self.status_affects = []
@@ -47,6 +50,14 @@ class Entity():
 
     def despawn(self):
         pass
+
+    def collision(self, collidee):
+        x_diff = abs(self.x - collidee.x)
+        y_diff = abs(self.y - collidee.y)
+        if min(self.width, collidee.width) > x_diff or min(self.height, collidee.height) > y_diff:
+            return True
+        else:
+            return False
 
     def isFoe(self):
         return self.foe

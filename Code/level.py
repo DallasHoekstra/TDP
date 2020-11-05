@@ -1,6 +1,7 @@
 class Level():
     background_image = ""
     starting_gold = 0
+    current_gold = 0
     window_width = 1000
     window_height = 800
     village_postfix = "L0_Village.jpg"
