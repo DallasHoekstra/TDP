@@ -107,6 +107,10 @@ def test_purchase_tower_type_prevents_colliding_tower_placement():
     position = (120, 120)
     main.purchase_tower(test_level, kind, position)
 
-    assert len(test_level.existing_towers) == 1
+    kind = "Arrow_Tower"
+    position = (120, 400)
+    main.purchase_tower(test_level, kind, position)
+
+    assert len(test_level.existing_towers) == 2
 
 

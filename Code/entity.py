@@ -54,7 +54,7 @@ class Entity():
     def collision(self, collidee):
         x_diff = abs(self.x - collidee.x)
         y_diff = abs(self.y - collidee.y)
-        if min(self.width, collidee.width) > x_diff or min(self.height, collidee.height) > y_diff:
+        if min(self.width, collidee.width) > x_diff and min(self.height, collidee.height) > y_diff:
             return True
         else:
             return False
