@@ -43,9 +43,16 @@ class Level():
             self.waves = [(5, "Skeleton", 10, self.spawn_points[1], self.enemy_paths[1]), (1, "Troll", 2, self.spawn_points[0], self.enemy_paths[0]), 
                                 (20, "Skeleton", 20, self.spawn_points[0], self.enemy_paths[0]), (30, "Skeleton", 40, self.spawn_points[1], self.enemy_paths[1]),
                                 (35, "Skeleton", 40, self.spawn_points[1], self.enemy_paths[1]), (45, "Troll", 10, self.spawn_points[0], self.enemy_paths[0])]
+        self.current_gold = self.starting_gold
 
     def draw_background(self):
         return (self.background_image, (0,0))
     
     def draw_village(self, window_width, window_height):
         return(self.village_postfix, (self.village[0]*window_width, self.village[1]*window_height))
+
+    def get_current_gold(self):
+        return self.current_gold
+
+    def reduce_gold_by(self, quantity):
+        self.current_gold -= quantity

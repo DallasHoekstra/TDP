@@ -44,7 +44,11 @@ def test_fps_can_be_changed_multiple_times():
     game_clock.set_fps(fps_60)
     assert game_clock.get_fps() == 60
 
-
+def test_clock_converts_current_time_to_seconds():
+    clock = gc.GameClock(60)
+    time = clock.get_current_time()
+    time_in_seconds = clock.in_seconds(time)
+    assert isinstance(time_in_seconds, int)
 
 
 # Tower Tests
@@ -112,5 +116,32 @@ def test_purchase_tower_type_prevents_colliding_tower_placement():
     main.purchase_tower(test_level, kind, position)
 
     assert len(test_level.existing_towers) == 2
+
+def test_level_loads_correct_amount_of_gold():
+    test_level_1 = level.Level(1)
+    test_level_2 = level.Level(2)
+    
+    assert test_level_1.get_current_gold() == 2000
+    assert test_level_2.get_current_gold() == 3000
+
+@pytest.mark.parametrize("kind, position", [("Fire_Tower", (100, 100)), ("Ice_Tower", (200, 200)),
+                                                     ("Arrow_Tower", (300, 300))])
+def test_cannot_purchase_without_gold(kind, position):
+    test_level = level.Level(1)
+    test_level.current_gold = 0
+
+    main.purchase_tower(test_level, kind, position)
+    assert len(test_level.existing_towers) == 0
+
+@pytest.mark.parametrize("kind, position", [("Fire_Tower", (100, 100)), ("Ice_Tower", (200, 200)),
+                                                     ("Arrow_Tower", (300, 300))])
+def test_purchase_reduces_player_gold_by_tower_cost(kind, position):
+    test_level = level.Level(1)
+    gold_before_purchase = test_level.get_current_gold()
+
+    main.purchase_tower(test_level, kind, position)
+
+    gold_after_purchase = test_level.get_current_gold()
+    assert gold_before_purchase == gold_after_purchase + test_level.existing_towers[0].get_value()
 
 

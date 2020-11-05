@@ -1,7 +1,7 @@
 import entity
 
 class Tower(entity.Entity):
-
+    cost = 0
     x, y = 0,0
     max_health = 0
     current_health = 0
@@ -44,8 +44,11 @@ class Tower(entity.Entity):
     def despawn(self):
         pass
 
+    def get_value(self):
+        return self.cost
 
 class Fire_Tower(Tower):
+    cost = 100
     max_health = 100
     name = "FIRE_TOWER"
     image_postfix = "FireTowerL0.gif"
@@ -56,7 +59,9 @@ class Fire_Tower(Tower):
         self.status_affects = []
         self.x, self.y = position[0], position[1]
 
+
 class Ice_Tower(Tower):
+    cost = 150
     max_health = 100
     name = "Ice_Tower"
     image_postfix = "IceTowerL0.gif"
@@ -68,6 +73,7 @@ class Ice_Tower(Tower):
         self.x, self.y = position[0], position[1]
 
 class Arrow_Tower(Tower):
+    cost = 150
     max_health = 100
     name = "Arrow_Tower"
     image_postfix = "ArrowTowerL0.gif"

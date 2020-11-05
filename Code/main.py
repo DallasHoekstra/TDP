@@ -19,6 +19,7 @@ def play_level(level_number, display):
     tower_purchase_selection = ""
     tower_names = ["Fire_Tower", "Ice_Tower", "Arrow_Tower"]
     selection_location = (0,0)
+    wave = 0
 
     
     while run:
@@ -43,8 +44,9 @@ def play_level(level_number, display):
         # 
         
         # draw combat interface
-        display.draw_screen()
-        update_screen(level, display)
+
+        time = clock.in_seconds(clock.get_current_time())
+        update_screen(level, display, time, wave)
 
         user_input = get_user_input(display, "level")
         if user_input == False:
@@ -69,6 +71,12 @@ def purchase_tower(level, kind, position):
         new_tower = tower.Ice_Tower(position)
     elif kind == "Arrow_Tower":
         new_tower = tower.Arrow_Tower(position)
+
+    if level.get_current_gold() >= new_tower.get_value():
+        level.reduce_gold_by(new_tower.get_value())
+    else:
+        new_tower = None
+
     if len(level.existing_towers) > 0:
             for existing_tower in level.existing_towers:
                 if existing_tower.collision(new_tower):
@@ -82,8 +90,10 @@ def sell_tower(level):
 
 
 
-def update_screen(level, display):
+def update_screen(level, display, time, wave):
+    
     display.draw_image(level.draw_background())
+    display.draw_screen()
     display.draw_image(level.draw_village(display.window_width, display.window_height))
 
     for creature in level.existing_creatures:
@@ -92,6 +102,9 @@ def update_screen(level, display):
         display.draw_image(tower.draw())
     for attack in level.existing_attacks:
         display.draw_image(attack.draw())
+
+    gold = level.get_current_gold()
+    display.update_level_data_container(gold, time, wave)
 
     # Call for creature attacks
     # Call for creature deaths

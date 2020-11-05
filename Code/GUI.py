@@ -94,6 +94,15 @@ class TDDisplay():
             #         # Call open menu
     # Call when window is resized to adjust 
 
+
+
+
+
+
+
+
+
+
     def create_combat_interface(self): 
 
         self.window_width, self.window_height = self.window.get_size()
@@ -128,7 +137,7 @@ class TDDisplay():
 
         text_Container = []
         for counter in range(len(text_Positions)):
-            text_Container.append((text_Positions[counter], text_Values[counter], text_Colors[counter]))
+            text_Container.append([text_Positions[counter], text_Values[counter], text_Colors[counter]])
 
         # Game flow control container
         control_start = container_dimensions[2]
@@ -150,6 +159,14 @@ class TDDisplay():
 
         return (self.combat_interface_font, text_Container, control_Container, purchase_Container, health_Container)
 
+
+
+
+
+
+
+
+
     def create_main_menu(self):
     
         play_level_one = self.main_menu_font.render("Play Level One", 1, (255,255,255))
@@ -167,19 +184,30 @@ class TDDisplay():
         return [(level_one_button, level_one_text, 1), (level_two_button, level_two_text, 2), (level_three_button, level_three_text, 3)]
 
 
+
+    def update_level_data_container(self, gold, time, wave):
+        self.combat_interface[1][0][1] = "Gold: " + str(gold)
+        self.combat_interface[1][1][1] = "Time: " + str(time)
+        self.combat_interface[1][2][1] = "Wave: " + str(wave)
+
+
+
+
+
+
+
     def draw_screen(self):
 
-        # background_image = # background image from level
-
         # Draw the tower purchase container
-        
         for button, image, kind in self.combat_interface[3]:
             pygame.draw.rect(self.window, (0,0,0), button)
             self.window.blit(image, (button[0], button[1]))
         
         # Draw the wave data container
-        #wave_data = # Call gold, time_past, wave (gold, time_past//framerate, wave)
-        i = 0
+        for position, text, color in self.combat_interface[1]:
+            rendered_text = self.combat_interface_font.render(text, 1, color)
+            self.window.blit(rendered_text, position)
+        
         #for position, text, color in self.combat_interface[1]:
             # text = self.combat_interface_font.render(text + str(wave_data[i]), 1, color)
             # self.window.blit(text, position)
@@ -195,10 +223,14 @@ class TDDisplay():
             fulltext = text + str(20) # Call health
             displaytext = self.combat_interface_font.render(fulltext, 1, color)
             self.window.blit(displaytext, position)
-
-
-
         pygame.display.update()
+
+
+
+
+
+
+
 
     def draw_settings_menu(self):
         # Open the settings menu
