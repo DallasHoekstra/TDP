@@ -7,7 +7,7 @@ class Entity():
     name = ""
     range_ = 0
     foe = True
-    image_path = ""
+    image_postfix = ""
     width = 0
     height = 0
 
@@ -43,7 +43,7 @@ class Entity():
         pass
 
     def draw(self):
-        return (self.image_path, (self.x, self.y))
+        return (self.image_postfix, (self.x, self.y))
 
     def spawn(self):
         pass

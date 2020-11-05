@@ -54,6 +54,9 @@ class TDDisplay():
                     for button, _, tower_name in self.combat_interface[3]:
                         if button.collidepoint(mouse_position):
                             return tower_name
+                    return mouse_position
+
+
             elif caller == "main":
                 if event.type == pygame.QUIT:
                     return "QUIT"
@@ -63,7 +66,7 @@ class TDDisplay():
                         if button_tuple[0].collidepoint(mouse_position):
                             print(button_tuple[2])
                             return button_tuple[2]
-                    return mouse_position
+                    
 
             
             # MOUSE BUTTON events
@@ -102,13 +105,13 @@ class TDDisplay():
         # Tower purchasing buttons
         tower_start = container_dimensions[0]
         fire_tower_image = pygame.image.load(self.image_path + "FireTowerL0.gif")
-        fire_tower_button = (pygame.Rect(tower_start[0] + 10, tower_start[1] + 10, fire_tower_image.get_width(), fire_tower_image.get_height()), fire_tower_image, "Fire")
+        fire_tower_button = (pygame.Rect(tower_start[0] + 10, tower_start[1] + 10, fire_tower_image.get_width(), fire_tower_image.get_height()), fire_tower_image, "Fire_Tower")
 
         ice_tower_image = pygame.image.load(self.image_path + "IceTowerL0.gif")
-        ice_tower_button = (pygame.Rect(tower_start[0] + 10, tower_start[1] + 60, ice_tower_image.get_width(), ice_tower_image.get_height()), ice_tower_image, "Ice")
+        ice_tower_button = (pygame.Rect(tower_start[0] + 10, tower_start[1] + 60, ice_tower_image.get_width(), ice_tower_image.get_height()), ice_tower_image, "Ice_Tower")
 
         arrow_tower_image = pygame.image.load(self.image_path + "ArrowTowerL0.gif")
-        arrow_tower_button = (pygame.Rect(tower_start[0] + 10, tower_start[1] + 110, arrow_tower_image.get_width(), arrow_tower_image.get_height()), arrow_tower_image, "Arrow")
+        arrow_tower_button = (pygame.Rect(tower_start[0] + 10, tower_start[1] + 110, arrow_tower_image.get_width(), arrow_tower_image.get_height()), arrow_tower_image, "Arrow_Tower")
 
         sell_image = pygame.image.load(self.image_path + "Sell.gif")
         sell_button = (pygame.Rect(tower_start[0] + 10, tower_start[1] + 160, self.tower_width, self.tower_height), sell_image, "Sell")

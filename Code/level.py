@@ -5,6 +5,7 @@ class Level():
     window_width = 1000
     window_height = 800
     village_postfix = "L0_Village.jpg"
+    village = [.5, .875, 50, 50]
     background_image = "L1_Background.png"
     def __init__(self, level_number):
         self.existing_towers = []
@@ -13,7 +14,6 @@ class Level():
         if level_number == 1:
             self.starting_gold = 2000
             self.spawn_points = [(720, 10), (140, 10)]
-            self.village = [.5*self.window_width, .875*self.window_height, 50, 50]
             self.enemy_paths = [[(int(self.village[0] + 25), int(self.village[1] + 25)), (475, 660), (450, 625), (425, 590), 
                                     (400, 540), (445, 520), (490, 490), (565, 430), (650, 360), (775, 285), (700, 285), (615, 255), (585,225), (585,155), (725, 130)], 
                                 [(int(self.village[0] + 25), int(self.village[1] + 25)), (475, 660), (450, 625), (425, 590), 
@@ -24,7 +24,6 @@ class Level():
         elif level_number == 2:
             self.starting_gold = 3000
             self.spawn_points = [(720, 10), (140, 10)]
-            self.village = [.5*self.window_width, .875*self.window_height, 50, 50]
             self.enemy_paths = [[(int(self.village[0] + 25), int(self.village[1] + 25)), (475, 660), (450, 625), (425, 590), 
                                         (400, 540), (445, 520), (490, 490), (565, 430), (650, 360), (775, 285), (700, 285), (615, 255), (585,225), (585,155), (725, 130)], 
                                 [(int(self.village[0] + 25), int(self.village[1] + 25)), (475, 660), (450, 625), (425, 590), 
@@ -36,7 +35,6 @@ class Level():
         elif level_number == 3:
             self.starting_gold = 3000
             self.spawn_points = [(720, 10), (140, 10)]
-            self.village = [.5*self.window_width, .875*self.window_height, 50, 50]
             self.enemy_paths = [[(int(self.village[0] + 100), int(self.village[1] + 100)), (475, 660), (450, 625), (425, 590), 
                                         (400, 540), (445, 520), (490, 490), (565, 430), (650, 360), (775, 285), (700, 285), (615, 255), (585,225), (585,155), (725, 130)], 
                                 [(int(self.village[0] + 100), int(self.village[1] + 100)), (475, 660), (450, 625), (425, 590), 
@@ -49,5 +47,5 @@ class Level():
     def draw_background(self):
         return (self.background_image, (0,0))
     
-    def draw_village(self):
-        return(self.village_postfix, (self.village[0], self.village[1]))
+    def draw_village(self, window_width, window_height):
+        return(self.village_postfix, (self.village[0]*window_width, self.village[1]*window_height))

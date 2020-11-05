@@ -48,6 +48,7 @@ class Tower(entity.Entity):
 class Fire_Tower(Tower):
     max_health = 100
     name = "FIRE_TOWER"
+    image_postfix = "FireTowerL0.gif"
     range_ = 100
 
     def __init__(self, position):
@@ -58,6 +59,7 @@ class Fire_Tower(Tower):
 class Ice_Tower(Tower):
     max_health = 100
     name = "Ice_Tower"
+    image_postfix = "IceTowerL0.gif"
     range_ = 300
 
     def __init__(self, position):
@@ -68,6 +70,7 @@ class Ice_Tower(Tower):
 class Arrow_Tower(Tower):
     max_health = 100
     name = "Arrow_Tower"
+    image_postfix = "ArrowTowerL0.gif"
     range_ = 500
 
     def __init__(self, position):

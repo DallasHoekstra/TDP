@@ -16,8 +16,8 @@ def play_level(level_number, display):
     clock = gc.GameClock(fps)
     score = 0
     game_paused = False
-    tower_selection = ""
-    tower_names = ["Fire", "Ice", "Arrow"]
+    tower_purchase_selection = ""
+    tower_names = ["Fire_Tower", "Ice_Tower", "Arrow_Tower"]
     selection_location = (0,0)
 
     
@@ -53,6 +53,9 @@ def play_level(level_number, display):
             tower_purchase_selection = user_input
         if isinstance(user_input, tuple):
             selection_location = user_input
+            if tower_purchase_selection != "":
+                purchase_tower(level, tower_purchase_selection, selection_location)
+                tower_purchase_selection = ""
     return (score)
 
 
@@ -70,9 +73,7 @@ def purchase_tower(level, kind, position):
             for existing_tower in level.existing_towers:
                 if existing_tower.collision(new_tower):
                     new_tower = None
-                else:
-                    level.existing_towers.append(new_tower)
-    else:
+    if isinstance(new_tower, tower.Tower):
         level.existing_towers.append(new_tower)
 
 def sell_tower(level):
@@ -83,7 +84,7 @@ def sell_tower(level):
 
 def update_screen(level, display):
     display.draw_image(level.draw_background())
-    display.draw_image(level.draw_village())
+    display.draw_image(level.draw_village(display.window_width, display.window_height))
 
     for creature in level.existing_creatures:
         display.draw_image(creature.draw())
@@ -163,3 +164,4 @@ def main():
             # save the score to a file
 
 
+main()
