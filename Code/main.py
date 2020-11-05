@@ -73,7 +73,7 @@ def purchase_tower(level, kind, position):
             for existing_tower in level.existing_towers:
                 if existing_tower.collision(new_tower):
                     new_tower = None
-    if isinstance(new_tower, tower.Tower):
+    if new_tower is not None:
         level.existing_towers.append(new_tower)
 
 def sell_tower(level):
