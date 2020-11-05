@@ -32,6 +32,7 @@ class TDDisplay():
         self.combat_interface_font = pygame.font.SysFont("comicsans", 20, bold=True)
         self.game_end_font = pygame.font.SysFont("comicsans", 80, bold=True)
         self.settings_menu_font = pygame.font.SysFont("comicsans", 40, bold=True)
+        self.main_menu_font = pygame.font.SysFont("comicsans", 50, bold=True)
 
         # Purchase Container, Wave Info Container, Play/Pause Container, Health Container
         # (start_x, start_y, %window_width_to_right, %window_height_down)
@@ -39,9 +40,56 @@ class TDDisplay():
         self.container_dimensions_percent = [(0, 0, .1, .33), (.25, 0, .5, .05), (.95, 0, .05, .05), (.5, .95, .1, .05)]
 
         self.combat_interface = self.create_combat_interface()
+        self.main_menu = self.create_main_menu()
+        #self.settings_menu = self.create_settings_menu()
 
+    def return_user_input(self, caller):
+        # Event triggers
+        for event in pygame.event.get():
+            if caller == "level":
+                if event.type == pygame.QUIT:
+                    return "QUIT"
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    mouse_position = event.pos
+                    for button, _, tower_name in self.combat_interface[3]:
+                        if button.collidepoint(mouse_position):
+                            return tower_name
+            elif caller == "main":
+                if event.type == pygame.QUIT:
+                    return "QUIT"
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    mouse_position = event.pos
+                    for button_tuple in self.main_menu:
+                        if button_tuple[0].collidepoint(mouse_position):
+                            print(button_tuple[2])
+                            return button_tuple[2]
 
+            
+            # MOUSE BUTTON events
+            # if event.type == pygame.MOUSEBUTTONDOWN:
+            #     mouse_position = event.pos
+        
+                # Check to see if player is using combat interface
+                # for button, _, kind in combat_interface[3]:
+                #     if button.collidepoint(mouse_position):
+                        # call attempting to purchase
+
+                # Check to see if player is using game control interface
+                # for button, _, kind in combat_interface[2]:
+                #     if button.collidepoint(mouse_position):
+                #         if kind == "PLAY":
+                #             # call game play
+                #         elif kind == "PAUSE":
+                #             # call game pause
+                #         if kind == "CallWave":
+                #             if wave <= (len(waves) - 1):
+                #             # call next wave
+            # KEYBOARD events  
+            # if event.type == pygame.KEYDOWN:
+            #     if event.key == pygame.K_ESCAPE:
+            #         # Call open menu
     # Call when window is resized to adjust 
+
     def create_combat_interface(self): 
 
         self.window_width, self.window_height = self.window.get_size()
@@ -97,6 +145,22 @@ class TDDisplay():
         health_Container = [((health_start[0] + 10, health_start[1] + 10), "Health: ", (255, 0, 0))]
 
         return (self.combat_interface_font, text_Container, control_Container, purchase_Container, health_Container)
+
+    def create_main_menu(self):
+    
+        play_level_one = self.main_menu_font.render("Play Level One", 1, (255,255,255))
+        level_one_text = (play_level_one, (200,250))
+        level_one_button = pygame.Rect(150, 250, 300, 250)
+        
+        play_level_two = self.main_menu_font.render("Play Level Two", 1, (255, 255, 255))
+        level_two_text = (play_level_two, (550, 250))
+        level_two_button = pygame.Rect(500, 250, 300, 250)
+
+        play_level_three = self.main_menu_font.render("Play Level Three", 1, (255, 255, 255))
+        level_three_text = (play_level_three, (200, 550))
+        level_three_button = pygame.Rect(150, 550, 300, 250)
+        
+        return [(level_one_button, level_one_text, 1), (level_two_button, level_two_text, 2), (level_three_button, level_three_text, 3)]
 
 
     def draw_screen(self):
@@ -155,39 +219,6 @@ class TDDisplay():
 
         pygame.display.update()
 
-        # Event triggers
-        for event in pygame.event.get():
-            #if event.type == pygame.QUIT:
-                # Call run = false
-
-            # MOUSE BUTTON events
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                mouse_position = event.pos
-        
-                # Check to see if player is using combat interface
-                # for button, _, kind in combat_interface[3]:
-                #     if button.collidepoint(mouse_position):
-                        # call attempting to purchase
-
-                # Check to see if player is using game control interface
-                # for button, _, kind in combat_interface[2]:
-                #     if button.collidepoint(mouse_position):
-                #         if kind == "PLAY":
-                #             # call game play
-                #         elif kind == "PAUSE":
-                #             # call game pause
-                #         if kind == "CallWave":
-                #             if wave <= (len(waves) - 1):
-                #             # call next wave
-            # KEYBOARD events  
-            # if event.type == pygame.KEYDOWN:
-            #     if event.key == pygame.K_ESCAPE:
-            #         # Call open menu
-            
-
-        
-
-
     def draw_settings_menu(self):
         # Open the settings menu
         # Create the settings menu buttons
@@ -209,40 +240,13 @@ class TDDisplay():
         # elif return_to_main_menu_button.collidepoint(mouse_position):
         #     # return control to main menu
 
-
-
-
+    def draw_main_menu(self):
+        self.window.fill((0,0,0))
+        for _, text, _ in self.main_menu:
+            self.window.blit(text[0], text[1])
+        pygame.display.update()
 
     def draw_image(self, image_data):
         image_filepath_postfix, image_position = image_data
         image = pygame.image.load(self.image_path + image_filepath_postfix)
         self.window.blit(image, image_position)
-
-    def draw_main_menu(self):
-        while True:
-            self.window.fill((0,0,0))
-            main_menu_font = pygame.font.SysFont("comicsans", 50, bold=True)
-            play_level_one = main_menu_font.render("Play Level One", 1, (255,255,255))
-            self.window.blit(play_level_one, (200,250))
-            play_level_two = main_menu_font.render("Play Level Two", 1, (255, 255, 255))
-            self.window.blit(play_level_two, (550, 250))
-            play_level_three = main_menu_font.render("Play Level Three", 1, (255, 255, 255))
-            self.window.blit(play_level_three, (200, 550))
-
-            level_one_button = pygame.Rect(150, 250, 300, 250)
-            level_two_button = pygame.Rect(500, 250, 300, 250)
-            level_three_button = pygame.Rect(150, 550, 300, 250)
-        
-            pygame.display.update()
-
-            for event in pygame.event.get():
-                #if event.type == pygame.QUIT:
-                    # Call exit
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    mouse_position = event.pos
-                    if level_one_button.collidepoint(mouse_position):
-                        return 1
-                    elif level_two_button.collidepoint(mouse_position):
-                        return 2
-                    elif level_three_button.collidepoint(mouse_position):
-                        return 3

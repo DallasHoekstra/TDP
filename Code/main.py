@@ -17,6 +17,7 @@ def play_level(level_number, display):
     score = 0
     game_paused = False
 
+    
     while run:
         
         clock.tick()
@@ -44,24 +45,64 @@ def play_level(level_number, display):
         
         # draw combat interface
         display.draw_screen()
+
+        user_input = get_user_input(display, "level")
+        if user_input == False:
+            return False
+
     return (score)
 
 def update_screen(level, display):
     display.draw_image(level.draw_background())
     display.draw_image(level.draw_village())
-        # draw entities: creatures, towers, bullets, heroes, etc
 
+    for creature in level.existing_creatures:
+        creature.draw()
+    for tower in level.existing_towers:
+        tower.draw()
+    for attack in level.existing_attacks:
+        attack.draw()
+    
 
-        
+def get_user_input(display, caller):
+    if caller == "level":
+        user_input = display.return_user_input("level")
+        if user_input == "QUIT":
+            return exit_to_os(display)
+        #elif user_input == :
+
+    if caller == "main":
+        user_input = display.return_user_input("main")
+        if user_input == "Quit":
+            return exit_to_os(display)
+        else:
+            return user_input
+
+def exit_to_os(display):
+    return False
 
 def main():
     run = True
     display = GUI.TDDisplay()
 
     while run:
-        selection = display.draw_main_menu()
-        score = play_level(selection, display)
-        # save the score to a file
+        result = ""
+        user_input = ""
+        user_input = get_user_input(display, "main")
+
+        if user_input == "QUIT":
+            run = False
+        else:
+            display.draw_main_menu()
+            if user_input != None:
+                result = play_level(user_input, display)
+                user_input = None
+
+        if result == False:
+            run = False
+        else:
+            score = result
+            # save the score to a file
 
 
 main()

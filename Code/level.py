@@ -6,6 +6,9 @@ class Level():
     village_postfix = "L0_Village.jpg"
     background_image = "L1_Background.png"
     def __init__(self, level_number):
+        self.existing_towers = []
+        self.existing_creatures = []
+        self.existing_attacks = []
         if level_number == 1:
             self.starting_gold = 2000
             self.spawn_points = [(720, 10), (140, 10)]
