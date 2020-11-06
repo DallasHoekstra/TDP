@@ -54,5 +54,8 @@ class Level():
     def get_current_gold(self):
         return self.current_gold
 
-    def reduce_gold_by(self, quantity):
+    def decrease_gold_by(self, quantity):
         self.current_gold -= quantity
+
+    def increase_gold_by(self, quantity):
+        self.current_gold += quantity

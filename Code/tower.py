@@ -2,6 +2,7 @@ import entity
 
 class Tower(entity.Entity):
     cost = 0
+    refund_rate = .5
     x, y = 0,0
     max_health = 0
     current_health = 0
@@ -14,7 +15,7 @@ class Tower(entity.Entity):
     
     def __init__(self, position):
         self.status_affects = []
-        self.x, self.y = position[0], position[1]
+        self.x, self.y = int(position[0] - (self.width/2)), int(position[1] - (self.height/2))
         self.current_health = self.max_health
 
     def attack(self):
@@ -57,7 +58,7 @@ class Fire_Tower(Tower):
     def __init__(self, position):
         self.current_health = self.max_health
         self.status_affects = []
-        self.x, self.y = position[0], position[1]
+        self.x, self.y = int(position[0] - (self.width/2)), int(position[1] - (self.height/2))
 
 
 class Ice_Tower(Tower):
@@ -70,7 +71,7 @@ class Ice_Tower(Tower):
     def __init__(self, position):
         self.current_health = self.max_health
         self.status_affects = []
-        self.x, self.y = position[0], position[1]
+        self.x, self.y = int(position[0] - (self.width/2)), int(position[1] - (self.height/2))
 
 class Arrow_Tower(Tower):
     cost = 150
@@ -82,4 +83,4 @@ class Arrow_Tower(Tower):
     def __init__(self, position):
         self.current_health = self.max_health
         self.status_affects = []
-        self.x, self.y = position[0], position[1]
+        self.x, self.y = int(position[0] - (self.width/2)), int(position[1] - (self.height/2))

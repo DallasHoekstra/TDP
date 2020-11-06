@@ -52,12 +52,20 @@ class Entity():
         pass
 
     def collision(self, collidee):
-        x_diff = abs(self.x - collidee.x)
-        y_diff = abs(self.y - collidee.y)
-        if min(self.width, collidee.width) > x_diff and min(self.height, collidee.height) > y_diff:
-            return True
-        else:
-            return False
+        if isinstance(collidee, Entity):
+            x_diff = abs(self.x - collidee.x)
+            y_diff = abs(self.y - collidee.y)
+            if min(self.width, collidee.width) > x_diff and min(self.height, collidee.height) > y_diff:
+                return True
+            else:
+                return False
+        elif isinstance(collidee, tuple):
+            point_x, point_y = collidee
+            if (point_x >= self.x and point_x <= self.x + self.width) and (point_y >= self.y and point_y <= self.y + self.height):
+                return True
+            else:
+                return False
+
 
     def isFoe(self):
         return self.foe

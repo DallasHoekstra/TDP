@@ -51,6 +51,75 @@ def test_clock_converts_current_time_to_seconds():
     assert isinstance(time_in_seconds, int)
 
 
+# Entity Tests
+
+def test_entity_collides_with_entity():
+    position_1 = (100, 100)
+    position_2 = (125, 100)
+    position_3 = (100, 125)
+    position_4 = (150, 150)
+    position_5 = (300, 100)
+    position_6 = (100, 300)
+
+    test_entity_1 = entity.Entity(position_1)
+    test_entity_2 = entity.Entity(position_2)
+    test_entity_3 = entity.Entity(position_3)
+    test_entity_4 = entity.Entity(position_4)
+    test_entity_5 = entity.Entity(position_5)
+    test_entity_6 = entity.Entity(position_6)
+
+    test_entity_1.width = 40
+    test_entity_1.height = 40
+    test_entity_2.width = 40
+    test_entity_2.height = 40
+    test_entity_3.width = 40
+    test_entity_3.height = 40
+    test_entity_4.width = 40
+    test_entity_4.height = 40
+    test_entity_5.width = 40
+    test_entity_5.height = 40
+    test_entity_6.width = 40
+    test_entity_6.height = 40
+
+    assert test_entity_1.collision(test_entity_2) == True
+    assert test_entity_2.collision(test_entity_1) == True
+    assert test_entity_1.collision(test_entity_3) == True
+    assert test_entity_3.collision(test_entity_1) == True
+    assert test_entity_2.collision(test_entity_3) == True
+    assert test_entity_3.collision(test_entity_2) == True
+
+    assert test_entity_1.collision(test_entity_4) == False
+    assert test_entity_4.collision(test_entity_1) == False
+    assert test_entity_2.collision(test_entity_4) == False
+    assert test_entity_4.collision(test_entity_2) == False
+    assert test_entity_3.collision(test_entity_4) == False
+    assert test_entity_4.collision(test_entity_3) == False
+
+    assert test_entity_1.collision(test_entity_5) == False
+    assert test_entity_2.collision(test_entity_5) == False
+    assert test_entity_3.collision(test_entity_5) == False
+    assert test_entity_4.collision(test_entity_5) == False
+    assert test_entity_6.collision(test_entity_5) == False
+
+    assert test_entity_1.collision(test_entity_6) == False
+    assert test_entity_2.collision(test_entity_6) == False
+    assert test_entity_3.collision(test_entity_6) == False
+    assert test_entity_4.collision(test_entity_6) == False
+    assert test_entity_5.collision(test_entity_6) == False
+
+
+@pytest.mark.parametrize("collision_point, result", [((301, 301), True), ((299, 299), False), ((300, 300), True)])
+def test_entity_collision_with_point(collision_point, result):
+    test_entity_position = (300, 300)
+    test_entity = entity.Entity(test_entity_position)
+    test_entity.width = 40
+    test_entity.height = 40
+
+    assert test_entity.collision(collision_point) == result
+    
+    
+
+
 # Tower Tests
 def test_entity_uses_proper_GUI_formatting():
     test_entity = entity.Entity((100,200))
@@ -88,7 +157,22 @@ def test_entity_targets_first_within_range_by_default():
     assert test_targeting_entity.target(test_entities) == test_entities[2]
 
 
+#Level Tests
+def test_gold_can_be_increased():
+    test_level = level.Level(1)
+    initial_gold = test_level.get_current_gold()
+    test_level.increase_gold_by(100)
+    new_gold = test_level.get_current_gold()
 
+    assert new_gold == initial_gold + 100
+
+def test_gold_can_be_decreased():
+    test_level = level.Level(1)
+    initial_gold = test_level.get_current_gold()
+    test_level.decrease_gold_by(100)
+    new_gold = test_level.get_current_gold()
+
+    assert new_gold == initial_gold - 100
 
 # Main Tests
 @pytest.mark.parametrize("kind, position, type_", [("Fire_Tower", (100, 100), tower.Fire_Tower), 
@@ -144,4 +228,27 @@ def test_purchase_reduces_player_gold_by_tower_cost(kind, position):
     gold_after_purchase = test_level.get_current_gold()
     assert gold_before_purchase == gold_after_purchase + test_level.existing_towers[0].get_value()
 
+def test_sell_tower_removes_tower():
+    test_level = level.Level(1)
+    
+    kind = "Fire_Tower"
+    position = (100, 100)
+    main.purchase_tower(test_level, kind, position)
+    main.sell_tower(test_level, test_level.existing_towers[0])
+    assert len(test_level.existing_towers) == 0
 
+def test_sell_refunds_partial_and_only_partial_value_of_tower():
+    test_level = level.Level(1)
+    gold_before_purchase = test_level.get_current_gold()
+
+    kind = "Fire_Tower"
+    position = (100, 100)
+    main.purchase_tower(test_level, kind, position)
+    gold_after_purchase = test_level.get_current_gold()
+
+    test_tower = test_level.existing_towers[0]
+    main.sell_tower(test_level, test_tower)
+    gold_after_sale = test_level.get_current_gold()
+
+    assert gold_after_sale > gold_after_purchase
+    assert gold_after_sale < gold_before_purchase

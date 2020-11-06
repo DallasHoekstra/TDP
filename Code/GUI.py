@@ -196,7 +196,7 @@ class TDDisplay():
 
 
 
-    def draw_screen(self):
+    def draw_interface(self):
 
         # Draw the tower purchase container
         for button, image, kind in self.combat_interface[3]:
@@ -223,8 +223,9 @@ class TDDisplay():
             fulltext = text + str(20) # Call health
             displaytext = self.combat_interface_font.render(fulltext, 1, color)
             self.window.blit(displaytext, position)
+        
+    def show_updated_screen_to_user(self):
         pygame.display.update()
-
 
 
 

@@ -16,7 +16,7 @@ def play_level(level_number, display):
     clock = gc.GameClock(fps)
     score = 0
     game_paused = False
-    tower_purchase_selection = ""
+    selection_stage_one = ""
     tower_names = ["Fire_Tower", "Ice_Tower", "Arrow_Tower"]
     selection_location = (0,0)
     wave = 0
@@ -51,13 +51,19 @@ def play_level(level_number, display):
         user_input = get_user_input(display, "level")
         if user_input == False:
             return False
-        if user_input in tower_names:
-            tower_purchase_selection = user_input
-        if isinstance(user_input, tuple):
+        elif user_input in tower_names:
+            selection_stage_one = user_input
+        elif user_input == "Sell":
+            selection_stage_one = user_input
+        elif isinstance(user_input, tuple):
             selection_location = user_input
-            if tower_purchase_selection != "":
-                purchase_tower(level, tower_purchase_selection, selection_location)
-                tower_purchase_selection = ""
+            if selection_stage_one in tower_names:
+                purchase_tower(level, selection_stage_one, selection_location)
+                selection_stage_one = ""
+            elif selection_stage_one == "Sell":
+                for tower in level.existing_towers:
+                    if tower.collision(selection_location):
+                        sell_tower(level, tower)
     return (score)
 
 
@@ -73,7 +79,7 @@ def purchase_tower(level, kind, position):
         new_tower = tower.Arrow_Tower(position)
 
     if level.get_current_gold() >= new_tower.get_value():
-        level.reduce_gold_by(new_tower.get_value())
+        level.decrease_gold_by(new_tower.get_value())
     else:
         new_tower = None
 
@@ -84,8 +90,10 @@ def purchase_tower(level, kind, position):
     if new_tower is not None:
         level.existing_towers.append(new_tower)
 
-def sell_tower(level):
-    pass
+def sell_tower(level, tower):
+    level.increase_gold_by(int(tower.get_value()*tower.refund_rate))
+    level.existing_towers.remove(tower)
+
 
 
 
@@ -93,7 +101,10 @@ def sell_tower(level):
 def update_screen(level, display, time, wave):
     
     display.draw_image(level.draw_background())
-    display.draw_screen()
+
+    gold = level.get_current_gold()
+    display.update_level_data_container(gold, time, wave)
+    display.draw_interface()
     display.draw_image(level.draw_village(display.window_width, display.window_height))
 
     for creature in level.existing_creatures:
@@ -103,8 +114,7 @@ def update_screen(level, display, time, wave):
     for attack in level.existing_attacks:
         display.draw_image(attack.draw())
 
-    gold = level.get_current_gold()
-    display.update_level_data_container(gold, time, wave)
+    display.show_updated_screen_to_user()
 
     # Call for creature attacks
     # Call for creature deaths
