@@ -26,9 +26,10 @@ def play_level(level_number, display):
         clock.tick()
     
         if game_paused == False:
-            if clock.get_current_time < level.waves[wave][0]:
-                spawn_wave_number(level, wave)
-                wave += 1
+            if wave < len(level.waves):
+                if clock.get_current_time() > level.waves[wave][0]:
+                    spawn_wave_number(level, wave)
+                    wave += 1
 
         for creature in level.existing_creatures:
             pass
@@ -196,4 +197,4 @@ def main():
             # save the score to a file
 
 
-# main()
+main()
