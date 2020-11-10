@@ -67,6 +67,11 @@ class Entity():
                 return False
 
 
-    def isFoe(self):
+    def is_foe(self):
         return self.foe
 
+    def is_alive(self):
+        return self.health > 0
+
+    def die(self):
+        self.health = 0

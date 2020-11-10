@@ -8,6 +8,10 @@ import main
 import entity
 import tower
 import level
+import creature
+
+# List of creatures. Used in parametrized tests
+creature_types_list = ["Skeleton", "Accelerator"]
 
 
 # Game Clock Tests
@@ -52,7 +56,6 @@ def test_clock_converts_current_time_to_seconds():
 
 
 # Entity Tests
-
 def test_entity_collides_with_entity():
     position_1 = (100, 100)
     position_2 = (125, 100)
@@ -252,3 +255,90 @@ def test_sell_refunds_partial_and_only_partial_value_of_tower():
 
     assert gold_after_sale > gold_after_purchase
     assert gold_after_sale < gold_before_purchase
+
+def test_spawn_wave_adds_creatures_to_existing_creatures():
+    test_level_1 = level.Level(1)
+
+    number = 1
+    main.spawn_wave_number(test_level_1, number)
+    assert len(test_level_1.existing_creatures) == test_level_1.waves[0][2]
+    
+    number = 3
+    main.spawn_wave_number(test_level_1, number)
+    assert len(test_level_1.existing_creatures) == test_level_1.waves[0][2] + test_level_1.waves[2][2]
+
+    for test_creature in test_level_1.existing_creatures:
+        assert isinstance(test_creature, creature.Skeleton)
+
+    test_level_2 = level.Level(2)
+    
+    number = 0
+    main.spawn_wave_number(test_level_2, number)
+
+
+# Creature Tests
+def test_creatures_initializes_correctly():
+    x_ord, y_ord = 0, 0
+    test_path = [(100,100), (200,200)]
+    test_creature = creature.Creature(x_ord, y_ord, test_path)
+
+    assert isinstance(test_creature, entity.Entity)
+    assert test_creature.x == x_ord
+    assert test_creature.y == y_ord
+    assert len(test_creature.conditions) == 0
+    assert test_creature.path == test_path
+    test_path.append((300,300))
+    assert test_creature.path != test_path
+
+def test_skeleton_initializes_correctly():
+    x_ord, y_ord = 0, 0
+    test_path = [(100,100), (200,200)]
+    test_skeleton = creature.Skeleton(x_ord,y_ord, test_path)
+
+    assert test_skeleton.x == x_ord
+    assert test_skeleton.y == y_ord
+    assert len(test_skeleton.conditions) == 0
+
+    assert test_skeleton.max_health == 25
+    assert test_skeleton.health == test_skeleton.max_health
+    assert test_skeleton.default_move_speed == 1
+    assert test_skeleton.move_speed == test_skeleton.default_move_speed
+    assert test_skeleton.foe == True
+    assert test_skeleton.life_damage == 1
+    assert test_skeleton.value == 10
+    assert test_skeleton.image_postfix != ""
+    assert test_skeleton.path == test_path
+
+def test_accelerator_initializes_correctly():
+    x_ord, y_ord = 0,0
+    test_path = [(100,100), (200,200)]
+    test_accelerator = creature.Accelerator(x_ord, y_ord, test_path)
+
+    assert test_accelerator.x == x_ord
+    assert test_accelerator.y == y_ord
+    assert len(test_accelerator.conditions) == 0
+
+    assert test_accelerator.max_health == 10
+    assert test_accelerator.health == test_accelerator.max_health
+    assert test_accelerator.default_move_speed == 1
+    assert test_accelerator.move_speed == test_accelerator.default_move_speed
+    assert test_accelerator.foe == True
+    assert test_accelerator.life_damage == 1
+    assert test_accelerator.value == 20
+    assert test_accelerator.image_postfix != ""
+    assert test_accelerator.path == test_path
+    assert test_accelerator.acceleration_counter == 0
+
+
+@pytest.mark.parametrize("creature_type", creature_types_list)
+def test_creature_is_alive_returns_true_when_it_should(creature_type):
+    x_ord, y_ord, test_path = 0, 0, []
+
+    test_creature = getattr(creature, creature_type)(x_ord, y_ord, test_path)
+    assert test_creature.is_alive() == True
+
+    test_creature.die()
+    assert test_creature.is_alive() == False
+
+
+

@@ -1,5 +1,4 @@
-# import tower as twr
-# import creature as crt
+import creature as crt
 import math
 import time
 import level as lvl
@@ -27,14 +26,17 @@ def play_level(level_number, display):
         clock.tick()
     
         if game_paused == False:
+            if clock.get_current_time < level.waves[wave][0]:
+                spawn_wave_number(level, wave)
+                wave += 1
+
+        for creature in level.existing_creatures:
             pass
-        #   is it time to spawn a wave
-        #       if so, spawn wave
-        #   check if creatures are alive
-        #       move creatures
-        #       collision check creatures and the village
-        #       manage creature attacks
-        #           draw creature attacks
+            # check if creature is alive
+            #       move creatures
+            #       collision check creatures and the village
+            #       manage creature attacks
+            #           draw creature attacks
         # 
         #   process tower attacks
         #       draw tower attacks
@@ -67,7 +69,14 @@ def play_level(level_number, display):
     return (score)
 
 
-
+def spawn_wave_number(level, wave):
+    creature_type = level.waves[wave][1]
+    spawn_point = level.waves[wave][3]
+    path = level.waves[wave][4].copy()
+    for _ in range(level.waves[wave][2]):
+        new_creature = getattr(crt, creature_type)(spawn_point[0], spawn_point[1], path)
+        level.existing_creatures.append(new_creature)
+        new_creature = None
 
 def purchase_tower(level, kind, position):
     new_tower = None
@@ -187,4 +196,4 @@ def main():
             # save the score to a file
 
 
-main()
+# main()
