@@ -75,3 +75,9 @@ class Entity():
 
     def die(self):
         self.health = 0
+
+    def distance_from(self, point):
+        if isinstance(point, Entity):
+            return math.sqrt(math.pow(abs(self.x - point.x), 2) + math.pow(abs(self.y - point.y), 2))
+        else:
+            return math.sqrt(math.pow(abs(self.x - point[0]), 2) + math.pow(abs(self.y - point[1]), 2))

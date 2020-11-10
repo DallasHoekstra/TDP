@@ -1,4 +1,6 @@
 import time
+import math
+
 
 import pytest
 import pytest_mock
@@ -110,7 +112,6 @@ def test_entity_collides_with_entity():
     assert test_entity_4.collision(test_entity_6) == False
     assert test_entity_5.collision(test_entity_6) == False
 
-
 @pytest.mark.parametrize("collision_point, result", [((301, 301), True), ((299, 299), False), ((300, 300), True)])
 def test_entity_collision_with_point(collision_point, result):
     test_entity_position = (300, 300)
@@ -119,10 +120,20 @@ def test_entity_collision_with_point(collision_point, result):
     test_entity.height = 40
 
     assert test_entity.collision(collision_point) == result
-    
-    
 
+@pytest.mark.parametrize("position_1, point, position_2", [((0,0),(0,0),(0,0)), ((0,0), (100,100),(100,100)),
+                                                        ((0,0),(100,100),(152,312)), ((0,0),(200,200),(312,0))])
+def test_distance_from_calculates_distance_between_two_entities_or_points(position_1, point, position_2):
+    entity_1 = entity.Entity(position_1)
+    entity_2 = entity.Entity(position_2)
+    distance_1p = math.sqrt(math.pow(abs(entity_1.x - point[0]), 2) + 
+                            math.pow(abs(entity_1.y - point[1]), 2))
+    distance_1_2 = math.sqrt(math.pow(abs(entity_1.x - entity_2.x), 2) + 
+                            math.pow(abs(entity_1.y - entity_2.y), 2))
 
+    assert entity_1.distance_from(point) == distance_1p
+    assert entity_1.distance_from(entity_2) == distance_1_2
+    assert entity_2.distance_from(entity_1) == distance_1_2
 # Tower Tests
 def test_entity_uses_proper_GUI_formatting():
     test_entity = entity.Entity((100,200))
@@ -329,7 +340,6 @@ def test_accelerator_initializes_correctly():
     assert test_accelerator.path == test_path
     assert test_accelerator.acceleration_counter == 0
 
-
 @pytest.mark.parametrize("creature_type", creature_types_list)
 def test_creature_is_alive_returns_true_when_it_should(creature_type):
     x_ord, y_ord, test_path = 0, 0, []
@@ -340,5 +350,14 @@ def test_creature_is_alive_returns_true_when_it_should(creature_type):
     test_creature.die()
     assert test_creature.is_alive() == False
 
+@pytest.mark.parametrize("creature_type", creature_types_list)
+def test_creature_moves_toward_next_point_in_path(creature_type):
+    x_ord, y_ord, test_path = 0, 0, [(100, 100)]
 
+    test_creature = getattr(creature, creature_type)(x_ord, y_ord, test_path)
+    
+    test_creature.move()
+
+    assert test_creature.x > 0
+    assert test_creature.y > 0
 

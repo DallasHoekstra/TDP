@@ -9,8 +9,8 @@ class Creature(entity.Entity):
 #     maxhealth = 0
 #     health = 0
 #     attack = 0
-#     default_move_speed = 0
-#     move_speed = 0
+    default_move_speed = 0
+    move_speed = default_move_speed
 #     foe = False
 #     path = []
 #     width = 0
@@ -43,6 +43,11 @@ class Creature(entity.Entity):
 
 #     def draw_attack(self):
 #         pass
+
+    def move(self):
+        self.x += self.move_speed
+        self.y += self.move_speed
+
 
 #     def move(self):
 #         if len(self.path) > 0:
