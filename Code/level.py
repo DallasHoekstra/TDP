@@ -2,10 +2,11 @@ class Level():
     background_image = ""
     starting_gold = 0
     current_gold = 0
-    window_width = 1000
-    window_height = 800
+    level_width = 1000
+    level_height = 800
     village_postfix = "L0_Village.jpg"
-    village = [.5, .875, 50, 50]
+    village = [.5*level_width, .875*level_height, 50, 50]
+    village_relative = [.5, .875, 50, 50]
     background_image = "L1_Background.png"
     def __init__(self, level_number):
         self.existing_towers = []
@@ -49,7 +50,7 @@ class Level():
         return (self.background_image, (0,0))
     
     def draw_village(self, window_width, window_height):
-        return(self.village_postfix, (self.village[0]*window_width, self.village[1]*window_height))
+        return(self.village_postfix, (self.village_relative[0]*window_width, self.village_relative[1]*window_height))
 
     def get_current_gold(self):
         return self.current_gold
