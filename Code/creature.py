@@ -21,7 +21,12 @@ class Creature(entity.Entity):
         self.x = x_ord
         self.y = y_ord
         self.conditions = []
+        
         self.path = path.copy()
+        if len(self.path) > 0:
+            self.next_point = self.path[-1]
+        else:
+            self.next_point = None
 #         if self.L0_Path != "":
 #             self.L0_Image = pygame.image.load(self.L0_Path)
 #             self.width, self.height = self.L0_Image.get_rect().size
@@ -44,9 +49,33 @@ class Creature(entity.Entity):
 #     def draw_attack(self):
 #         pass
 
+    def update_next_point(self):
+        if len(self.path) > 1:
+            self.path.remove(self.path[-1])
+            self.next_point = self.path[-1]
+        else:
+            self.next_point = None
+
+    def has_completed_path(self):
+        return self.next_point is None
+
+    def has_reached_next_point(self):
+        return self.distance_from(self.next_point) < self.move_speed
+
     def move(self):
-        self.x += self.move_speed
-        self.y += self.move_speed
+        if self.has_completed_path() == False:
+            if self.has_reached_next_point(): 
+                self.update_next_point()
+            if self.has_completed_path() == False:
+                if self.x > self.next_point[0]:
+                    self.x -= self.move_speed
+                elif self.x < self.next_point[0]:
+                    self.x += self.move_speed
+                if self.y > self.next_point[1]:
+                    self.y -= self.move_speed
+                elif self.y < self.next_point[1]:
+                    self.y += self.move_speed
+    
 
 
 #     def move(self):

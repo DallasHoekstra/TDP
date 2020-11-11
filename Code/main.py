@@ -32,10 +32,10 @@ def play_level(level_number, display):
                     wave += 1
 
         for creature in level.existing_creatures:
-            if not creature.isalive():
+            if not creature.is_alive():
                 level.existing_creatures.remove(creature)
             else:
-                pass            
+                creature.move()           
                 #       move creatures
                 #       collision check creatures and the village
                 #       manage creature attacks
@@ -199,4 +199,4 @@ def main():
             # save the score to a file
 
 
-# main()
+main()

@@ -134,6 +134,7 @@ def test_distance_from_calculates_distance_between_two_entities_or_points(positi
     assert entity_1.distance_from(point) == distance_1p
     assert entity_1.distance_from(entity_2) == distance_1_2
     assert entity_2.distance_from(entity_1) == distance_1_2
+
 # Tower Tests
 def test_entity_uses_proper_GUI_formatting():
     test_entity = entity.Entity((100,200))
@@ -350,14 +351,51 @@ def test_creature_is_alive_returns_true_when_it_should(creature_type):
     test_creature.die()
     assert test_creature.is_alive() == False
 
+def test_get_next_point_returns_next_point():
+    test_path = [(-100, -100), (0, 200), (100, 100)]
+    test_creature = creature.Creature(0, 0, test_path)
+    assert test_creature.next_point == (100,100)
+    test_creature.update_next_point()
+    assert test_creature.next_point == (0, 200)
+    test_creature.update_next_point()
+    assert test_creature.next_point == (-100, -100)
+    test_creature.update_next_point()
+    assert test_creature.next_point is None
+
 @pytest.mark.parametrize("creature_type", creature_types_list)
 def test_creature_moves_toward_next_point_in_path(creature_type):
-    x_ord, y_ord, test_path = 0, 0, [(100, 100)]
+    x_ord, y_ord, test_path = 0, 0, [(-100, -100), (0, 200), (100, 100)]
 
     test_creature = getattr(creature, creature_type)(x_ord, y_ord, test_path)
-    
+    while test_creature.next_point != None:        
+        original_distance = test_creature.distance_from(test_creature.next_point)
+        test_creature.move()
+        assert test_creature.distance_from(test_creature.next_point) < original_distance
+        test_creature.update_next_point()
+
+@pytest.mark.parametrize("creature_type", creature_types_list)
+def test_creature_updates_point_when_next_point_is_reached(creature_type):
+    x_ord, y_ord, test_path = 100, 100, [(0,0), (121, 300), (200,200), (100, 100)]
+
+    test_creature = getattr(creature, creature_type)(x_ord, y_ord, test_path)
+
     test_creature.move()
+    assert test_creature.next_point == (200, 200)
 
-    assert test_creature.x > 0
-    assert test_creature.y > 0
+    test_creature.x, test_creature.y = 200, 200
+    test_creature.move()
+    assert test_creature.next_point == (121, 300)
 
+    test_creature.x, test_creature.y = (121 + (.5*test_creature.move_speed)), (300 - (.5*test_creature.move_speed))
+    test_creature.move()
+    assert test_creature.next_point == (0,0)
+
+@pytest.mark.parametrize("creature_type", creature_types_list)
+def test_creature_stops_moving_when_path_ends(creature_type):
+    x_ord, y_ord, test_path = 100, 100, [(100, 100)]
+
+    test_creature = getattr(creature, creature_type)(x_ord, y_ord, test_path)
+    assert test_creature.next_point == (100, 100)
+    test_creature.move()
+    assert test_creature.next_point is None
+    test_creature.move()
