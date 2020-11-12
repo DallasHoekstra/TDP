@@ -17,9 +17,9 @@ class Creature(entity.Entity):
 #     height = 0
 #     visible = False
     
-    def __init__(self, x_ord, y_ord, path):
-        self.x = x_ord
-        self.y = y_ord
+    def __init__(self, position, path):
+        self.x = position[0]
+        self.y = position[1]
         self.conditions = []
 
 

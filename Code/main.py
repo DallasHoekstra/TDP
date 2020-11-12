@@ -81,7 +81,7 @@ def spawn_wave_number(level, wave):
     spawn_point = level.waves[wave][3]
     path = level.waves[wave][4].copy()
     for _ in range(level.waves[wave][2]):
-        new_creature = getattr(crt, creature_type)(spawn_point[0], spawn_point[1], path)
+        new_creature = getattr(crt, creature_type)(spawn_point, path)
         level.existing_creatures.append(new_creature)
         new_creature = None
 
@@ -203,4 +203,4 @@ def main():
             # save the score to a file
 
 
-main()
+# main()

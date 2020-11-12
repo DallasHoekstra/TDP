@@ -59,6 +59,9 @@ class Fire_Tower(Tower):
             if self.distance_from(entity) <= self.range_:
                 self.target.append(entity)
 
+    def attack(self):
+        pass
+
 
 
 class Ice_Tower(Tower):

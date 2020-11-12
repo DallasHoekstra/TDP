@@ -221,7 +221,8 @@ def test_tower_get_position_returns_correct_position(tower_type):
     position = test_tower.get_position()
     assert position[0] == x_ord
     assert position[1] == y_ord
-     
+
+
 
 
 #Level Tests
@@ -369,25 +370,25 @@ def test_spawn_wave_adds_creatures_to_existing_creatures():
 
 # Creature Tests
 def test_creatures_initializes_correctly():
-    x_ord, y_ord = 0, 0
+    position = (0, 0)
     test_path = [(100,100), (200,200)]
-    test_creature = creature.Creature(x_ord, y_ord, test_path)
+    test_creature = creature.Creature(position, test_path)
 
     assert isinstance(test_creature, entity.Entity)
-    assert test_creature.x == x_ord
-    assert test_creature.y == y_ord
+    assert test_creature.x == position[0]
+    assert test_creature.y == position[1]
     assert len(test_creature.conditions) == 0
     assert test_creature.path == test_path
     test_path.append((300,300))
     assert test_creature.path != test_path
 
 def test_skeleton_initializes_correctly():
-    x_ord, y_ord = 0, 0
+    position = (0, 0)
     test_path = [(100,100), (200,200)]
-    test_skeleton = creature.Skeleton(x_ord,y_ord, test_path)
+    test_skeleton = creature.Skeleton(position, test_path)
 
-    assert test_skeleton.x == x_ord
-    assert test_skeleton.y == y_ord
+    assert test_skeleton.x == position[0]
+    assert test_skeleton.y == position[1]
     assert len(test_skeleton.conditions) == 0
 
     assert test_skeleton.max_health == 25
@@ -401,12 +402,12 @@ def test_skeleton_initializes_correctly():
     assert test_skeleton.path == test_path
 
 def test_accelerator_initializes_correctly():
-    x_ord, y_ord = 0,0
+    position = (0,0)
     test_path = [(100,100), (200,200)]
-    test_accelerator = creature.Accelerator(x_ord, y_ord, test_path)
+    test_accelerator = creature.Accelerator(position, test_path)
 
-    assert test_accelerator.x == x_ord
-    assert test_accelerator.y == y_ord
+    assert test_accelerator.x == position[0]
+    assert test_accelerator.y == position[1]
     assert len(test_accelerator.conditions) == 0
 
     assert test_accelerator.max_health == 10
@@ -422,9 +423,9 @@ def test_accelerator_initializes_correctly():
 
 @pytest.mark.parametrize("creature_type", creature_types_list)
 def test_creature_is_alive_returns_true_when_it_should(creature_type):
-    x_ord, y_ord, test_path = 0, 0, []
+    position, test_path = (0, 0), []
 
-    test_creature = getattr(creature, creature_type)(x_ord, y_ord, test_path)
+    test_creature = getattr(creature, creature_type)(position, test_path)
     assert test_creature.is_alive() == True
 
     test_creature.die()
@@ -432,7 +433,7 @@ def test_creature_is_alive_returns_true_when_it_should(creature_type):
 
 def test_get_next_point_returns_next_point():
     test_path = [(-100, -100), (0, 200), (100, 100)]
-    test_creature = creature.Creature(0, 0, test_path)
+    test_creature = creature.Creature((0, 0), test_path)
     assert test_creature.next_point == (100,100)
     test_creature.update_next_point()
     assert test_creature.next_point == (0, 200)
@@ -443,9 +444,9 @@ def test_get_next_point_returns_next_point():
 
 @pytest.mark.parametrize("creature_type", creature_types_list)
 def test_creature_moves_toward_next_point_in_path(creature_type):
-    x_ord, y_ord, test_path = 0, 0, [(-100, -100), (0, 200), (100, 100)]
+    position, test_path = (0, 0), [(-100, -100), (0, 200), (100, 100)]
 
-    test_creature = getattr(creature, creature_type)(x_ord, y_ord, test_path)
+    test_creature = getattr(creature, creature_type)(position, test_path)
     while test_creature.next_point != None:        
         original_distance = test_creature.distance_from(test_creature.next_point)
         test_creature.move()
@@ -454,9 +455,9 @@ def test_creature_moves_toward_next_point_in_path(creature_type):
 
 @pytest.mark.parametrize("creature_type", creature_types_list)
 def test_creature_updates_point_when_next_point_is_reached(creature_type):
-    x_ord, y_ord, test_path = 100, 100, [(0,0), (121, 300), (200,200), (100, 100)]
+    position, test_path = (100, 100), [(0,0), (121, 300), (200,200), (100, 100)]
 
-    test_creature = getattr(creature, creature_type)(x_ord, y_ord, test_path)
+    test_creature = getattr(creature, creature_type)(position, test_path)
 
     test_creature.move()
     assert test_creature.next_point == (200, 200)
@@ -471,9 +472,9 @@ def test_creature_updates_point_when_next_point_is_reached(creature_type):
 
 @pytest.mark.parametrize("creature_type", creature_types_list)
 def test_creature_stops_moving_when_path_ends(creature_type):
-    x_ord, y_ord, test_path = 100, 100, [(100, 100)]
+    position, test_path = (100, 100), [(100, 100)]
 
-    test_creature = getattr(creature, creature_type)(x_ord, y_ord, test_path)
+    test_creature = getattr(creature, creature_type)(position, test_path)
     assert test_creature.next_point == (100, 100)
     test_creature.move()
     assert test_creature.next_point is None
@@ -482,7 +483,7 @@ def test_creature_stops_moving_when_path_ends(creature_type):
 # Test with base class only and do not parametrize: some creatures may not 
 # die at end of path
 def test_Creature_dies_when_path_ends():
-    test_creature = creature.Creature(0, 0, [])
+    test_creature = creature.Creature((0, 0), [])
     test_creature.current_health = 10
     test_creature.move()
 
