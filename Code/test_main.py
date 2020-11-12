@@ -143,30 +143,83 @@ def test_entity_target_returns_None_if_no_available_targets():
     test_targeting_entity = entity.Entity((800,800))
     assert test_targeting_entity.acquire_targets(test_entities) is None
 
-## FOR FUTURE: Update this behavior to "nearest to village" once pathing distance is implemented
+def test_entity_acquire_targets_removes_targets_out_of_range():
+    target_position = (150, 150)
+    targeter_position = (200, 200)
+    test_target = entity.Entity(target_position)
+    test_target.current_health = 1
+    test_targeter = entity.Entity(targeter_position)
+    possible_target_list = [test_target]
+
+    test_targeter.target.append(test_target)
+
+    assert test_targeter.has_target() == True
+    test_target.x = 301
+    test_target.y = 301
+    test_targeter.acquire_targets(possible_target_list)
+    assert test_targeter.has_target() == False
+
+def test_entity_acquire_targets_handles_disappearing_target():
+    targeter_position = (100, 100)
+    targeted_position = (150, 150)
+    
+    test_targeter = entity.Entity(targeter_position)
+    test_targeted = entity.Entity(targeted_position)
+    test_targeted.current_health = 1
+
+    test_targeter.target = [test_targeted]
+
+    possible_target_list_without_current_target = []
+    test_targeter.acquire_targets(possible_target_list_without_current_target)
+
+    assert test_targeter.has_target() == False
+
+def test_entity_acquire_targets_removes_dead_targets():
+    targeter_position = (100, 100)
+    targeted_position = (150, 150)
+    
+    test_targeter = entity.Entity(targeter_position)
+    test_targeted = entity.Entity(targeted_position)
+    test_targeted.current_health = 1
+    test_targeter.range_ = 100
+
+    test_targeter.acquire_targets([test_targeted])
+    assert test_targeter.has_target() == True
+    test_targeted.current_health = 0
+    test_targeter.acquire_targets([test_targeted])
+    assert test_targeter.has_target() == False
+
+# FOR FUTURE: Update this behavior to "nearest to village" once pathing distance is implemented
 def test_entity_targets_first_nearest_by_default():
     nearest = (100, 200)
     position_2 = (100, 400)
     position_3 = (400, 400)
 
-    test_entities = [entity.Entity(nearest), entity.Entity(position_2), entity.Entity(position_3)]
-    test_targeting_entity = entity.Entity((150, 250))
-    test_targeting_entity.range_ = 400
+    test_targeted = [entity.Entity(nearest), entity.Entity(position_2), entity.Entity(position_3)]
+    print()
+    print(test_targeted)
+    for target in test_targeted:
+        target.current_health = 1
 
-    test_targeting_entity.acquire_targets(test_entities)
+    test_targeter = entity.Entity((150, 250))
 
-    assert isinstance(test_targeting_entity.target[0], entity.Entity)
-    assert test_targeting_entity.target[0] == test_entities[0]
+    test_targeter.range_ = 400
+
+    test_targeter.acquire_targets(test_targeted)
+    print(test_targeter.target)
+    assert isinstance(test_targeter.target[0], entity.Entity)
+    assert test_targeter.target[0] == test_targeted[0]
 
     new_nearest = (115, 215)
-    test_entities.append(entity.Entity(new_nearest))
-    test_targeting_entity.acquire_targets(test_entities)
+    test_targeted.append(entity.Entity(new_nearest))
+    print(test_targeted)
+    test_targeter.acquire_targets(test_targeted)
+    print(test_targeter.target)
 
-    assert test_targeting_entity.target[0] == test_entities[0]
-
-    # test_entities.remove(test_entities[0])
-    # test_targeting_entity.acquire_targets(test_entities)
-    # assert test_targeting_entity.target[0] == test_entities[0]
+    assert test_targeter.target[0] == test_targeted[0]
+    test_targeted.remove(test_targeted[0])
+    test_targeter.acquire_targets(test_targeted)
+    assert test_targeter.target[0] == test_targeted[0]
 
 def test_entity_can_only_attack_if_cooldown_complete():
     test_entity = entity.Entity((100, 100))
@@ -222,6 +275,17 @@ def test_tower_get_position_returns_correct_position(tower_type):
     assert position[0] == x_ord
     assert position[1] == y_ord
 
+# def test_Fire_Tower_attack():
+#     Fire_Tower_position = (400, 400)
+#     skeleton_1_position = (299, 299)
+#     path = [(299, 299), (350, 350), (401, 401)]
+#     existing_creatures = []
+#     test_Fire_Tower = tower.Fire_Tower(Fire_Tower_position)
+#     skeleton_1 = creature.Skeleton(skeleton_1_position, path)
+#     existing_creatures.append(skeleton_1)
+
+#     test_Fire_Tower.acquire_targets(existing_creatures)
+#     assert test_Fire_Tower.has_target() == False
 
 
 
