@@ -73,8 +73,8 @@ class Entity():
     def get_health(self):
         pass
 
-    def change_health(self, number):
-        pass
+    def change_health_by(self, number):
+        self.current_health += number
 
     def draw(self):
         return (self.image_postfix, (int(self.x - (self.width/2)) , int(self.y - (self.height/2))))

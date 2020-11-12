@@ -61,6 +61,18 @@ def test_clock_converts_current_time_to_seconds():
 
 
 # Entity Tests
+def test_change_health_adds_number_to_health():
+    test_entity = entity.Entity((0,0))
+    test_entity.current_health = 10
+    original_health = test_entity.current_health
+
+    test_entity.change_health_by(10)
+    assert test_entity.current_health == original_health + 10
+    original_health_2 = test_entity.current_health
+
+    test_entity.change_health_by(-10)
+    assert test_entity.current_health == original_health_2 - 10
+
 def test_entity_collides_with_entity():
     position_1 = (100, 100)
     position_2 = (125, 100)
@@ -275,17 +287,25 @@ def test_tower_get_position_returns_correct_position(tower_type):
     assert position[0] == x_ord
     assert position[1] == y_ord
 
-# def test_Fire_Tower_attack():
-#     Fire_Tower_position = (400, 400)
-#     skeleton_1_position = (299, 299)
-#     path = [(299, 299), (350, 350), (401, 401)]
-#     existing_creatures = []
-#     test_Fire_Tower = tower.Fire_Tower(Fire_Tower_position)
-#     skeleton_1 = creature.Skeleton(skeleton_1_position, path)
-#     existing_creatures.append(skeleton_1)
+def test_Fire_Tower_attack_deals_damage():
+    Fire_Tower_position = (400, 400)
+    test_Fire_Tower = tower.Fire_Tower(Fire_Tower_position)
+    
+    skeleton_1_position = (299, 299)
+    path = [(299, 299), (350, 350), (401, 401)]
+    skeleton_1 = creature.Skeleton(skeleton_1_position, path)
+    skeleton_original_health = skeleton_1.current_health
 
-#     test_Fire_Tower.acquire_targets(existing_creatures)
-#     assert test_Fire_Tower.has_target() == False
+    test_Fire_Tower.target = [skeleton_1]
+    test_Fire_Tower.attack()
+
+    assert skeleton_1.current_health == skeleton_original_health - test_Fire_Tower.damage
+    
+
+
+
+
+
 
 
 

@@ -48,6 +48,7 @@ class Fire_Tower(Tower):
     name = "FIRE_TOWER"
     image_postfix = "FireTowerL0.gif"
     range_ = 100
+    damage = 1
 
     def __init__(self, position):
         self.current_health = self.max_health
@@ -60,7 +61,8 @@ class Fire_Tower(Tower):
                 self.target.append(entity)
 
     def attack(self):
-        pass
+        for target in self.target:
+            target.change_health_by(-1*self.damage)
 
 
 
