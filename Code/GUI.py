@@ -264,3 +264,19 @@ class TDDisplay():
         image_filepath_postfix, image_position = image_data
         image = pygame.image.load(self.image_path + image_filepath_postfix)
         self.window.blit(image, image_position)
+
+    def draw_creature(self, creature_data):
+        filepath_postfix, position, percent_health = creature_data
+
+        image = pygame.image.load(self.image_path + filepath_postfix)
+        width, height = image.get_width(), image.get_height()
+        drawn_x = position[0] - width/2
+        drawn_y = position[1] - height/2
+        top_left = (drawn_x, drawn_y)
+
+        health_bar_thickness = 3
+        health_bar = pygame.Rect(position[0], position[1] - 5, width*percent_health, health_bar_thickness)
+
+        self.window.blit(image, position)
+        pygame.draw.rect(self.window, (200, 0, 0), health_bar, 0)
+        

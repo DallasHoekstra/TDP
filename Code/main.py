@@ -124,7 +124,7 @@ def update_screen(level, display, time, wave):
     display.draw_image(level.draw_village(display.window_width, display.window_height))
 
     for creature in level.existing_creatures:
-        display.draw_image(creature.draw())
+        display.draw_creature(creature.draw())
     for tower in level.existing_towers:
         display.draw_image(tower.draw())
     for attack in level.existing_attacks:
@@ -203,4 +203,4 @@ def main():
             # save the score to a file
 
 
-# main()
+main()

@@ -1,5 +1,6 @@
 import pygame
 import entity
+import math
 
 class Creature(entity.Entity):
 #     L0_Path = ""
@@ -84,6 +85,10 @@ class Creature(entity.Entity):
     
     def get_life_damage(self):
         return self.life_damage
+
+    def draw(self):
+        percent_health = round(self.current_health/self.max_health, 2)
+        return (self.image_postfix, (self.x, self.y), percent_health)
 
 #     def move(self):
 #         if len(self.path) > 0:
