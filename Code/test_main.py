@@ -287,6 +287,34 @@ def test_tower_get_position_returns_correct_position(tower_type):
     assert position[0] == x_ord
     assert position[1] == y_ord
 
+def test_Fire_Tower_update_targets_acquires_all_viable_targets():
+    fire_tower_position = (400, 400)
+    test_fire_tower = tower.Fire_Tower(fire_tower_position)
+    viable_target_positions = [(300, 300), (400, 400), (500, 500), (500, 300), (300, 500)]
+    viable_target_entities = []
+    for position in viable_target_positions:
+        temp_entity = entity.Entity(position)
+        temp_entity.current_health = 10
+        viable_target_entities.append(temp_entity)
+        
+    print()
+    test_fire_tower.update_targets(viable_target_entities)
+    print(viable_target_entities)
+    print()
+    print(test_fire_tower.target)
+
+    counter = 0
+    for viable_entity in viable_target_entities:
+        for target in test_fire_tower.target:
+            print("target: " + str(target) + " compare to entity: " + str(viable_entity))            
+            if viable_entity is target:
+                print("Nullified")
+                viable_target_entities[counter] = None
+                counter += 1
+                break
+    for viable_entity in viable_target_entities:
+        assert viable_entity is None 
+
 def test_Fire_Tower_attack_deals_damage():
     Fire_Tower_position = (400, 400)
     test_Fire_Tower = tower.Fire_Tower(Fire_Tower_position)
@@ -300,9 +328,29 @@ def test_Fire_Tower_attack_deals_damage():
     test_Fire_Tower.attack()
 
     assert skeleton_1.current_health == skeleton_original_health - test_Fire_Tower.damage
+
+def test_Fire_Tower_attacks_all_targets():
+    mock_entities_positions = [(80, 80), (90, 90), (110, 110), (120, 120)]
+    mock_entities = []
+
+    for position in mock_entities_positions:
+        temp_mock_entity = entity.Entity(position)
+        temp_mock_entity.change_health_by = unittest.mock.MagicMock(name='change_health_by')
+        mock_entities.append(temp_mock_entity)
+
+    fire_tower_position = (100, 100)
+    test_fire_tower = tower.Fire_Tower(fire_tower_position)
+
+    test_fire_tower.target = mock_entities.copy()
+    test_fire_tower.attack()
+
+    for mock_entity in mock_entities:
+        mock_entity.change_health_by.assert_called()
+    
     
 
 
+    
 
 
 

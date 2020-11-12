@@ -1,4 +1,5 @@
 import entity
+import math
 
 class Tower(entity.Entity):
     cost = 0
@@ -47,22 +48,25 @@ class Fire_Tower(Tower):
     max_health = 100
     name = "FIRE_TOWER"
     image_postfix = "FireTowerL0.gif"
-    range_ = 100
+    range_ = 100*math.sqrt(2)
     damage = 1
 
     def __init__(self, position):
         self.current_health = self.max_health
         self.status_affects = []
         self.x, self.y = position[0], position[1]
+        self.target = []
 
-    def acquire_target(self, entities):
+    def acquire_targets(self, entities):
         for entity in entities:
-            if self.distance_from(entity) <= self.range_:
+            if self.distance_from(entity) <= self.range_ and entity.is_alive():
                 self.target.append(entity)
+
 
     def attack(self):
         for target in self.target:
             target.change_health_by(-1*self.damage)
+            
 
 
 
