@@ -18,32 +18,30 @@ class Entity():
         self.x, self.y = position[0], position[1]
         ## FOR FUTURE: Refactor name to target_list for clarity in boolean checks
         self.target = []
-
-    # FOR FUTURE: Refactor name to "update_targets"
-    def acquire_targets(self, entities):
-        pass
-
+    
     def update_targets(self, entities):
         if entities == []:
             for target in self.target:
                 self.target.remove(target)
-
         else:
-            for entity in entities:
-                for target in self.target:
-                    self.target.remove(target)
-                    if entity is target:
-                        self.target.append(entity)
-            for entity in entities:
-                if (self.distance_from(entity) < self.range_) and entity.is_alive():
-                    if self.has_target() == False:
-                        self.target.append(entity)
-                else:
-                    for target in self.target:
-                        if entity is target:
-                            self.target.remove(entity)
+            self.remove_invalid_targets(entities)
+            self.acquire_targets(entities)
+
+    def acquire_targets(self, entities):
+        for entity in entities:
+            if self.distance_from(entity) < self.range_ and entity.is_alive():
+                if self.has_target() == False:
+                    self.target.append(entity)
+
     def remove_invalid_targets(self, entities):
-        pass
+        for entity in entities:
+            for target in self.target:
+                self.target.remove(target)
+                if entity is target:
+                    if (self.distance_from(entity) < self.range_) and entity.is_alive():
+                        self.target.append(entity)
+                break
+            
 
     def can_attack(self):
         if self.cooldown_time_left > 0:
