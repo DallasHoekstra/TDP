@@ -153,9 +153,9 @@ def test_distance_from_calculates_distance_between_two_entities_or_points(positi
 def test_entity_target_returns_None_if_no_available_targets():
     test_entities = [entity.Entity((100,100)), entity.Entity((200,200))]
     test_targeting_entity = entity.Entity((800,800))
-    assert test_targeting_entity.acquire_targets(test_entities) is None
+    assert test_targeting_entity.update_targets(test_entities) is None
 
-def test_entity_acquire_targets_removes_targets_out_of_range():
+def test_entity_update_targets_removes_targets_out_of_range():
     target_position = (150, 150)
     targeter_position = (200, 200)
     test_target = entity.Entity(target_position)
@@ -168,10 +168,10 @@ def test_entity_acquire_targets_removes_targets_out_of_range():
     assert test_targeter.has_target() == True
     test_target.x = 301
     test_target.y = 301
-    test_targeter.acquire_targets(possible_target_list)
+    test_targeter.update_targets(possible_target_list)
     assert test_targeter.has_target() == False
 
-def test_entity_acquire_targets_handles_disappearing_target():
+def test_entity_update_targets_handles_disappearing_target():
     targeter_position = (100, 100)
     targeted_position = (150, 150)
     
@@ -182,11 +182,11 @@ def test_entity_acquire_targets_handles_disappearing_target():
     test_targeter.target = [test_targeted]
 
     possible_target_list_without_current_target = []
-    test_targeter.acquire_targets(possible_target_list_without_current_target)
+    test_targeter.update_targets(possible_target_list_without_current_target)
 
     assert test_targeter.has_target() == False
 
-def test_entity_acquire_targets_removes_dead_targets():
+def test_entity_update_targets_removes_dead_targets():
     targeter_position = (100, 100)
     targeted_position = (150, 150)
     
@@ -195,10 +195,10 @@ def test_entity_acquire_targets_removes_dead_targets():
     test_targeted.current_health = 1
     test_targeter.range_ = 100
 
-    test_targeter.acquire_targets([test_targeted])
+    test_targeter.update_targets([test_targeted])
     assert test_targeter.has_target() == True
     test_targeted.current_health = 0
-    test_targeter.acquire_targets([test_targeted])
+    test_targeter.update_targets([test_targeted])
     assert test_targeter.has_target() == False
 
 # FOR FUTURE: Update this behavior to "nearest to village" once pathing distance is implemented
@@ -217,7 +217,7 @@ def test_entity_targets_first_nearest_by_default():
 
     test_targeter.range_ = 400
 
-    test_targeter.acquire_targets(test_targeted)
+    test_targeter.update_targets(test_targeted)
     print(test_targeter.target)
     assert isinstance(test_targeter.target[0], entity.Entity)
     assert test_targeter.target[0] == test_targeted[0]
@@ -225,12 +225,12 @@ def test_entity_targets_first_nearest_by_default():
     new_nearest = (115, 215)
     test_targeted.append(entity.Entity(new_nearest))
     print(test_targeted)
-    test_targeter.acquire_targets(test_targeted)
+    test_targeter.update_targets(test_targeted)
     print(test_targeter.target)
 
     assert test_targeter.target[0] == test_targeted[0]
     test_targeted.remove(test_targeted[0])
-    test_targeter.acquire_targets(test_targeted)
+    test_targeter.update_targets(test_targeted)
     assert test_targeter.target[0] == test_targeted[0]
 
 def test_entity_can_only_attack_if_cooldown_complete():

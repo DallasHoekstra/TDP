@@ -21,6 +21,9 @@ class Entity():
 
     # FOR FUTURE: Refactor name to "update_targets"
     def acquire_targets(self, entities):
+        pass
+
+    def update_targets(self, entities):
         if entities == []:
             for target in self.target:
                 self.target.remove(target)
@@ -39,6 +42,8 @@ class Entity():
                     for target in self.target:
                         if entity is target:
                             self.target.remove(entity)
+    def remove_invalid_targets(self, entities):
+        pass
 
     def can_attack(self):
         if self.cooldown_time_left > 0:
