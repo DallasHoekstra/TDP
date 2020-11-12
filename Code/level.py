@@ -1,4 +1,5 @@
 class Level():
+    health = 20
     background_image = ""
     starting_gold = 0
     current_gold = 0
@@ -60,3 +61,11 @@ class Level():
 
     def increase_gold_by(self, quantity):
         self.current_gold += quantity
+
+    def lower_health_by(self, quantity):
+        if quantity < 0:
+            return
+        if self.health - quantity >= 0:
+            self.health -= quantity
+        else:
+            self.health = 0

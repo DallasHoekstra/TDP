@@ -15,16 +15,10 @@ class Tower(entity.Entity):
     
     def __init__(self, position):
         self.status_affects = []
-        self.x, self.y = int(position[0] - (self.width/2)), int(position[1] - (self.height/2))
+        self.x, self.y = position[0], position[1]
         self.current_health = self.max_health
 
-    def attack(self):
-        pass
-
     def set_position(self, position):
-        pass
-
-    def get_position(self):
         pass
 
     def move(self):
@@ -58,7 +52,13 @@ class Fire_Tower(Tower):
     def __init__(self, position):
         self.current_health = self.max_health
         self.status_affects = []
-        self.x, self.y = int(position[0] - (self.width/2)), int(position[1] - (self.height/2))
+        self.x, self.y = position[0], position[1]
+
+    def acquire_target(self, entities):
+        for entity in entities:
+            if self.distance_from(entity) <= self.range_:
+                self.target.append(entity)
+
 
 
 class Ice_Tower(Tower):
@@ -71,7 +71,7 @@ class Ice_Tower(Tower):
     def __init__(self, position):
         self.current_health = self.max_health
         self.status_affects = []
-        self.x, self.y = int(position[0] - (self.width/2)), int(position[1] - (self.height/2))
+        self.x, self.y = position[0], position[1]
 
 class Arrow_Tower(Tower):
     cost = 150
@@ -83,4 +83,4 @@ class Arrow_Tower(Tower):
     def __init__(self, position):
         self.current_health = self.max_health
         self.status_affects = []
-        self.x, self.y = int(position[0] - (self.width/2)), int(position[1] - (self.height/2))
+        self.x, self.y = position[0], position[1]

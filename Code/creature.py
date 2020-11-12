@@ -7,10 +7,10 @@ class Creature(entity.Entity):
 #     x = 0
 #     y = 0
 #     maxhealth = 0
-#     health = 0
 #     attack = 0
     default_move_speed = 0
     move_speed = default_move_speed
+    life_damage = 0
 #     foe = False
 #     path = []
 #     width = 0
@@ -21,7 +21,8 @@ class Creature(entity.Entity):
         self.x = x_ord
         self.y = y_ord
         self.conditions = []
-        
+
+
         self.path = path.copy()
         if len(self.path) > 0:
             self.next_point = self.path[-1]
@@ -63,10 +64,13 @@ class Creature(entity.Entity):
         return self.distance_from(self.next_point) < self.move_speed
 
     def move(self):
+
         if self.has_completed_path() == False:
             if self.has_reached_next_point(): 
                 self.update_next_point()
-            if self.has_completed_path() == False:
+            if self.has_completed_path() == True:
+                return
+            else:
                 if self.x > self.next_point[0]:
                     self.x -= self.move_speed
                 elif self.x < self.next_point[0]:
@@ -75,8 +79,11 @@ class Creature(entity.Entity):
                     self.y -= self.move_speed
                 elif self.y < self.next_point[1]:
                     self.y += self.move_speed
+        else: 
+            self.die()
     
-
+    def get_life_damage(self):
+        return self.life_damage
 
 #     def move(self):
 #         if len(self.path) > 0:
@@ -126,7 +133,7 @@ class Creature(entity.Entity):
         
 class Skeleton(Creature):
     max_health = 25
-    health = max_health
+    current_health = max_health
     default_move_speed = 1
     move_speed = default_move_speed
     life_damage = 1
@@ -148,7 +155,7 @@ class Skeleton(Creature):
 
 class Accelerator(Creature):
     max_health = 10
-    health = max_health
+    current_health = max_health
     default_move_speed = 1
     move_speed = default_move_speed
     life_damage = 1

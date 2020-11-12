@@ -36,11 +36,15 @@ def play_level(level_number, display):
                 level.existing_creatures.remove(creature)
             else:
                 creature.move()           
-                #       move creatures
-                #       collision check creatures and the village
+                if creature.has_completed_path():
+                    level.lower_health_by(creature.get_life_damage())
                 #       manage creature attacks
                 #           draw creature attacks
-        # 
+        for tower in level.existing_towers:
+            if tower.can_attack():
+                tower.acquire_targets(level.existing_creatures)
+                if tower.has_target():
+                    tower.attack()
         #   process tower attacks
         #       draw tower attacks
         #   move bullets

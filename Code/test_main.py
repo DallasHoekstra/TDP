@@ -3,7 +3,8 @@ import math
 
 
 import pytest
-import pytest_mock
+import unittest
+import pytest_mock as mocker
 
 import gameclock as gc
 import main
@@ -11,9 +12,11 @@ import entity
 import tower
 import level
 import creature
-
-# List of creatures. Used in parametrized tests
+from creature import Creature as CRT
+# Lists for use in parametrized tests
 creature_types_list = ["Skeleton", "Accelerator"]
+levels_list = [1, 2, 3, 4]
+tower_type_list = ["Fire_Tower", "Ice_Tower", "Arrow_Tower"]
 
 
 # Game Clock Tests
@@ -135,8 +138,75 @@ def test_distance_from_calculates_distance_between_two_entities_or_points(positi
     assert entity_1.distance_from(entity_2) == distance_1_2
     assert entity_2.distance_from(entity_1) == distance_1_2
 
+def test_entity_target_returns_None_if_no_available_targets():
+    test_entities = [entity.Entity((100,100)), entity.Entity((200,200))]
+    test_targeting_entity = entity.Entity((800,800))
+    assert test_targeting_entity.acquire_targets(test_entities) is None
+
+## FOR FUTURE: Update this behavior to "nearest to village" once pathing distance is implemented
+def test_entity_targets_first_nearest_by_default():
+    nearest = (100, 200)
+    position_2 = (100, 400)
+    position_3 = (400, 400)
+
+    test_entities = [entity.Entity(nearest), entity.Entity(position_2), entity.Entity(position_3)]
+    test_targeting_entity = entity.Entity((150, 250))
+    test_targeting_entity.range_ = 400
+
+    test_targeting_entity.acquire_targets(test_entities)
+
+    assert isinstance(test_targeting_entity.target[0], entity.Entity)
+    assert test_targeting_entity.target[0] == test_entities[0]
+
+    new_nearest = (115, 215)
+    test_entities.append(entity.Entity(new_nearest))
+    test_targeting_entity.acquire_targets(test_entities)
+
+    assert test_targeting_entity.target[0] == test_entities[0]
+
+    # test_entities.remove(test_entities[0])
+    # test_targeting_entity.acquire_targets(test_entities)
+    # assert test_targeting_entity.target[0] == test_entities[0]
+
+def test_entity_can_only_attack_if_cooldown_complete():
+    test_entity = entity.Entity((100, 100))
+    assert test_entity.can_attack() == True
+    test_entity.cooldown_time_left = 1
+    assert test_entity.can_attack() == False
+
+def test_entity_has_target_only_if_target_list_is_not_empty():
+    test_entity_targeter = entity.Entity((100, 100))
+    test_entity_targeted = entity.Entity((50,50))
+    test_entity_targeted.current_health = 1
+
+    assert test_entity_targeter.has_target() == False
+    
+    test_entity_targeter.target = [test_entity_targeted]
+
+    assert test_entity_targeter.has_target() == True
+
+def test_entity_has_target_only_if_target_is_alive():
+    test_entity_targeter = entity.Entity((0,0))
+    test_entity_targeted = entity.Entity((0,0))
+    test_entity_targeted.current_health = 1
+
+    test_entity_targeter.target = [test_entity_targeted]
+    assert test_entity_targeter.has_target() == True
+    test_entity_targeted.die()
+    assert test_entity_targeter.has_target() == False
+
+def test_entity_has_target_handles_multitarget_lists():
+    test_entity_targeter = entity.Entity((0,0))
+    test_entity_targeted = []
+    for _ in range(5):
+        test_entity_targeted.append(entity.Entity((_,_)))
+        test_entity_targeted[_].current_health = 1
+    test_entity_targeter.target = test_entity_targeted.copy()
+
+    assert test_entity_targeter.has_target() == True
+
 # Tower Tests
-def test_entity_uses_proper_GUI_formatting():
+def test_entity_draw_uses_proper_GUI_formatting():
     test_entity = entity.Entity((100,200))
     image_path, position = test_entity.draw()
     assert isinstance(image_path, str)
@@ -144,50 +214,59 @@ def test_entity_uses_proper_GUI_formatting():
     assert isinstance(position[0], int or float)
     assert isinstance(position[1], int or float)
 
-def test_entity_taret_returns_None_if_no_available_targets():
-    test_entities = [entity.Entity((100,100)), entity.Entity((200,200))]
-    test_targeting_entity = entity.Entity((800,800))
-    assert test_targeting_entity.target(test_entities) is None
-
-def test_entity_targets_first_within_range_by_default():
-    nearest = (100, 200)
-    position_2 = (100, 400)
-    position_3 = (400, 400)
-
-    test_entities = [entity.Entity(nearest), entity.Entity(position_2), entity.Entity(position_3)]
-    test_targeting_entity = entity.Entity((150, 250))
-    test_targeting_entity.range_ = 100
-
-    target = test_targeting_entity.target(test_entities)
-    
-    assert isinstance(target, entity.Entity)
-    assert target == test_entities[0]
-
-    new_nearest = (115, 215)
-    test_entities.append(entity.Entity(new_nearest))
-
-    assert test_targeting_entity.target(test_entities) == test_entities[0]
-
-    test_entities.remove(test_entities[0])
-    assert test_targeting_entity.target(test_entities) == test_entities[2]
+@pytest.mark.parametrize("tower_type", tower_type_list)
+def test_tower_get_position_returns_correct_position(tower_type):
+    x_ord, y_ord = 0, 0
+    test_tower = getattr(tower, tower_type)((x_ord, y_ord))
+    position = test_tower.get_position()
+    assert position[0] == x_ord
+    assert position[1] == y_ord
+     
 
 
 #Level Tests
-def test_gold_can_be_increased():
-    test_level = level.Level(1)
+@pytest.mark.parametrize("level_number", levels_list)
+def test_gold_can_be_increased(level_number):
+    test_level = level.Level(level_number)
     initial_gold = test_level.get_current_gold()
     test_level.increase_gold_by(100)
     new_gold = test_level.get_current_gold()
 
     assert new_gold == initial_gold + 100
 
-def test_gold_can_be_decreased():
-    test_level = level.Level(1)
+@pytest.mark.parametrize("level_number", levels_list)
+def test_gold_can_be_decreased(level_number):
+    test_level = level.Level(level_number)
     initial_gold = test_level.get_current_gold()
     test_level.decrease_gold_by(100)
     new_gold = test_level.get_current_gold()
 
     assert new_gold == initial_gold - 100
+
+@pytest.mark.parametrize("level_number", levels_list)
+def test_lower_health_by_lowers_health(level_number):
+    test_level = level.Level(level_number)
+
+    original_health = test_level.health
+    test_level.lower_health_by(5)
+    assert test_level.health == original_health - 5
+    test_level.lower_health_by(1)
+    assert test_level.health == original_health - 6
+
+@pytest.mark.parametrize("level_number", levels_list)
+def test_lower_health_by_bottoms_at_zero(level_number):
+    test_level = level.Level(level_number)
+    original_health = test_level.health
+    test_level.lower_health_by(original_health + 1)
+    assert test_level.health == 0
+    
+@pytest.mark.parametrize("level_number", levels_list)
+def test_lower_health_by_cannot_increase_health(level_number):
+    test_level = level.Level(level_number)
+    original_health = test_level.health
+    test_level.lower_health_by(-1)
+    assert original_health >= test_level.health
+
 
 # Main Tests
 @pytest.mark.parametrize("kind, position, type_", [("Fire_Tower", (100, 100), tower.Fire_Tower), 
@@ -312,7 +391,7 @@ def test_skeleton_initializes_correctly():
     assert len(test_skeleton.conditions) == 0
 
     assert test_skeleton.max_health == 25
-    assert test_skeleton.health == test_skeleton.max_health
+    assert test_skeleton.current_health == test_skeleton.max_health
     assert test_skeleton.default_move_speed == 1
     assert test_skeleton.move_speed == test_skeleton.default_move_speed
     assert test_skeleton.foe == True
@@ -331,7 +410,7 @@ def test_accelerator_initializes_correctly():
     assert len(test_accelerator.conditions) == 0
 
     assert test_accelerator.max_health == 10
-    assert test_accelerator.health == test_accelerator.max_health
+    assert test_accelerator.current_health == test_accelerator.max_health
     assert test_accelerator.default_move_speed == 1
     assert test_accelerator.move_speed == test_accelerator.default_move_speed
     assert test_accelerator.foe == True
@@ -399,3 +478,14 @@ def test_creature_stops_moving_when_path_ends(creature_type):
     test_creature.move()
     assert test_creature.next_point is None
     test_creature.move()
+
+# Test with base class only and do not parametrize: some creatures may not 
+# die at end of path
+def test_Creature_dies_when_path_ends():
+    test_creature = creature.Creature(0, 0, [])
+    test_creature.current_health = 10
+    test_creature.move()
+
+    assert test_creature.is_alive() == False
+
+
