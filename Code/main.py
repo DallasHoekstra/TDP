@@ -13,8 +13,13 @@ def play_level(level_number, display):
     fps = 60
     level = lvl.Level(level_number)
     clock = gc.GameClock(fps)
-    score = 0
     game_paused = False
+    game_clock_paused_at = 0
+    game_clock_ahead_by = 0
+
+    score = 0
+
+    
     selection_stage_one = ""
     tower_names = ["Fire_Tower", "Ice_Tower", "Arrow_Tower"]
     selection_location = (0,0)
@@ -27,24 +32,24 @@ def play_level(level_number, display):
     
         if game_paused == False:
             if wave < len(level.waves):
-                if clock.get_current_time() > level.waves[wave][0]:
+                if clock.get_external_time() > level.waves[wave][0]:
                     spawn_wave_number(level, wave)
                     wave += 1
 
-        for creature in level.existing_creatures:
-            if not creature.is_alive():
-                level.existing_creatures.remove(creature)
-            else:
-                creature.move()           
-                if creature.has_completed_path():
-                    level.lower_health_by(creature.get_life_damage())
-                #       manage creature attacks
-                #           draw creature attacks
-        for tower in level.existing_towers:
-            if tower.can_attack():
-                tower.acquire_targets(level.existing_creatures)
-                if tower.has_target():
-                    tower.attack()
+            for creature in level.existing_creatures:
+                if not creature.is_alive():
+                    level.existing_creatures.remove(creature)
+                else:
+                    creature.move()           
+                    if creature.has_completed_path():
+                        level.lower_health_by(creature.get_life_damage())
+                    #       manage creature attacks
+                    #           draw creature attacks
+            for tower in level.existing_towers:
+                if tower.can_attack():
+                    tower.acquire_targets(level.existing_creatures)
+                    if tower.has_target():
+                        tower.attack()
         #   process tower attacks
         #       draw tower attacks
         #   move bullets
@@ -151,16 +156,6 @@ def update_screen(level, display, time, wave):
 
 
 
-
-
-
-
-
-
-
-
-
-
 def get_user_input(display, caller):
     if caller == "level":
         user_input = display.return_user_input("level")
@@ -203,4 +198,4 @@ def main():
             # save the score to a file
 
 
-main()
+# main()

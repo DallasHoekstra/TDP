@@ -1,5 +1,6 @@
 import time
 import math
+from random import randint 
 
 
 import pytest
@@ -31,15 +32,15 @@ def test_initialize_game_clock():
 
 def test_clock_cycles_progress_forward():
     game_clock = gc.GameClock(60)
-    cycle_1 = game_clock.get_current_time()
-    cycle_2 = game_clock.get_current_time()
+    cycle_1 = game_clock.get_internal_time()
+    cycle_2 = game_clock.get_internal_time()
     assert cycle_1 < cycle_2
     
 def test_clock_ticks_at_least_cycle_length():
     game_clock = gc.GameClock(60)
-    cycle_1 = game_clock.get_current_time()
+    cycle_1 = game_clock.get_internal_time()
     game_clock.tick()
-    cycle_2 = game_clock.get_current_time()
+    cycle_2 = game_clock.get_internal_time()
     assert (cycle_2 - cycle_1) >= game_clock.get_cycle_length()
 
 def test_fps_can_be_changed_multiple_times():
@@ -55,9 +56,36 @@ def test_fps_can_be_changed_multiple_times():
 
 def test_clock_converts_current_time_to_seconds():
     clock = gc.GameClock(60)
-    time = clock.get_current_time()
+    time = clock.get_internal_time()
     time_in_seconds = clock.in_seconds(time)
     assert isinstance(time_in_seconds, int)
+
+def test_pause_records_time_paused_at():
+    clock = gc.GameClock(60)
+    assert clock.paused_time == 0
+    before = clock.get_internal_time()
+    clock.pause()
+    after = clock.get_internal_time()
+    assert clock.paused_time >= before
+    assert clock.paused_time <= after
+
+def test_pause_ignores_repeated_calls_without_a_resume_call():
+    clock = gc.GameClock(60)
+    clock.pause()
+    original_paused_time = clock.paused_time
+    clock.pause()
+    assert clock.paused_time == original_paused_time
+
+def test_get_external_time_gives_paused_time_in_seconds_when_paused():
+    clock = gc.GameClock(60)
+
+    random_number = randint(0, 10)
+    for cycle in range(random_number):
+        clock.tick()
+
+    clock.pause()
+    assert clock.in_seconds(clock.paused_time) == clock.get_external_time()
+    assert isinstance(clock.get_external_time(), int)
 
 
 # Entity Tests
@@ -498,7 +526,6 @@ def test_spawn_wave_adds_creatures_to_existing_creatures():
     
     number = 0
     main.spawn_wave_number(test_level_2, number)
-
 
 # Creature Tests
 def test_creatures_initializes_correctly():
