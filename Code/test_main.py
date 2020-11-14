@@ -69,7 +69,7 @@ def test_pause_records_time_paused_at():
     assert clock.paused_time >= before
     assert clock.paused_time <= after
 
-def test_pause_ignores_repeated_calls_without_a_resume_call():
+def test_pause_ignores_calls_when_clock_is_paused():
     clock = gc.GameClock(60)
     clock.pause()
     original_paused_time = clock.paused_time
@@ -87,6 +87,74 @@ def test_get_external_time_gives_paused_time_in_seconds_when_paused():
     assert clock.in_seconds(clock.paused_time) == clock.get_external_time()
     assert isinstance(clock.get_external_time(), int)
 
+def test_is_paused_returns_correct_value():
+    clock = gc.GameClock(60)
+    assert clock.is_paused() == False
+    clock.paused = True
+    assert clock.is_paused() == True
+
+def test_resume_resets_paused_status():
+    clock = gc.GameClock(60)
+    clock.pause()
+    assert clock.is_paused() == True
+    clock.resume()
+    assert clock.is_paused() == False
+
+def test_external_time_ignores_time_passed_while_paused():
+    clock = gc.GameClock(60)
+    call_delay = round(abs(clock.get_internal_time() - clock.get_external_time()), 5)
+    margin_of_error = call_delay + clock.get_cycle_length()/2
+    
+    clock.pause()
+    after_pause = clock.get_internal_time()
+    timer_1 = randint(0,10)
+    for cycle in range(timer_1):
+        clock.tick()
+    before_resume = clock.get_internal_time()
+    clock.resume()
+    delay_time = round(before_resume - after_pause, 5)
+    time_offset = round(clock.get_internal_time() - clock.get_external_time(), 5)
+    assert time_offset < delay_time + margin_of_error
+    assert time_offset + margin_of_error > delay_time
+
+def test_external_time_ignores_time_across_multiple_pause_instances():
+    clock = gc.GameClock(60)
+    call_delay = round(abs(clock.get_internal_time() - clock.get_external_time()), 5)
+    margin_of_error = call_delay + clock.get_cycle_length()/2
+    delay_time = 0
+    for _ in range(3):
+        clock.pause()
+        after_pause = clock.get_internal_time()
+
+        timer = randint(0,10)
+        for cycle in range(timer):
+            clock.tick()
+        
+        before_resume = clock.get_internal_time()
+        clock.resume()
+        delay_time += before_resume - after_pause
+        time_offset = clock.get_internal_time() - clock.get_external_time()
+
+        assert time_offset < delay_time + margin_of_error
+        assert time_offset > delay_time - margin_of_error
+
+def test_resume_ignores_calls_when_clock_is_not_paused():    
+    clock = gc.GameClock(60)
+    clock.pause()
+    clock.resume()
+    original_time_offset = clock.time_offset
+    clock.resume()
+    assert original_time_offset == clock.time_offset
+
+def test_get_external_time_returns_offset_time_when_paused():
+    clock = gc.GameClock(60)
+    call_delay = round(abs(clock.get_internal_time() - clock.get_external_time()), 5)
+    margin_of_error = call_delay + clock.get_cycle_length()/2
+    clock.pause()
+    clock.resume()
+    clock.pause()
+    assert clock.get_external_time() < clock.get_external_time() - clock.time_offset + margin_of_error
+    assert clock.get_external_time() > clock.get_external_time() - clock.time_offset - margin_of_error
 
 # Entity Tests
 def test_change_health_adds_number_to_health():

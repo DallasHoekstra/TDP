@@ -13,9 +13,6 @@ def play_level(level_number, display):
     fps = 60
     level = lvl.Level(level_number)
     clock = gc.GameClock(fps)
-    game_paused = False
-    game_clock_paused_at = 0
-    game_clock_ahead_by = 0
 
     score = 0
 
@@ -30,7 +27,7 @@ def play_level(level_number, display):
 
         clock.tick()
     
-        if game_paused == False:
+        if clock.is_paused() == False:
             if wave < len(level.waves):
                 if clock.get_external_time() > level.waves[wave][0]:
                     spawn_wave_number(level, wave)
@@ -59,7 +56,7 @@ def play_level(level_number, display):
         
         # draw combat interface
 
-        time = clock.in_seconds(clock.get_current_time())
+        time = clock.get_external_time()
         update_screen(level, display, time, wave)
 
         user_input = get_user_input(display, "level")
@@ -67,14 +64,18 @@ def play_level(level_number, display):
             return False
         elif user_input in tower_names:
             selection_stage_one = user_input
-        elif user_input == "Sell":
+        elif user_input == "SELL":
             selection_stage_one = user_input
+        elif user_input == "PAUSE":
+            clock.pause()
+        elif user_input == "PLAY":
+            clock.resume()
         elif isinstance(user_input, tuple):
             selection_location = user_input
             if selection_stage_one in tower_names:
                 purchase_tower(level, selection_stage_one, selection_location)
                 selection_stage_one = ""
-            elif selection_stage_one == "Sell":
+            elif selection_stage_one == "SELL":
                 for tower in level.existing_towers:
                     if tower.collision(selection_location):
                         sell_tower(level, tower)

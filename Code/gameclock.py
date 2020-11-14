@@ -2,7 +2,9 @@ import time
 
 class GameClock():
     paused_time = 0
-    is_paused = False
+    time_offset = 0
+    paused = False
+
     def __init__(self, fps):
         self.fps = fps
         self.current_time = time.perf_counter()
@@ -23,20 +25,26 @@ class GameClock():
         return time.perf_counter()
 
     def get_external_time(self):
-        if self.is_paused:
-            return self.in_seconds(self.paused_time)
-        return time.perf_counter()
+        if self.is_paused():
+            return self.in_seconds(self.paused_time - self.time_offset)
+        return self.in_seconds(time.perf_counter() - self.time_offset)
 
     def in_seconds(self,time):
         return int(time)
 
+    def is_paused(self):
+        return self.paused
+
     def pause(self):
-        if self.is_paused == False:
-            self.is_paused = True
+        if self.is_paused() == False:
+            self.paused = True
             self.paused_time = self.get_internal_time()
 
     def resume(self):
-        pass
+        if self.is_paused():
+            self.time_offset += self.get_internal_time() - self.paused_time 
+            self.paused = False
+        
 
     def await_next_cycle(self):
         # Function has excess lag (on windows) of up to .8 seconds at a 60 cycle/s framerate
