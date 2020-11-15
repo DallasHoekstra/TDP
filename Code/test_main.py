@@ -14,6 +14,8 @@ import tower
 import level
 import creature
 from creature import Creature as CRT
+import attack
+
 # Lists for use in parametrized tests
 creature_types_list = ["Skeleton", "Accelerator"]
 levels_list = [1, 2, 3, 4]
@@ -443,10 +445,49 @@ def test_Fire_Tower_attacks_all_targets():
     for mock_entity in mock_entities:
         mock_entity.change_health_by.assert_called()
     
-    
 
+#Attack Class Tests
 
+@pytest.mark.parametrize("position, target_position, target_path, target_type", 
+                                        [((100, 100), (500, 500), [(550, 550)], "Skeleton"), ((0, 0), (600, 600), [(300, 300)], "Accelerator"),
+                                         ((400, 400), (100, 300), [(200, 800)], "Skeleton")])
+def test_spellbolt_initializes_correctly(position, target_position, target_path, target_type):
+    test_target = getattr(creature, target_type)(target_position, target_path)
+
+    test_spellbolt = attack.SpellBolt(position, test_target)
+
+    assert isinstance(test_spellbolt, entity.Entity)
+    assert isinstance(test_spellbolt, attack.SpellBolt)
+    assert test_spellbolt.x == position[0]
+    assert test_spellbolt.y == position[1]
+    assert test_spellbolt.targets == [test_target]
+    assert test_spellbolt.damage == 0
+    assert test_spellbolt.element == ""
+    assert test_spellbolt.default_move_speed == 0
+    assert test_spellbolt.move_speed == 0
     
+@pytest.mark.parametrize("creature_type", creature_types_list)
+def test_spellbolt_handles_multiple_targets(creature_type):
+    position = (100, 100)
+    path = [(500, 500)]
+    target_list = []
+    for _ in range(5):
+        temp_creature = getattr(creature, creature_type)(position, path)
+        target_list.append(temp_creature)
+        position = (position[0] + 10, position[1] + 10)
+        path[0] = (path[0][1] + 10, path[0][1] + 10)
+
+    test_spellbolt = attack.SpellBolt(position, target_list)
+    assert isinstance(test_spellbolt, entity.Entity)
+    assert isinstance(test_spellbolt, attack.SpellBolt)
+    assert test_spellbolt.x == position[0]
+    assert test_spellbolt.y == position[1]
+    assert test_spellbolt.targets == [target_list]
+    assert test_spellbolt.damage == 0
+    assert test_spellbolt.element == ""
+    assert test_spellbolt.default_move_speed == 0
+    assert test_spellbolt.move_speed == 0
+
 
 
 
