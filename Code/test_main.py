@@ -299,6 +299,13 @@ def test_entity_update_targets_removes_dead_targets():
     test_targeter.update_targets([test_targeted])
     assert test_targeter.has_target() == False
 
+def test_entity_attack_returns_empty_list_by_default():
+    position = (0,0)
+    test_entity = entity.Entity(position)
+
+    return_value = test_entity.attack()
+    assert return_value == []
+
 # FOR FUTURE: Update this behavior to "nearest to village" once pathing distance is implemented
 def test_entity_targets_first_nearest_by_default():
     nearest = (100, 200)
@@ -445,6 +452,19 @@ def test_Fire_Tower_attacks_all_targets():
     for mock_entity in mock_entities:
         mock_entity.change_health_by.assert_called()
     
+# def test_Ice_Tower_attack_returns_spellbolt():
+#     tower_positon = (100, 100)
+#     test_ice_tower = tower.Ice_Tower(tower_positon)
+    
+#     entity_position = (200, 200)
+#     test_entity = entity.Entity(entity_position)
+
+#     test_ice_tower.update_targets([test_entity])
+#     spellbolt = test_ice_tower.attack()
+#     assert len(spellbolt) > 0
+#     assert isinstance(spellbolt[0], attack.SpellBolt)
+
+
 
 #Attack Class Tests
 
@@ -488,6 +508,20 @@ def test_spellbolt_handles_multiple_targets(creature_type):
     assert test_spellbolt.default_move_speed == 0
     assert test_spellbolt.move_speed == 0
 
+def test_Ice_Bolt_initializes_correctly():
+    bolt_position = (100, 100)
+    target_position = (500, 500)
+    test_target = entity.Entity(target_position)
+    test_bolt = attack.IceBolt(bolt_position, test_target)
+
+    assert isinstance(test_bolt, attack.IceBolt)
+    assert isinstance(test_bolt, attack.SpellBolt) 
+    assert test_bolt.damage == 10
+    assert test_bolt.element == "Ice"
+    assert test_bolt.default_move_speed == 2
+    assert test_bolt.move_speed == test_bolt.default_move_speed
+
+    
 
 
 

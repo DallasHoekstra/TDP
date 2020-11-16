@@ -59,7 +59,8 @@ class Entity():
             return False
 
     def attack(self):
-        pass
+        spell_bolts = []
+        return spell_bolts
 
     def set_position(self, position):
         pass

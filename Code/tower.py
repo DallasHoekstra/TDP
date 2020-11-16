@@ -82,6 +82,13 @@ class Ice_Tower(Tower):
         self.status_affects = []
         self.x, self.y = position[0], position[1]
 
+    
+
+
+
+
+
+
 class Arrow_Tower(Tower):
     cost = 150
     max_health = 100

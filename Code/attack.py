@@ -11,6 +11,12 @@ class SpellBolt(entity.Entity):
         self.y = position[1]
         self.targets = [target]
 
+class IceBolt(SpellBolt):
+    damage = 10
+    element = "Ice"
+    default_move_speed = 2
+    move_speed = default_move_speed
+
 
 # class Fire_Attack(Attack):
 #     range_ = tower.Fire_Tower.range_
