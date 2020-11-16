@@ -6,10 +6,10 @@ class SpellBolt(entity.Entity):
     default_move_speed = 0
     move_speed = 0
 
-    def __init__(self, position, target):
+    def __init__(self, position, targets):
         self.x = position[0]
         self.y = position[1]
-        self.targets = [target]
+        self.target_list = [targets]
 
 class IceBolt(SpellBolt):
     damage = 10

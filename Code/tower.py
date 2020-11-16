@@ -55,16 +55,16 @@ class Fire_Tower(Tower):
         self.current_health = self.max_health
         self.status_affects = []
         self.x, self.y = position[0], position[1]
-        self.target = []
+        self.target_list = []
 
     def acquire_targets(self, entities):
         for entity in entities:
             if self.distance_from(entity) <= self.range_ and entity.is_alive():
-                self.target.append(entity)
+                self.target_list.append(entity)
 
 
     def attack(self):
-        for target in self.target:
+        for target in self.target_list:
             target.change_health_by(-1*self.damage)
             
 
@@ -81,6 +81,7 @@ class Ice_Tower(Tower):
         self.current_health = self.max_health
         self.status_affects = []
         self.x, self.y = position[0], position[1]
+        
 
     
 

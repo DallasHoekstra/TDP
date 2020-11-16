@@ -17,12 +17,12 @@ class Entity():
         self.status_affects = []
         self.x, self.y = position[0], position[1]
         ## FOR FUTURE: Refactor name to target_list for clarity in boolean checks
-        self.target = []
+        self.target_list = []
     
     def update_targets(self, entities):
         if entities == []:
-            for target in self.target:
-                self.target.remove(target)
+            for target in self.target_list:
+                self.target_list.remove(target)
         else:
             self.remove_invalid_targets(entities)
             self.acquire_targets(entities)
@@ -31,15 +31,15 @@ class Entity():
         for entity in entities:
             if self.distance_from(entity) < self.range_ and entity.is_alive():
                 if self.has_target() == False:
-                    self.target.append(entity)
+                    self.target_list.append(entity)
 
     def remove_invalid_targets(self, entities):
         for entity in entities:
-            for target in self.target:
-                self.target.remove(target)
+            for target in self.target_list:
+                self.target_list.remove(target)
                 if entity is target:
                     if (self.distance_from(entity) < self.range_) and entity.is_alive():
-                        self.target.append(entity)
+                        self.target_list.append(entity)
                 break
             
 
@@ -50,10 +50,10 @@ class Entity():
             return True
 
     def has_target(self):
-        if self.target == False:
+        if self.target_list == False:
             return False
         else:
-            for target in self.target:
+            for target in self.target_list:
                 if target.is_alive():
                     return True
             return False

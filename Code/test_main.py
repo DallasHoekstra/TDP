@@ -261,7 +261,7 @@ def test_entity_update_targets_removes_targets_out_of_range():
     test_targeter = entity.Entity(targeter_position)
     possible_target_list = [test_target]
 
-    test_targeter.target.append(test_target)
+    test_targeter.target_list.append(test_target)
 
     assert test_targeter.has_target() == True
     test_target.x = 301
@@ -277,7 +277,7 @@ def test_entity_update_targets_handles_disappearing_target():
     test_targeted = entity.Entity(targeted_position)
     test_targeted.current_health = 1
 
-    test_targeter.target = [test_targeted]
+    test_targeter.target_lsit = [test_targeted]
 
     possible_target_list_without_current_target = []
     test_targeter.update_targets(possible_target_list_without_current_target)
@@ -323,20 +323,18 @@ def test_entity_targets_first_nearest_by_default():
     test_targeter.range_ = 400
 
     test_targeter.update_targets(test_targeted)
-    print(test_targeter.target)
-    assert isinstance(test_targeter.target[0], entity.Entity)
-    assert test_targeter.target[0] == test_targeted[0]
+    assert isinstance(test_targeter.target_list[0], entity.Entity)
+    assert test_targeter.target_list[0] == test_targeted[0]
 
     new_nearest = (115, 215)
     test_targeted.append(entity.Entity(new_nearest))
-    print(test_targeted)
     test_targeter.update_targets(test_targeted)
-    print(test_targeter.target)
+    
 
-    assert test_targeter.target[0] == test_targeted[0]
+    assert test_targeter.target_list[0] == test_targeted[0]
     test_targeted.remove(test_targeted[0])
     test_targeter.update_targets(test_targeted)
-    assert test_targeter.target[0] == test_targeted[0]
+    assert test_targeter.target_list[0] == test_targeted[0]
 
 def test_entity_can_only_attack_if_cooldown_complete():
     test_entity = entity.Entity((100, 100))
@@ -351,7 +349,7 @@ def test_entity_has_target_only_if_target_list_is_not_empty():
 
     assert test_entity_targeter.has_target() == False
     
-    test_entity_targeter.target = [test_entity_targeted]
+    test_entity_targeter.target_list = [test_entity_targeted]
 
     assert test_entity_targeter.has_target() == True
 
@@ -360,7 +358,7 @@ def test_entity_has_target_only_if_target_is_alive():
     test_entity_targeted = entity.Entity((0,0))
     test_entity_targeted.current_health = 1
 
-    test_entity_targeter.target = [test_entity_targeted]
+    test_entity_targeter.target_list = [test_entity_targeted]
     assert test_entity_targeter.has_target() == True
     test_entity_targeted.die()
     assert test_entity_targeter.has_target() == False
@@ -371,7 +369,7 @@ def test_entity_has_target_handles_multitarget_lists():
     for _ in range(5):
         test_entity_targeted.append(entity.Entity((_,_)))
         test_entity_targeted[_].current_health = 1
-    test_entity_targeter.target = test_entity_targeted.copy()
+    test_entity_targeter.target_list = test_entity_targeted.copy()
 
     assert test_entity_targeter.has_target() == True
 
@@ -402,18 +400,12 @@ def test_Fire_Tower_update_targets_acquires_all_viable_targets():
         temp_entity.current_health = 10
         viable_target_entities.append(temp_entity)
         
-    print()
     test_fire_tower.update_targets(viable_target_entities)
-    print(viable_target_entities)
-    print()
-    print(test_fire_tower.target)
 
     counter = 0
     for viable_entity in viable_target_entities:
-        for target in test_fire_tower.target:
-            print("target: " + str(target) + " compare to entity: " + str(viable_entity))            
+        for target in test_fire_tower.target_list:
             if viable_entity is target:
-                print("Nullified")
                 viable_target_entities[counter] = None
                 counter += 1
                 break
@@ -429,7 +421,7 @@ def test_Fire_Tower_attack_deals_damage():
     skeleton_1 = creature.Skeleton(skeleton_1_position, path)
     skeleton_original_health = skeleton_1.current_health
 
-    test_Fire_Tower.target = [skeleton_1]
+    test_Fire_Tower.target_list = [skeleton_1]
     test_Fire_Tower.attack()
 
     assert skeleton_1.current_health == skeleton_original_health - test_Fire_Tower.damage
@@ -446,7 +438,7 @@ def test_Fire_Tower_attacks_all_targets():
     fire_tower_position = (100, 100)
     test_fire_tower = tower.Fire_Tower(fire_tower_position)
 
-    test_fire_tower.target = mock_entities.copy()
+    test_fire_tower.target_list = mock_entities.copy()
     test_fire_tower.attack()
 
     for mock_entity in mock_entities:
@@ -480,7 +472,7 @@ def test_spellbolt_initializes_correctly(position, target_position, target_path,
     assert isinstance(test_spellbolt, attack.SpellBolt)
     assert test_spellbolt.x == position[0]
     assert test_spellbolt.y == position[1]
-    assert test_spellbolt.targets == [test_target]
+    assert test_spellbolt.target_list == [test_target]
     assert test_spellbolt.damage == 0
     assert test_spellbolt.element == ""
     assert test_spellbolt.default_move_speed == 0
@@ -490,19 +482,19 @@ def test_spellbolt_initializes_correctly(position, target_position, target_path,
 def test_spellbolt_handles_multiple_targets(creature_type):
     position = (100, 100)
     path = [(500, 500)]
-    target_list = []
+    test_target_list = []
     for _ in range(5):
         temp_creature = getattr(creature, creature_type)(position, path)
-        target_list.append(temp_creature)
+        test_target_list.append(temp_creature)
         position = (position[0] + 10, position[1] + 10)
         path[0] = (path[0][1] + 10, path[0][1] + 10)
 
-    test_spellbolt = attack.SpellBolt(position, target_list)
+    test_spellbolt = attack.SpellBolt(position, test_target_list)
     assert isinstance(test_spellbolt, entity.Entity)
     assert isinstance(test_spellbolt, attack.SpellBolt)
     assert test_spellbolt.x == position[0]
     assert test_spellbolt.y == position[1]
-    assert test_spellbolt.targets == [target_list]
+    assert test_spellbolt.target_list == [test_target_list]
     assert test_spellbolt.damage == 0
     assert test_spellbolt.element == ""
     assert test_spellbolt.default_move_speed == 0
