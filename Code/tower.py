@@ -1,4 +1,5 @@
 import entity
+import attack
 import math
 
 class Tower(entity.Entity):
@@ -18,6 +19,7 @@ class Tower(entity.Entity):
         self.status_affects = []
         self.x, self.y = position[0], position[1]
         self.current_health = self.max_health
+        self.target_list = []
 
     def set_position(self, position):
         pass
@@ -81,8 +83,16 @@ class Ice_Tower(Tower):
         self.current_health = self.max_health
         self.status_affects = []
         self.x, self.y = position[0], position[1]
+        self.target_list = []
         
-
+    def attack(self):
+        if len(self.target_list) > 0:
+            bolt_position = self.x, self.y
+            bolt_target = self.target_list[0]
+            Ice_Bolt = [attack.SpellBolt(bolt_position, bolt_target)]
+            return Ice_Bolt
+        else:
+            return []
     
 
 

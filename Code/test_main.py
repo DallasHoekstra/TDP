@@ -444,17 +444,27 @@ def test_Fire_Tower_attacks_all_targets():
     for mock_entity in mock_entities:
         mock_entity.change_health_by.assert_called()
     
-# def test_Ice_Tower_attack_returns_spellbolt():
-#     tower_positon = (100, 100)
-#     test_ice_tower = tower.Ice_Tower(tower_positon)
-    
-#     entity_position = (200, 200)
-#     test_entity = entity.Entity(entity_position)
+def test_Ice_Tower_attack_returns_empty_list_without_targets():
+    tower_positon = (100, 100)
+    test_ice_tower = tower.Ice_Tower(tower_positon)
+    test_ice_tower.update_targets([])
 
-#     test_ice_tower.update_targets([test_entity])
-#     spellbolt = test_ice_tower.attack()
-#     assert len(spellbolt) > 0
-#     assert isinstance(spellbolt[0], attack.SpellBolt)
+    spellbolt = test_ice_tower.attack()
+    assert spellbolt == []    
+
+def test_Ice_Tower_attack_returns_spellbolt_with_targets():
+    tower_positon = (100, 100)
+    test_ice_tower = tower.Ice_Tower(tower_positon)
+    
+    entity_position = (200, 200)
+    test_entity = entity.Entity(entity_position)
+    test_entity.current_health = 1
+
+    test_ice_tower.update_targets([test_entity])
+    spellbolt = test_ice_tower.attack()
+    print(spellbolt)
+    assert len(spellbolt) > 0
+    assert isinstance(spellbolt[0], attack.SpellBolt)
 
 
 
