@@ -9,7 +9,22 @@ class SpellBolt(entity.Entity):
     def __init__(self, position, targets):
         self.x = position[0]
         self.y = position[1]
-        self.target_list = [targets]
+        self.target_list = targets.copy()
+
+    def can_attack(self):
+        if self.target_list != []:
+            for target in self.target_list:
+                if self.collision(target):
+                    return True
+            return False
+        else:
+            return False
+        # else:
+        #     return False
+
+    def attack(self, target):
+        pass
+
 
 class IceBolt(SpellBolt):
     damage = 10

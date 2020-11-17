@@ -474,7 +474,7 @@ def test_Ice_Tower_attack_returns_spellbolt_with_targets():
                                         [((100, 100), (500, 500), [(550, 550)], "Skeleton"), ((0, 0), (600, 600), [(300, 300)], "Accelerator"),
                                          ((400, 400), (100, 300), [(200, 800)], "Skeleton")])
 def test_spellbolt_initializes_correctly(position, target_position, target_path, target_type):
-    test_target = getattr(creature, target_type)(target_position, target_path)
+    test_target = [getattr(creature, target_type)(target_position, target_path)]
 
     test_spellbolt = attack.SpellBolt(position, test_target)
 
@@ -482,7 +482,7 @@ def test_spellbolt_initializes_correctly(position, target_position, target_path,
     assert isinstance(test_spellbolt, attack.SpellBolt)
     assert test_spellbolt.x == position[0]
     assert test_spellbolt.y == position[1]
-    assert test_spellbolt.target_list == [test_target]
+    assert test_spellbolt.target_list == test_target
     assert test_spellbolt.damage == 0
     assert test_spellbolt.element == ""
     assert test_spellbolt.default_move_speed == 0
@@ -504,7 +504,7 @@ def test_spellbolt_handles_multiple_targets(creature_type):
     assert isinstance(test_spellbolt, attack.SpellBolt)
     assert test_spellbolt.x == position[0]
     assert test_spellbolt.y == position[1]
-    assert test_spellbolt.target_list == [test_target_list]
+    assert test_spellbolt.target_list == test_target_list
     assert test_spellbolt.damage == 0
     assert test_spellbolt.element == ""
     assert test_spellbolt.default_move_speed == 0
@@ -513,7 +513,7 @@ def test_spellbolt_handles_multiple_targets(creature_type):
 def test_Ice_Bolt_initializes_correctly():
     bolt_position = (100, 100)
     target_position = (500, 500)
-    test_target = entity.Entity(target_position)
+    test_target = [entity.Entity(target_position)]
     test_bolt = attack.IceBolt(bolt_position, test_target)
 
     assert isinstance(test_bolt, attack.IceBolt)
@@ -523,7 +523,41 @@ def test_Ice_Bolt_initializes_correctly():
     assert test_bolt.default_move_speed == 2
     assert test_bolt.move_speed == test_bolt.default_move_speed
 
-    
+def test_SpellBolt_cannot_attack_without_a_target():
+    spellbolt_position = (100, 100)
+    test_spellbolt = attack.SpellBolt(spellbolt_position, [])
+    test_spellbolt.width = 5
+    test_spellbolt.height = 5
+
+    assert test_spellbolt.can_attack() == False  
+
+def test_SpellBolt_cannot_attack_without_collision():
+    entity_position = (200, 200)
+    test_entity = [entity.Entity(entity_position)]
+    test_entity[0].current_health = 1
+    test_entity[0].width = 5
+    test_entity[0].height = 5
+
+    spellbolt_position = (100, 100)
+    test_spellbolt = attack.SpellBolt(spellbolt_position, test_entity)
+    test_spellbolt.width = 5
+    test_spellbolt.height = 5
+
+    assert test_spellbolt.can_attack() == False    
+
+def test_SpellBolt_can_attack_on_collision():
+    entity_position = (100, 100)
+    test_entity = [entity.Entity(entity_position)]
+    test_entity[0].current_health = 1
+    test_entity[0].width = 5
+    test_entity[0].height = 5
+
+    spellbolt_position = (100, 100)
+    test_spellbolt = attack.SpellBolt(spellbolt_position, test_entity)
+    test_spellbolt.width = 5
+    test_spellbolt.height = 5
+
+    assert test_spellbolt.can_attack() == True
 
 
 
