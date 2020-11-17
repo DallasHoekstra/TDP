@@ -485,7 +485,7 @@ def test_Fire_Tower_attack_returns_empty_list():
 
     assert return_value == []
 
-def test_Ice_Tower_attack_returns_empty_list_without_targets():
+def test_Ice_Tower_attack_without_targets_returns_empty_list():
     tower_positon = (100, 100)
     test_ice_tower = tower.Ice_Tower(tower_positon)
     test_ice_tower.update_targets([])
@@ -493,7 +493,7 @@ def test_Ice_Tower_attack_returns_empty_list_without_targets():
     spellbolt = test_ice_tower.attack()
     assert spellbolt == []    
 
-def test_Ice_Tower_attack_returns_spellbolt_with_targets():
+def test_Ice_Tower_attack_with_targets_returns_Ice_bolt():
     tower_positon = (100, 100)
     test_ice_tower = tower.Ice_Tower(tower_positon)
     
@@ -505,9 +505,25 @@ def test_Ice_Tower_attack_returns_spellbolt_with_targets():
     spellbolt = test_ice_tower.attack()
     print(spellbolt)
     assert len(spellbolt) > 0
-    assert isinstance(spellbolt[0], attack.SpellBolt)
+    assert isinstance(spellbolt[0], attack.IceBolt)
 
+def test_Arrow_Tower_attack_without_targets_returns_empty_list():
+    tower_position = (400, 400)
+    test_tower = tower.Arrow_Tower(tower_position)
+    return_value = test_tower.attack()
 
+    assert return_value == []
+
+def test_Arrow_Tower_attack_with_targets_returns_Arrow_bolt():
+    entity_position = (100, 100)
+    test_entity = entity.Entity(entity_position)
+    test_entity.current_health = 1
+
+    tower_position = (400, 400)
+    test_tower = tower.Arrow_Tower(tower_position)
+    test_tower.target_list = [test_entity]
+    return_value = test_tower.attack()
+    assert isinstance(return_value[0], attack.ArrowBolt) == True
 
 #Attack Class Tests
 
@@ -580,7 +596,22 @@ def test_Ice_Bolt_initializes_correctly():
     assert test_bolt.default_move_speed == 2
     assert test_bolt.move_speed == test_bolt.default_move_speed
 
-def test_Ice_Bolt_remove_invalid_targets_does_not_consider_range():
+def test_Arrow_Bolt_initializes_correctly():
+    entity_position = (200, 200)
+    test_entity = entity.Entity(entity_position)
+
+    bolt_position = (100, 100)
+    test_bolt = attack.ArrowBolt(bolt_position, [test_entity])
+
+    assert test_bolt.x == 100
+    assert test_bolt.y == 100
+    assert len(test_bolt.target_list) == 1
+    assert test_bolt.target_list[0] == test_entity
+    assert test_bolt.damage == 2
+    assert test_bolt.default_move_speed == 2
+    assert test_bolt.move_speed == test_bolt.default_move_speed
+
+def test_SpellBolt_remove_invalid_targets_does_not_consider_range():
     entity_position = (100, 100)
     test_entity = entity.Entity(entity_position)
     test_entity.current_health = 1
@@ -591,8 +622,6 @@ def test_Ice_Bolt_remove_invalid_targets_does_not_consider_range():
 
     assert test_bolt.target_list == [test_entity]
     
-
-
 def test_SpellBolt_cannot_attack_without_a_target():
     spellbolt_position = (100, 100)
     test_spellbolt = attack.SpellBolt(spellbolt_position, [])
@@ -629,7 +658,7 @@ def test_SpellBolt_can_attack_on_collision():
 
     assert test_spellbolt.can_attack() == True
 
-def test_Ice_Bolt_attack_attempts_to_damage_target():
+def test_SpellBolt_attack_attempts_to_damage_target():
     mock_position = (100, 100)
     temp_mock_entity = entity.Entity(mock_position)
     temp_mock_entity.change_health_by = unittest.mock.MagicMock(name='change_health_by')
@@ -638,7 +667,7 @@ def test_Ice_Bolt_attack_attempts_to_damage_target():
     temp_mock_entity.height = 5
 
     spellbolt_position = (100, 100)
-    test_spellbolt = attack.IceBolt(spellbolt_position, [temp_mock_entity])
+    test_spellbolt = attack.SpellBolt(spellbolt_position, [temp_mock_entity])
     test_spellbolt.width = 5
     test_spellbolt.height = 5
 

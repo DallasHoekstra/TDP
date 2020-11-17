@@ -95,12 +95,6 @@ class Ice_Tower(Tower):
         else:
             return []
     
-
-
-
-
-
-
 class Arrow_Tower(Tower):
     cost = 150
     max_health = 100
@@ -112,3 +106,13 @@ class Arrow_Tower(Tower):
         self.current_health = self.max_health
         self.status_affects = []
         self.x, self.y = position[0], position[1]
+        self.target_list = []
+
+    def attack(self):
+        if len(self.target_list) > 0:
+            bolt_position = self.x, self.y
+            bolt_target = [self.target_list[0]]
+            ArrowBolt = [attack.ArrowBolt(bolt_position, bolt_target)]
+            return ArrowBolt
+        else:
+            return []

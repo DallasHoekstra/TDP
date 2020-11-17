@@ -57,6 +57,16 @@ class SpellBolt(entity.Entity):
 class IceBolt(SpellBolt):
     damage = 10
     element = "Ice"
+    image_postfix = "Ice_Shard.gif"
+    default_move_speed = 2
+    move_speed = default_move_speed
+    width = 5
+    height = 5
+
+class ArrowBolt(SpellBolt):
+    damage = 2
+    element = "Piercing"
+    image_postfix = "Arrow.gif"
     default_move_speed = 2
     move_speed = default_move_speed
     width = 5
