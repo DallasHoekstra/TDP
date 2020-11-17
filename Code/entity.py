@@ -10,7 +10,10 @@ class Entity():
     image_postfix = ""
     width = 0
     height = 0
+    fire_rate = 1
+    cooldown_time = round(1/fire_rate, 5)
     cooldown_time_left = 0
+    
  
 
     def __init__(self, position):
@@ -60,6 +63,7 @@ class Entity():
 
     def attack(self):
         spell_bolts = []
+        self.cooldown_time_left = self.cooldown_time
         return spell_bolts
 
     def set_position(self, position):
@@ -112,6 +116,8 @@ class Entity():
             else:
                 return False
 
+    def tick(self, time_passed):
+        self.cooldown_time_left -= time_passed
 
     def is_foe(self):
         return self.foe

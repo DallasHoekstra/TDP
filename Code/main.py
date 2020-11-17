@@ -13,6 +13,7 @@ def play_level(level_number, display):
     fps = 60
     level = lvl.Level(level_number)
     clock = gc.GameClock(fps)
+    cycle_time = clock.get_cycle_length()
 
     score = 0
 
@@ -26,8 +27,12 @@ def play_level(level_number, display):
     while run:
 
         clock.tick()
+        
     
         if clock.is_paused() == False:
+            game_tick(level, cycle_time)
+
+
             if wave < len(level.waves):
                 if clock.get_external_time() > level.waves[wave][0]:
                     spawn_wave_number(level, wave)
@@ -62,9 +67,6 @@ def play_level(level_number, display):
                                 level.spellbolts.append(bolt)
 
         #       draw tower attacks
-        # 
-        
-        # draw combat interface
 
         time = clock.get_external_time()
         update_screen(level, display, time, wave)
@@ -90,6 +92,12 @@ def play_level(level_number, display):
                     if tower.collision(selection_location):
                         sell_tower(level, tower)
     return (score)
+
+def game_tick(level, cycle_time):
+    for creature in level.existing_creatures:
+        creature.tick(cycle_time)
+    for tower in level.existing_towers:
+        tower.tick(cycle_time)
 
 
 def spawn_wave_number(level, wave):
@@ -125,10 +133,6 @@ def purchase_tower(level, kind, position):
 def sell_tower(level, tower):
     level.increase_gold_by(int(tower.get_value()*tower.refund_rate))
     level.existing_towers.remove(tower)
-
-
-
-
 
 def update_screen(level, display, time, wave):
     

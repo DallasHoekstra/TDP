@@ -39,7 +39,9 @@ class SpellBolt(entity.Entity):
         #     return False
 
     def attack(self):
-        self.target_list[0].change_health_by(-1*self.damage)
+        target = self.target_list[0]
+        target.change_health_by(-1*self.damage)
+        self.target_list.remove(target)
 
     def move(self):
         if self.x > self.target_list[0].x:

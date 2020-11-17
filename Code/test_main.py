@@ -370,6 +370,22 @@ def test_entity_can_only_attack_if_cooldown_complete():
     test_entity.cooldown_time_left = 1
     assert test_entity.can_attack() == False
 
+def test_entity_attack_resets_cooldown():
+    position = (100, 100)
+    test_entity = entity.Entity(position)
+    
+    test_entity.attack()
+    assert test_entity.cooldown_time_left == test_entity.cooldown_time
+
+def test_entity_tick_reduces_cooldown_time_left():
+    position = (100, 100)
+    test_entity = entity.Entity(position)
+    test_entity.cooldown_time_left = 1
+    time_passed = .016
+    test_entity.tick(time_passed)
+
+    assert test_entity.cooldown_time_left == 1 - time_passed
+
 def test_entity_has_target_only_if_target_list_is_not_empty():
     test_entity_targeter = entity.Entity((100, 100))
     test_entity_targeted = entity.Entity((50,50))
@@ -410,13 +426,68 @@ def test_entity_draw_uses_proper_GUI_formatting():
     assert isinstance(position[0], int or float)
     assert isinstance(position[1], int or float)
 
+def test_Fire_Tower_initializes_correctly():
+    tower_position = (100, 100)
+    test_tower = tower.Fire_Tower(tower_position)
+
+    assert test_tower.x == tower_position[0]
+    assert test_tower.y == tower_position[1]
+    assert isinstance(test_tower, tower.Fire_Tower) == True
+    assert test_tower.status_affects == []
+    assert test_tower.target_list == []
+    assert test_tower.cost == 100
+    assert test_tower.name == "FIRE_TOWER"
+    assert test_tower.image_postfix == "FireTowerL0.gif"
+    assert test_tower.fire_rate == 2
+    assert test_tower.cooldown_time == round(1/test_tower.fire_rate, 5)
+    assert test_tower.cooldown_time_left == 0
+    assert test_tower.range_ == 100*math.sqrt(2)
+    assert test_tower.damage == 1
+
+def test_Ice_Tower_initializes_correctly():
+    tower_position = (100, 100)
+    test_tower = tower.Ice_Tower(tower_position)
+
+    assert test_tower.x == tower_position[0]
+    assert test_tower.y == tower_position[1]
+    assert isinstance(test_tower, tower.Ice_Tower) == True
+    assert test_tower.status_affects == []
+    assert test_tower.target_list == []
+    assert test_tower.cost == 150
+    assert test_tower.name == "ICE_TOWER"
+    assert test_tower.image_postfix == "IceTowerL0.gif"
+    assert test_tower.fire_rate == .5
+    assert test_tower.cooldown_time == round(1/test_tower.fire_rate, 5)
+    assert test_tower.cooldown_time_left == 0
+    assert test_tower.range_ == 300*math.sqrt(2)
+    assert test_tower.damage == 5
+
+def test_Arrow_Tower_initializes_correctly():
+    tower_position = (100, 100)
+    test_tower = tower.Arrow_Tower(tower_position)
+
+    assert test_tower.x == tower_position[0]
+    assert test_tower.y == tower_position[1]
+    assert isinstance(test_tower, tower.Arrow_Tower) == True
+    assert test_tower.status_affects == []
+    assert test_tower.target_list == []
+    assert test_tower.cost == 150
+    assert test_tower.name == "ARROW_TOWER"
+    assert test_tower.image_postfix == "ArrowTowerL0.gif"
+    assert test_tower.fire_rate == .5
+    assert test_tower.cooldown_time == round(1/test_tower.fire_rate, 5)
+    assert test_tower.cooldown_time_left == 0
+    assert test_tower.range_ == 500*math.sqrt(2)
+    assert test_tower.damage == 5
+
+
 @pytest.mark.parametrize("tower_type", tower_type_list)
 def test_tower_get_position_returns_correct_position(tower_type):
-    x_ord, y_ord = 0, 0
-    test_tower = getattr(tower, tower_type)((x_ord, y_ord))
+    tower_position = (0, 0)
+    test_tower = getattr(tower, tower_type)(tower_position)
     position = test_tower.get_position()
-    assert position[0] == x_ord
-    assert position[1] == y_ord
+    assert position[0] == tower_position[0]
+    assert position[1] == tower_position[1]
 
 def test_Fire_Tower_update_targets_acquires_all_viable_targets():
     fire_tower_position = (400, 400)
@@ -453,6 +524,19 @@ def test_Fire_Tower_attack_deals_damage():
     test_Fire_Tower.attack()
 
     assert skeleton_1.current_health == skeleton_original_health - test_Fire_Tower.damage
+
+@pytest.mark.parametrize("tower_type", tower_type_list)
+def test_tower_attacks_reset_cooldown_when_tower_has_targets(tower_type):
+    entity_position = (50, 50)
+    test_entity = entity.Entity(entity_position)
+
+    tower_position = (100, 100)
+    test_tower = getattr(tower, tower_type)(tower_position)
+    test_tower.target_list = [test_entity]
+
+
+    test_tower.attack()
+    assert test_tower.cooldown_time_left == test_tower.cooldown_time
 
 def test_Fire_Tower_attacks_all_targets():
     mock_entities_positions = [(80, 80), (90, 90), (110, 110), (120, 120)]
@@ -678,6 +762,22 @@ def test_SpellBolt_attack_attempts_to_damage_target():
     
     temp_mock_entity.change_health_by.assert_called_with(-attack_damage)
 
+def test_spellBolt_removes_target_after_attacking_it():
+    entity_position = (100, 100)
+    test_entity = [entity.Entity(entity_position)]
+    test_entity[0].current_health = 10
+    test_entity[0].width = 5
+    test_entity[0].height = 5
+
+    spellbolt_position = (100, 100)
+    test_spellbolt = attack.SpellBolt(spellbolt_position, test_entity)
+    test_spellbolt.damage = 5
+    test_spellbolt.width = 5
+    test_spellbolt.height = 5
+
+    test_spellbolt.attack()
+    assert test_spellbolt.target_list == []
+
 @pytest.mark.parametrize("entity_position", [(100, 100), (300, 300), (200, 100), (200, 300), (200, 200)])
 def test_SpellBolt_moves_toward_target(entity_position):
     test_entity = entity.Entity(entity_position)
@@ -833,6 +933,37 @@ def test_spawn_wave_adds_creatures_to_existing_creatures():
     
     number = 0
     main.spawn_wave_number(test_level_2, number)
+
+def test_game_tick_calls_tick_on_entities_with_cycle_time():
+    mock_creatures_positions = [(80, 80), (90, 90), (110, 110), (120, 120)]
+    mock_creatures = []   
+    for position in mock_creatures_positions:
+        temp_mock_creature = entity.Entity(position)
+        temp_mock_creature.tick = unittest.mock.MagicMock(name='tick')
+        mock_creatures.append(temp_mock_creature)
+
+
+    mock_towers_positions = [(85, 80), (95, 90), (115, 110), (125, 120)]
+    mock_towers = []
+    for position in mock_towers_positions:
+        temp_mock_tower = entity.Entity(position)
+        temp_mock_tower.tick = unittest.mock.MagicMock(name='tick')
+        mock_towers.append(temp_mock_tower)
+
+    mock_level = level.Level(1)
+    mock_level.existing_creatures = mock_creatures
+    mock_level.existing_towers = mock_towers
+
+
+    cycle_time = .016
+
+    main.game_tick(mock_level, cycle_time)
+
+    for mock_creature in mock_creatures:
+        mock_creature.tick.assert_called_with(cycle_time)
+    for mock_tower in mock_towers:
+        mock_tower.tick.assert_called_with(cycle_time)
+    
 
 # Creature Tests
 def test_creatures_initializes_correctly():

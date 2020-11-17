@@ -50,6 +50,9 @@ class Fire_Tower(Tower):
     max_health = 100
     name = "FIRE_TOWER"
     image_postfix = "FireTowerL0.gif"
+    fire_rate = 2
+    cooldown_time = round(1/fire_rate, 5)
+    cooldown_time_left = 0
     range_ = 100*math.sqrt(2)
     damage = 1
 
@@ -68,6 +71,7 @@ class Fire_Tower(Tower):
     def attack(self):
         for target in self.target_list:
             target.change_health_by(-1*self.damage)
+        self.cooldown_time_left = self.cooldown_time
         return []
             
 
@@ -76,9 +80,13 @@ class Fire_Tower(Tower):
 class Ice_Tower(Tower):
     cost = 150
     max_health = 100
-    name = "Ice_Tower"
+    name = "ICE_TOWER"
     image_postfix = "IceTowerL0.gif"
-    range_ = 300
+    damage = 5
+    fire_rate = .5
+    cooldown_time = round(1/fire_rate, 5)
+    cooldown_time_left = 0
+    range_ = 300*math.sqrt(2)
 
     def __init__(self, position):
         self.current_health = self.max_health
@@ -91,6 +99,7 @@ class Ice_Tower(Tower):
             bolt_position = self.x, self.y
             bolt_target = [self.target_list[0]]
             Ice_Bolt = [attack.IceBolt(bolt_position, bolt_target)]
+            self.cooldown_time_left = self.cooldown_time
             return Ice_Bolt
         else:
             return []
@@ -98,9 +107,14 @@ class Ice_Tower(Tower):
 class Arrow_Tower(Tower):
     cost = 150
     max_health = 100
-    name = "Arrow_Tower"
+    name = "ARROW_TOWER"
     image_postfix = "ArrowTowerL0.gif"
-    range_ = 500
+    damage = 5
+    fire_rate = .5
+    cooldown_time = round(1/fire_rate, 5)
+    cooldown_time_left = 0
+    range_ = 500*math.sqrt(2)
+    
 
     def __init__(self, position):
         self.current_health = self.max_health
@@ -113,6 +127,7 @@ class Arrow_Tower(Tower):
             bolt_position = self.x, self.y
             bolt_target = [self.target_list[0]]
             ArrowBolt = [attack.ArrowBolt(bolt_position, bolt_target)]
+            self.cooldown_time_left = self.cooldown_time
             return ArrowBolt
         else:
             return []
