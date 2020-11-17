@@ -42,16 +42,26 @@ def play_level(level_number, display):
                         level.lower_health_by(creature.get_life_damage())
                     #       manage creature attacks
                     #           draw creature attacks
+            for bolt in level.spellbolts:
+                if bolt.is_alive():
+                    bolt.move()
+            for bolt in level.spellbolts:
+                if bolt.can_attack():
+                    bolt.attack()
+                bolt.update_targets(bolt.target_list)
+                if not bolt.is_alive():
+                    level.spellbolts.remove(bolt)
+
             for tower in level.existing_towers:
                 if tower.can_attack():
-                    tower.acquire_targets(level.existing_creatures)
+                    tower.update_targets(level.existing_creatures)
                     if tower.has_target():
-                        tower.attack()
-        #   process tower attacks
+                        spellbolts_holder = tower.attack()
+                        if len(spellbolts_holder) > 0:
+                            for bolt in spellbolts_holder:
+                                level.spellbolts.append(bolt)
+
         #       draw tower attacks
-        #   move bullets
-        #       collision check bullets and creatures
-        #           remove expended bullet
         # 
         
         # draw combat interface
@@ -133,8 +143,8 @@ def update_screen(level, display, time, wave):
         display.draw_creature(creature.draw())
     for tower in level.existing_towers:
         display.draw_image(tower.draw())
-    for attack in level.existing_attacks:
-        display.draw_image(attack.draw())
+    for bolt in level.spellbolts:
+        display.draw_image(bolt.draw())
 
     display.show_updated_screen_to_user()
 
@@ -199,4 +209,4 @@ def main():
             # save the score to a file
 
 
-# main()
+main()

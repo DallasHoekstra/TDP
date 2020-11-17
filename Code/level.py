@@ -13,6 +13,7 @@ class Level():
         self.existing_towers = []
         self.existing_creatures = []
         self.existing_attacks = []
+        self.spellbolts = []
         if level_number == 1:
             self.starting_gold = 2000
             self.spawn_points = [(720, 10), (140, 10)]

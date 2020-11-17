@@ -78,7 +78,15 @@ class Entity():
         pass
 
     def change_health_by(self, number):
-        self.current_health += number
+        if number < 0:
+            if self.current_health + number >= 0:
+                    self.current_health += number
+            else:
+                self.current_health = 0
+        elif self.current_health + number < self.max_health:
+            self.current_health += number
+
+        
 
     def draw(self):
         return (self.image_postfix, (int(self.x - (self.width/2)) , int(self.y - (self.height/2))))

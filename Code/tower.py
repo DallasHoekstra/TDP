@@ -68,6 +68,7 @@ class Fire_Tower(Tower):
     def attack(self):
         for target in self.target_list:
             target.change_health_by(-1*self.damage)
+        return []
             
 
 
@@ -89,7 +90,7 @@ class Ice_Tower(Tower):
         if len(self.target_list) > 0:
             bolt_position = self.x, self.y
             bolt_target = [self.target_list[0]]
-            Ice_Bolt = [attack.SpellBolt(bolt_position, bolt_target)]
+            Ice_Bolt = [attack.IceBolt(bolt_position, bolt_target)]
             return Ice_Bolt
         else:
             return []

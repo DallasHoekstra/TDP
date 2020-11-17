@@ -162,6 +162,7 @@ def test_get_external_time_returns_offset_time_when_paused():
 def test_change_health_adds_number_to_health():
     test_entity = entity.Entity((0,0))
     test_entity.current_health = 10
+    test_entity.max_health = 25
     original_health = test_entity.current_health
 
     test_entity.change_health_by(10)
@@ -170,6 +171,33 @@ def test_change_health_adds_number_to_health():
 
     test_entity.change_health_by(-10)
     assert test_entity.current_health == original_health_2 - 10
+
+def test_change_health_cannot_exceed_max_health():
+    position = (100, 100)
+    test_entity = entity.Entity(position)
+    test_entity.current_health = test_entity.max_health
+
+    test_entity.change_health_by(1)
+    assert test_entity.current_health == test_entity.max_health
+
+def test_change_health_cannot_lower_health_below_zero():
+    position = (100, 100)
+    test_entity = entity.Entity(position)
+    test_entity.current_health = 0
+
+    test_entity.change_health_by(-1)
+
+    assert test_entity.current_health == 0
+
+def test_change_health_by_sets_health_to_zero_if_excess_damage_done():
+    position = (100, 100)
+    test_entity = entity.Entity(position)
+    test_entity.max_health = 10
+    test_entity.current_health = test_entity.max_health
+
+    test_entity.change_health_by(-15)
+
+    assert test_entity.current_health == 0
 
 def test_entity_collides_with_entity():
     position_1 = (100, 100)
@@ -443,7 +471,20 @@ def test_Fire_Tower_attacks_all_targets():
 
     for mock_entity in mock_entities:
         mock_entity.change_health_by.assert_called()
-    
+
+def test_Fire_Tower_attack_returns_empty_list():
+    fire_tower_position = (100, 100)
+    test_fire_tower = tower.Fire_Tower(fire_tower_position)
+
+    entity_position = (130, 130)
+    test_entity = entity.Entity(entity_position)
+    test_entity.current_health = 1
+
+    test_fire_tower.target_list = [test_entity]
+    return_value = test_fire_tower.attack()
+
+    assert return_value == []
+
 def test_Ice_Tower_attack_returns_empty_list_without_targets():
     tower_positon = (100, 100)
     test_ice_tower = tower.Ice_Tower(tower_positon)
@@ -487,7 +528,23 @@ def test_spellbolt_initializes_correctly(position, target_position, target_path,
     assert test_spellbolt.element == ""
     assert test_spellbolt.default_move_speed == 0
     assert test_spellbolt.move_speed == 0
-    
+
+def test_bolt_is_alive_returns_false_without_targets():
+    position = (100, 100)
+    test_spellbolt = attack.SpellBolt(position, [])
+
+    assert test_spellbolt.is_alive() == False
+
+def test_bolt_is_alive_returns_true_if_bolt_has_targets():
+    entity_position = (100, 100)
+    test_entity = entity.Entity(entity_position)
+    test_entity.current_health = 1
+
+    spellbolt_position = (200, 200)
+    test_spellbolt = attack.SpellBolt(spellbolt_position, [test_entity])
+
+    assert test_spellbolt.is_alive() == True
+
 @pytest.mark.parametrize("creature_type", creature_types_list)
 def test_spellbolt_handles_multiple_targets(creature_type):
     position = (100, 100)
@@ -522,6 +579,19 @@ def test_Ice_Bolt_initializes_correctly():
     assert test_bolt.element == "Ice"
     assert test_bolt.default_move_speed == 2
     assert test_bolt.move_speed == test_bolt.default_move_speed
+
+def test_Ice_Bolt_remove_invalid_targets_does_not_consider_range():
+    entity_position = (100, 100)
+    test_entity = entity.Entity(entity_position)
+    test_entity.current_health = 1
+
+    bolt_position = (200, 200)
+    test_bolt = attack.SpellBolt(bolt_position, [test_entity])
+    test_entity.remove_invalid_targets([test_entity])
+
+    assert test_bolt.target_list == [test_entity]
+    
+
 
 def test_SpellBolt_cannot_attack_without_a_target():
     spellbolt_position = (100, 100)
@@ -559,9 +629,38 @@ def test_SpellBolt_can_attack_on_collision():
 
     assert test_spellbolt.can_attack() == True
 
+def test_Ice_Bolt_attack_attempts_to_damage_target():
+    mock_position = (100, 100)
+    temp_mock_entity = entity.Entity(mock_position)
+    temp_mock_entity.change_health_by = unittest.mock.MagicMock(name='change_health_by')
+    temp_mock_entity.current_health = 1
+    temp_mock_entity.width = 5
+    temp_mock_entity.height = 5
 
+    spellbolt_position = (100, 100)
+    test_spellbolt = attack.IceBolt(spellbolt_position, [temp_mock_entity])
+    test_spellbolt.width = 5
+    test_spellbolt.height = 5
 
+    test_spellbolt.attack()
+    temp_mock_entity.change_health_by.assert_called()
 
+    attack_damage = test_spellbolt.damage
+    
+    temp_mock_entity.change_health_by.assert_called_with(-attack_damage)
+
+@pytest.mark.parametrize("entity_position", [(100, 100), (300, 300), (200, 100), (200, 300), (200, 200)])
+def test_SpellBolt_moves_toward_target(entity_position):
+    test_entity = entity.Entity(entity_position)
+
+    spellbolt_position = (200, 200)
+    test_spellbolt = attack.SpellBolt(spellbolt_position, [test_entity])
+    original_distance = test_spellbolt.distance_from(test_spellbolt.target_list[0])
+
+    test_spellbolt.move()
+    new_distance = test_spellbolt.distance_from(test_spellbolt.target_list[0])
+
+    assert original_distance >= new_distance
 
 
 #Level Tests

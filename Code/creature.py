@@ -144,6 +144,8 @@ class Skeleton(Creature):
     life_damage = 1
     value = 10
     image_postfix = "L0Skeleton.gif"
+    width = 20
+    height = 20
 #     attack = 5
 
 

@@ -5,11 +5,27 @@ class SpellBolt(entity.Entity):
     element = ""
     default_move_speed = 0
     move_speed = 0
+    image_postfix = "Ice_Shard.gif"
 
     def __init__(self, position, targets):
         self.x = position[0]
         self.y = position[1]
         self.target_list = targets.copy()
+
+    def remove_invalid_targets(self, entities):
+        for entity in entities:
+            for target in self.target_list:
+                self.target_list.remove(target)
+                if entity is target:
+                    if entity.is_alive():
+                        self.target_list.append(entity)
+                break
+
+    def is_alive(self):
+        if len(self.target_list) > 0:
+            return True
+        else:
+            return False
 
     def can_attack(self):
         if self.target_list != []:
@@ -22,8 +38,20 @@ class SpellBolt(entity.Entity):
         # else:
         #     return False
 
-    def attack(self, target):
-        pass
+    def attack(self):
+        self.target_list[0].change_health_by(-1*self.damage)
+
+    def move(self):
+        if self.x > self.target_list[0].x:
+            self.x -= 1
+        elif self.x < self.target_list[0].x:
+            self.x += 1
+        if self.y > self.target_list[0].y:
+            self.y -= 1
+        elif self.y < self.target_list[0].y:
+            self.y += 1
+
+
 
 
 class IceBolt(SpellBolt):
@@ -31,7 +59,8 @@ class IceBolt(SpellBolt):
     element = "Ice"
     default_move_speed = 2
     move_speed = default_move_speed
-
+    width = 5
+    height = 5
 
 # class Fire_Attack(Attack):
 #     range_ = tower.Fire_Tower.range_
