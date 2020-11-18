@@ -934,6 +934,24 @@ def test_spawn_wave_adds_creatures_to_existing_creatures():
     number = 0
     main.spawn_wave_number(test_level_2, number)
 
+def test_spawn_spreads_creatures_out():
+    spread = 20
+
+    test_level = level.Level(1)
+
+    number = 1
+    main.spawn_wave_number(test_level, number)
+    for counter in range(len(test_level.existing_creatures) - 1):
+        if counter < 0:
+            counter = 0
+        creature_1 = test_level.existing_creatures[counter]
+        creature_2 = test_level.existing_creatures[counter + 1]
+        assert creature_1.distance_from(creature_2) >= spread
+
+    
+
+
+
 def test_game_tick_calls_tick_on_entities_with_cycle_time():
     mock_creatures_positions = [(80, 80), (90, 90), (110, 110), (120, 120)]
     mock_creatures = []   

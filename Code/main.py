@@ -101,10 +101,13 @@ def game_tick(level, cycle_time):
 
 
 def spawn_wave_number(level, wave):
+    y_offset = -25
+
     creature_type = level.waves[wave][1]
     spawn_point = level.waves[wave][3]
     path = level.waves[wave][4].copy()
-    for _ in range(level.waves[wave][2]):
+    for _ in range(level.waves[wave][2]):        
+        spawn_point = (spawn_point[0], spawn_point[1] + y_offset)
         new_creature = getattr(crt, creature_type)(spawn_point, path)
         level.existing_creatures.append(new_creature)
         new_creature = None
