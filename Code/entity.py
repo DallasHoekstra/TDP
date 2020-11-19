@@ -95,7 +95,7 @@ class Entity():
         
 
     def draw(self):
-        return (self.image_postfix, (int(self.x - (self.width/2)) , int(self.y - (self.height/2))))
+        return (self.image_postfix, (self.x, self.y))
     
     def should_draw_attack(self):
         if self.cooldown_time_left >= self.cooldown_time - self.attack_draw_duration:

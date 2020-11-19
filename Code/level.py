@@ -1,12 +1,11 @@
 class Level():
     health = 20
-    background_image = ""
     starting_gold = 0
     current_gold = 0
-    level_width = 1000
-    level_height = 800
+    width = 1000
+    height = 800
     village_postfix = "L0_Village.jpg"
-    village = [.5*level_width, .875*level_height, 50, 50]
+    village = [.5*width, .875*height, 50, 50]
     village_relative = [.5, .875, 50, 50]
     background_image = "L1_Background.png"
     def __init__(self, level_number):
@@ -49,7 +48,8 @@ class Level():
         self.current_gold = self.starting_gold
 
     def draw_background(self):
-        return (self.background_image, (0,0))
+        background_center = (int(self.width/2), int(self.height/2))
+        return (self.background_image, background_center)
     
     def draw_village(self, window_width, window_height):
         return(self.village_postfix, (self.village_relative[0]*window_width, self.village_relative[1]*window_height))

@@ -46,7 +46,7 @@ class Tower(entity.Entity):
 
     def draw_attack(self):
         position = (self.x, self.y)
-        return [position, self.attack_image_postfix]
+        return [self.attack_image_postfix, position]
     
 
 class Fire_Tower(Tower):
@@ -80,11 +80,6 @@ class Fire_Tower(Tower):
         self.cooldown_time_left = self.cooldown_time
         return []
             
-    def draw_attack(self):
-        attack_dimensions = (100, 100)
-        position = (self.x - attack_dimensions[0], self.y - attack_dimensions[1])
-        return [self.attack_image_postfix, position]
-
 
 
 class Ice_Tower(Tower):

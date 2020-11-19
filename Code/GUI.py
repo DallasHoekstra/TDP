@@ -264,9 +264,11 @@ class TDDisplay():
         pygame.display.update()
 
     def draw_image(self, image_data):
-        image_filepath_postfix, image_position = image_data
+        image_filepath_postfix, image_center = image_data
         image = pygame.image.load(self.image_path + image_filepath_postfix)
-        self.window.blit(image, image_position)
+        width, height = image.get_width(), image.get_height()
+        draw_point = (int(image_center[0] - width/2), int(image_center[1] - height/2))
+        self.window.blit(image, draw_point)
 
     def draw_creature(self, creature_data):
         filepath_postfix, position, percent_health = creature_data

@@ -440,13 +440,13 @@ def test_entity_has_target_handles_multitarget_lists():
 
 # Tower Tests
 @pytest.mark.parametrize("tower_position", [(100, 100), (145, 230)])
-def test_Fire_Tower_draw_attack_returns_correct_data(tower_position):
-    test_tower = tower.Fire_Tower(tower_position)
+def test_tower_draw_attack_returns_correct_data(tower_position):
+    test_tower = tower.Tower(tower_position)
 
     draw_data = test_tower.draw_attack()
     assert isinstance(draw_data[1], tuple)
-    assert draw_data[1][0] == test_tower.x - 100
-    assert draw_data[1][1] == test_tower.y - 100
+    assert draw_data[1][0] == test_tower.x
+    assert draw_data[1][1] == test_tower.y
     assert draw_data[0] == test_tower.attack_image_postfix
 
 def test_entity_draw_uses_proper_GUI_formatting():
@@ -845,6 +845,20 @@ def test_SpellBolt_moves_toward_target(entity_position):
 
 
 #Level Tests
+def test_level_draw_background_returns_centerpoint():
+    level_number = 1
+    test_level = level.Level(level_number)
+    centerpoint = (int(test_level.width/2), int(test_level.height/2))
+
+    return_value = test_level.draw_background()
+    assert return_value[1] == centerpoint
+
+    test_level.width = 100
+    test_level.height = 100
+    new_centerpoint = (int(test_level.width/2), int(test_level.height/2))
+    new_return_value = test_level.draw_background()
+    assert new_return_value[1] == new_centerpoint
+
 @pytest.mark.parametrize("level_number", levels_list)
 def test_gold_can_be_increased(level_number):
     test_level = level.Level(level_number)
