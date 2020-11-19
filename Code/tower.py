@@ -11,7 +11,6 @@ class Tower(entity.Entity):
     name = ""
     range_ = 0
     foe = False
-    image_postfix = ""
     width = 40
     height = 42
     
@@ -45,11 +44,18 @@ class Tower(entity.Entity):
     def get_value(self):
         return self.cost
 
+    def draw_attack(self):
+        position = (self.x, self.y)
+        return [position, self.attack_image_postfix]
+    
+
 class Fire_Tower(Tower):
     cost = 100
     max_health = 100
     name = "FIRE_TOWER"
     image_postfix = "FireTowerL0.gif"
+    attack_image_postfix = "Fire_Attack.gif"
+    attack_draw_duration = .2
     fire_rate = 2
     cooldown_time = round(1/fire_rate, 5)
     cooldown_time_left = 0
@@ -74,6 +80,10 @@ class Fire_Tower(Tower):
         self.cooldown_time_left = self.cooldown_time
         return []
             
+    def draw_attack(self):
+        attack_dimensions = (100, 100)
+        position = (self.x - attack_dimensions[0], self.y - attack_dimensions[1])
+        return [self.attack_image_postfix, position]
 
 
 
@@ -82,6 +92,8 @@ class Ice_Tower(Tower):
     max_health = 100
     name = "ICE_TOWER"
     image_postfix = "IceTowerL0.gif"
+    attack_image_postfix = "Ice_Shard.gif"
+    attack_draw_duration = 1
     damage = 5
     fire_rate = .5
     cooldown_time = round(1/fire_rate, 5)
@@ -109,6 +121,8 @@ class Arrow_Tower(Tower):
     max_health = 100
     name = "ARROW_TOWER"
     image_postfix = "ArrowTowerL0.gif"
+    attack_image_postfix = "Arrow.gif"
+    attack_draw_duration = 1
     damage = 5
     fire_rate = .5
     cooldown_time = round(1/fire_rate, 5)

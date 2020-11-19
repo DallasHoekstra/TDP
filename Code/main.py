@@ -150,6 +150,8 @@ def update_screen(level, display, time, wave):
         display.draw_creature(creature.draw())
     for tower in level.existing_towers:
         display.draw_image(tower.draw())
+        if tower.should_draw_attack():
+            display.draw_image(tower.draw_attack())
     for bolt in level.spellbolts:
         display.draw_image(bolt.draw())
 

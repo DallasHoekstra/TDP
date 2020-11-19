@@ -159,6 +159,27 @@ def test_get_external_time_returns_offset_time_when_paused():
     assert clock.get_external_time() > clock.get_external_time() - clock.time_offset - margin_of_error
 
 # Entity Tests
+def test_entity_initializes_correctly():
+    entity_position = (7, 7)
+    test_entity = entity.Entity(entity_position)
+    assert test_entity.x == entity_position[0]
+    assert test_entity.y == entity_position[1]
+    assert test_entity.max_health == 0
+    assert test_entity.current_health == 0
+    assert test_entity.name == ""
+    assert test_entity.range_ == 0
+    assert test_entity.foe == True
+    assert test_entity.image_postfix == ""
+    assert test_entity.attack_image_postfix == ""
+    assert test_entity.width == 0
+    assert test_entity.height == 0
+    assert test_entity.fire_rate == 1
+    assert test_entity.cooldown_time == round(1/test_entity.fire_rate, 5)
+    assert test_entity.cooldown_time_left == 0
+    assert test_entity.attack_draw_duration == 0
+    assert test_entity.status_affects == []
+    assert test_entity.target_list == []
+
 def test_change_health_adds_number_to_health():
     test_entity = entity.Entity((0,0))
     test_entity.current_health = 10
@@ -418,6 +439,16 @@ def test_entity_has_target_handles_multitarget_lists():
     assert test_entity_targeter.has_target() == True
 
 # Tower Tests
+@pytest.mark.parametrize("tower_position", [(100, 100), (145, 230)])
+def test_Fire_Tower_draw_attack_returns_correct_data(tower_position):
+    test_tower = tower.Fire_Tower(tower_position)
+
+    draw_data = test_tower.draw_attack()
+    assert isinstance(draw_data[1], tuple)
+    assert draw_data[1][0] == test_tower.x - 100
+    assert draw_data[1][1] == test_tower.y - 100
+    assert draw_data[0] == test_tower.attack_image_postfix
+
 def test_entity_draw_uses_proper_GUI_formatting():
     test_entity = entity.Entity((100,200))
     image_path, position = test_entity.draw()
@@ -438,6 +469,8 @@ def test_Fire_Tower_initializes_correctly():
     assert test_tower.cost == 100
     assert test_tower.name == "FIRE_TOWER"
     assert test_tower.image_postfix == "FireTowerL0.gif"
+    assert test_tower.attack_image_postfix == "Fire_Attack.gif"
+    assert test_tower.attack_draw_duration == .2
     assert test_tower.fire_rate == 2
     assert test_tower.cooldown_time == round(1/test_tower.fire_rate, 5)
     assert test_tower.cooldown_time_left == 0
@@ -456,6 +489,8 @@ def test_Ice_Tower_initializes_correctly():
     assert test_tower.cost == 150
     assert test_tower.name == "ICE_TOWER"
     assert test_tower.image_postfix == "IceTowerL0.gif"
+    assert test_tower.attack_image_postfix == "Ice_Shard.gif"
+    assert test_tower.attack_draw_duration == 1
     assert test_tower.fire_rate == .5
     assert test_tower.cooldown_time == round(1/test_tower.fire_rate, 5)
     assert test_tower.cooldown_time_left == 0
@@ -474,12 +509,29 @@ def test_Arrow_Tower_initializes_correctly():
     assert test_tower.cost == 150
     assert test_tower.name == "ARROW_TOWER"
     assert test_tower.image_postfix == "ArrowTowerL0.gif"
+    assert test_tower.attack_image_postfix == "Arrow.gif"
+    assert test_tower.attack_draw_duration == 1
     assert test_tower.fire_rate == .5
     assert test_tower.cooldown_time == round(1/test_tower.fire_rate, 5)
     assert test_tower.cooldown_time_left == 0
     assert test_tower.range_ == 500*math.sqrt(2)
     assert test_tower.damage == 5
 
+def test_tower_should_draw_attack_returns_True_if_has_attacked_recently():
+    tower_position = (100, 100)
+    test_tower = tower.Fire_Tower(tower_position)
+
+    test_tower.cooldown_time_left = test_tower.cooldown_time - test_tower.attack_draw_duration
+
+    assert test_tower.should_draw_attack() == True
+
+def test_tower_should_draw_attack_returns_False_if_has_not_attacked_recently():
+    tower_position = (100, 100)
+    test_tower = tower.Fire_Tower(tower_position)
+
+    test_tower.cooldown_time_left = test_tower.cooldown_time - (test_tower.attack_draw_duration + 1)
+
+    assert test_tower.should_draw_attack() == False
 
 @pytest.mark.parametrize("tower_type", tower_type_list)
 def test_tower_get_position_returns_correct_position(tower_type):
@@ -947,10 +999,6 @@ def test_spawn_spreads_creatures_out():
         creature_1 = test_level.existing_creatures[counter]
         creature_2 = test_level.existing_creatures[counter + 1]
         assert creature_1.distance_from(creature_2) >= spread
-
-    
-
-
 
 def test_game_tick_calls_tick_on_entities_with_cycle_time():
     mock_creatures_positions = [(80, 80), (90, 90), (110, 110), (120, 120)]
