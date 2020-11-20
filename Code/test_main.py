@@ -8,6 +8,7 @@ import unittest
 import pytest_mock as mocker
 
 import gameclock as gc
+import GUI
 import main
 import entity
 import tower
@@ -157,6 +158,24 @@ def test_get_external_time_returns_offset_time_when_paused():
     clock.pause()
     assert clock.get_external_time() < clock.get_external_time() - clock.time_offset + margin_of_error
     assert clock.get_external_time() > clock.get_external_time() - clock.time_offset - margin_of_error
+
+# GUI Tests
+@pytest.mark.parametrize("center_point, width, height, correct_drawpoint", 
+                        [((100, 100), 50, 50, (75, 75)), ((500, 400), 120, 120, (440, 340))])
+def test_calculate_drawpoint_returns_correct_value(center_point, width, height, correct_drawpoint):
+    test_gui = GUI.TDDisplay()
+    
+    image_center = center_point
+    image = unittest.mock.MagicMock()
+    image.get_width = unittest.mock.MagicMock(return_value = width)
+    image.get_height = unittest.mock.MagicMock(return_value = height)
+    
+
+    response = test_gui.calculate_drawpoint(image, image_center)
+
+    assert response == correct_drawpoint
+
+
 
 # Entity Tests
 def test_entity_initializes_correctly():
