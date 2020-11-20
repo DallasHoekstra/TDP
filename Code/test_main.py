@@ -845,18 +845,21 @@ def test_SpellBolt_moves_toward_target(entity_position):
 
 
 #Level Tests
-def test_level_draw_background_returns_centerpoint():
+def test_level_draw_background_returns_postfix_and_centerpoint():
     level_number = 1
     test_level = level.Level(level_number)
     centerpoint = (int(test_level.width/2), int(test_level.height/2))
 
     return_value = test_level.draw_background()
+    assert return_value[0] == test_level.background_postfix
     assert return_value[1] == centerpoint
+    
 
     test_level.width = 100
     test_level.height = 100
     new_centerpoint = (int(test_level.width/2), int(test_level.height/2))
     new_return_value = test_level.draw_background()
+    assert return_value[0] == test_level.background_postfix
     assert new_return_value[1] == new_centerpoint
 
 @pytest.mark.parametrize("level_number", levels_list)

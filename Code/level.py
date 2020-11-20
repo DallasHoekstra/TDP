@@ -7,7 +7,7 @@ class Level():
     village_postfix = "L0_Village.jpg"
     village = [.5*width, .875*height, 50, 50]
     village_relative = [.5, .875, 50, 50]
-    background_image = "L1_Background.png"
+    background_postfix = "L1_Background.png"
     def __init__(self, level_number):
         self.existing_towers = []
         self.existing_creatures = []
@@ -49,7 +49,7 @@ class Level():
 
     def draw_background(self):
         background_center = (int(self.width/2), int(self.height/2))
-        return (self.background_image, background_center)
+        return (self.background_postfix, background_center)
     
     def draw_village(self, window_width, window_height):
         return(self.village_postfix, (self.village_relative[0]*window_width, self.village_relative[1]*window_height))
