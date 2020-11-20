@@ -272,17 +272,19 @@ class TDDisplay():
 
     def draw_creature(self, creature_data):
         filepath_postfix, image_center, percent_health = creature_data
-
         image = pygame.image.load(self.image_path + filepath_postfix)
         width, height = image.get_width(), image.get_height()
-        draw_point = self.calculate_drawpoint(image, image_center)
-
         health_bar_thickness = 3
-        health_bar = pygame.Rect(image_center[0], image_center[1] - 5, width*percent_health, health_bar_thickness)
+
+        draw_point = self.calculate_drawpoint(image, image_center, width, height)
+        health_bar = self.generate_healthbar(health_bar_thickness, percent_health, draw_point, width)
 
         self.window.blit(image, draw_point)
         pygame.draw.rect(self.window, (200, 0, 0), health_bar, 0)
         
-    def calculate_drawpoint(self, image, image_center):
-        width, height = image.get_width(), image.get_height()
+    def calculate_drawpoint(self, image, image_center, width, height):
         return (int(image_center[0] - width/2), int(image_center[1] - height/2))
+
+    def generate_healthbar(self, thickness, percent_health, image_center, width):
+        return pygame.Rect(image_center[0], image_center[1] - 5, width*percent_health, thickness)
+        

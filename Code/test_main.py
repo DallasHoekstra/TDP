@@ -169,13 +169,20 @@ def test_calculate_drawpoint_returns_correct_value(center_point, width, height, 
     image = unittest.mock.MagicMock()
     image.get_width = unittest.mock.MagicMock(return_value = width)
     image.get_height = unittest.mock.MagicMock(return_value = height)
-    
 
-    response = test_gui.calculate_drawpoint(image, image_center)
+    response = test_gui.calculate_drawpoint(image, image_center, width, height)
 
     assert response == correct_drawpoint
 
+@pytest.mark.parametrize("thickness, percent_health, center_point, width", [(3, .5, (100, 100), 20), (10, .1, (200, 153), 15)])
+def test_generate_healthbar_generates_healthbar(thickness, percent_health, center_point, width):
+    test_gui = GUI.TDDisplay()
 
+    response_object = test_gui.generate_healthbar(thickness, percent_health, center_point, width)
+    assert response_object.height == thickness
+    assert response_object.width == int(percent_health*width)
+    assert response_object.top == center_point[1] - 5
+    assert response_object.left == center_point[0]
 
 # Entity Tests
 def test_entity_initializes_correctly():
