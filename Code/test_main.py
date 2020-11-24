@@ -2,11 +2,11 @@ import time
 import math
 from random import randint 
 
-
 import pytest
 import unittest
 import pytest_mock as mocker
 
+import pygame
 import gameclock as gc
 import GUI
 import main
@@ -160,6 +160,20 @@ def test_get_external_time_returns_offset_time_when_paused():
     assert clock.get_external_time() > clock.get_external_time() - clock.time_offset - margin_of_error
 
 # GUI Tests
+
+@pytest.mark.parametrize("width, height, correct_dimensions", 
+                        [(10, 15, (10, 15)), (131, 2050, (131, 2050))])
+def test_get_image_dimensions(width, height, correct_dimensions):
+    test_gui = GUI.TDDisplay()
+    
+    image = unittest.mock.MagicMock()
+    image.get_width.return_value = width
+    image.get_height.return_value = height
+
+    image_dimensions = test_gui.get_image_dimensions(image)
+
+    assert image_dimensions == correct_dimensions
+
 @pytest.mark.parametrize("center_point, width, height, correct_drawpoint", 
                         [((100, 100), 50, 50, (75, 75)), ((500, 400), 120, 120, (440, 340))])
 def test_calculate_drawpoint_returns_correct_value(center_point, width, height, correct_drawpoint):
@@ -183,6 +197,57 @@ def test_generate_healthbar_generates_healthbar(thickness, percent_health, cente
     assert response_object.width == int(percent_health*width)
     assert response_object.top == center_point[1] - 5
     assert response_object.left == center_point[0]
+
+@pytest.mark.parametrize("position, width, height, image_center, perc_health, color, postfix",
+                        [((90, 90), 20, 20, (100, 100), .5, (200, 0, 0), "L0IceTower")])
+@unittest.mock.patch('pygame.image.load')
+@unittest.mock.patch('pygame.draw.rect')
+@unittest.mock.patch('GUI.TDDisplay.generate_healthbar')
+def test_draw_handles_drawing_a_creature(mock_generate_healthbar, mock_draw_rect, 
+                                        mock_image_load, position, width, height, 
+                                        image_center, perc_health, color, postfix ):
+    test_gui = GUI.TDDisplay()
+
+    image = unittest.mock.MagicMock()
+    image.get_width = unittest.mock.MagicMock(return_value=width)
+    image.get_height = unittest.mock.MagicMock(return_value=height)
+    mock_image_load.return_value = image
+    
+    health_bar = unittest.mock.MagicMock()
+    mock_generate_healthbar.return_value = health_bar
+
+    test_gui.window = unittest.mock.MagicMock()
+    test_gui.window.blit = unittest.mock.MagicMock()
+    
+
+    test_gui.draw((postfix, image_center, perc_health))
+
+
+    mock_image_load.assert_called_with(str(test_gui.image_path) + str(postfix))
+    mock_draw_rect.assert_called_with(test_gui.window, color, health_bar, 0)
+    test_gui.window.blit.assert_called_with(image, position)
+
+@pytest.mark.parametrize("position, width, height, image_center, postfix",
+                            [((90, 90), 20, 20, (100, 100), "L0IceTower"),
+                            ((60, 60), 100, 100, (110, 110), "L0FireTower")])
+@unittest.mock.patch('pygame.image.load')
+def test_draw_handles_drawing_an_image(mock_image_load, position, width, height,
+                                        image_center, postfix):
+    test_gui = GUI.TDDisplay()
+
+    image = unittest.mock.MagicMock()
+    image.get_width = unittest.mock.MagicMock(return_value=width)
+    image.get_height = unittest.mock.MagicMock(return_value=height)
+    mock_image_load.return_value = image
+
+    test_gui.window = unittest.mock.MagicMock()
+    test_gui.window.blit = unittest.mock.MagicMock()
+    
+
+    test_gui.draw((postfix, image_center))
+
+    mock_image_load.assert_called_with(str(test_gui.image_path) + str(postfix))
+    test_gui.window.blit.assert_called_with(image, position)
 
 # Entity Tests
 def test_entity_initializes_correctly():
@@ -755,7 +820,7 @@ def test_Ice_Bolt_initializes_correctly():
     assert isinstance(test_bolt, attack.SpellBolt) 
     assert test_bolt.damage == 10
     assert test_bolt.element == "Ice"
-    assert test_bolt.default_move_speed == 2
+    assert test_bolt.default_move_speed == 5
     assert test_bolt.move_speed == test_bolt.default_move_speed
 
 def test_Arrow_Bolt_initializes_correctly():
@@ -770,7 +835,7 @@ def test_Arrow_Bolt_initializes_correctly():
     assert len(test_bolt.target_list) == 1
     assert test_bolt.target_list[0] == test_entity
     assert test_bolt.damage == 2
-    assert test_bolt.default_move_speed == 2
+    assert test_bolt.default_move_speed == 5
     assert test_bolt.move_speed == test_bolt.default_move_speed
 
 def test_SpellBolt_remove_invalid_targets_does_not_consider_range():

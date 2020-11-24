@@ -99,7 +99,6 @@ def game_tick(level, cycle_time):
     for tower in level.existing_towers:
         tower.tick(cycle_time)
 
-
 def spawn_wave_number(level, wave):
     y_offset = -25
 
@@ -139,21 +138,21 @@ def sell_tower(level, tower):
 
 def update_screen(level, display, time, wave):
     
-    display.draw_image(level.draw_background())
+    display.draw(level.draw_background())
 
     gold = level.get_current_gold()
     display.update_level_data_container(gold, time, wave)
     display.draw_interface()
-    display.draw_image(level.draw_village(display.window_width, display.window_height))
+    display.draw(level.draw_village(display.window_width, display.window_height))
 
     for creature in level.existing_creatures:
-        display.draw_creature(creature.draw())
+        display.draw(creature.draw())
     for tower in level.existing_towers:
-        display.draw_image(tower.draw())
+        display.draw(tower.draw())
         if tower.should_draw_attack():
-            display.draw_image(tower.draw_attack())
+            display.draw(tower.draw_attack())
     for bolt in level.spellbolts:
-        display.draw_image(bolt.draw())
+        display.draw(bolt.draw())
 
     display.show_updated_screen_to_user()
 
@@ -170,11 +169,6 @@ def update_screen(level, display, time, wave):
     #     else: # ended in defeat
     #         loss_text = self.game_end_font.render("Your village has fallen!", 1, (255, 0, 0))
     #         self.window.blit(loss_text, (150, int(window_height/2) - 50))
-
-
-
-
-
 
 def get_user_input(display, caller):
     if caller == "level":

@@ -97,15 +97,6 @@ class TDDisplay():
             #         # Call open menu
     # Call when window is resized to adjust 
 
-
-
-
-
-
-
-
-
-
     def create_combat_interface(self): 
 
         self.window_width, self.window_height = self.window.get_size()
@@ -162,14 +153,6 @@ class TDDisplay():
 
         return (self.combat_interface_font, text_Container, control_Container, purchase_Container, health_Container)
 
-
-
-
-
-
-
-
-
     def create_main_menu(self):
     
         play_level_one = self.main_menu_font.render("Play Level One", 1, (255,255,255))
@@ -186,18 +169,10 @@ class TDDisplay():
         
         return [(level_one_button, level_one_text, 1), (level_two_button, level_two_text, 2), (level_three_button, level_three_text, 3)]
 
-
-
     def update_level_data_container(self, gold, time, wave):
         self.combat_interface[1][0][1] = "Gold: " + str(gold)
         self.combat_interface[1][1][1] = "Time: " + str(time)
         self.combat_interface[1][2][1] = "Wave: " + str(wave)
-
-
-
-
-
-
 
     def draw_interface(self):
 
@@ -230,12 +205,6 @@ class TDDisplay():
     def show_updated_screen_to_user(self):
         pygame.display.update()
 
-
-
-
-
-
-
     def draw_settings_menu(self):
         # Open the settings menu
         # Create the settings menu buttons
@@ -263,28 +232,27 @@ class TDDisplay():
             self.window.blit(text[0], text[1])
         pygame.display.update()
 
-    def draw_image(self, image_data):
-        image_filepath_postfix, image_center = image_data
-        image = pygame.image.load(self.image_path + image_filepath_postfix)
-        width, height = image.get_width(), image.get_height()
-        draw_point = (int(image_center[0] - width/2), int(image_center[1] - height/2))
-        self.window.blit(image, draw_point)
+    def draw(self, data):
 
-    def draw_creature(self, creature_data):
-        filepath_postfix, image_center, percent_health = creature_data
-        image = pygame.image.load(self.image_path + filepath_postfix)
-        width, height = image.get_width(), image.get_height()
-        health_bar_thickness = 3
-
+        postfix, image_center = data[0], data[1]
+        image = pygame.image.load(self.image_path + postfix)
+        width, height = self.get_image_dimensions(image)
         draw_point = self.calculate_drawpoint(image, image_center, width, height)
-        health_bar = self.generate_healthbar(health_bar_thickness, percent_health, draw_point, width)
-
         self.window.blit(image, draw_point)
-        pygame.draw.rect(self.window, (200, 0, 0), health_bar, 0)
+
+        if len(data) > 2:
+            percent_health = data[2]
+            thickness = 3
+            health_bar = self.generate_healthbar(thickness, percent_health, draw_point, width)
+            pygame.draw.rect(self.window, (200, 0, 0), health_bar, 0)
         
+    def get_image_dimensions(self, image):
+        width, height = image.get_width(), image.get_height()
+        return (width, height)
+
     def calculate_drawpoint(self, image, image_center, width, height):
         return (int(image_center[0] - width/2), int(image_center[1] - height/2))
 
-    def generate_healthbar(self, thickness, percent_health, image_center, width):
-        return pygame.Rect(image_center[0], image_center[1] - 5, width*percent_health, thickness)
+    def generate_healthbar(self, thickness, percent_health, draw_point, width):
+        return pygame.Rect(draw_point[0], draw_point[1] - 5, width*percent_health, thickness)
         
