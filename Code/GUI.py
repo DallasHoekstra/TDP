@@ -70,27 +70,6 @@ class TDDisplay():
                             print(button_tuple[2])
                             return button_tuple[2]
                     
-
-            
-            # MOUSE BUTTON events
-            # if event.type == pygame.MOUSEBUTTONDOWN:
-            #     mouse_position = event.pos
-        
-                # Check to see if player is using combat interface
-                # for button, _, kind in combat_interface[3]:
-                #     if button.collidepoint(mouse_position):
-                        # call attempting to purchase
-
-                # Check to see if player is using game control interface
-                # for button, _, kind in combat_interface[2]:
-                #     if button.collidepoint(mouse_position):
-                #         if kind == "PLAY":
-                #             # call game play
-                #         elif kind == "PAUSE":
-                #             # call game pause
-                #         if kind == "CallWave":
-                #             if wave <= (len(waves) - 1):
-                #             # call next wave
             # KEYBOARD events  
             # if event.type == pygame.KEYDOWN:
             #     if event.key == pygame.K_ESCAPE:
@@ -143,7 +122,7 @@ class TDDisplay():
         pause_button = (pygame.Rect(control_start[0] + 10, control_start[1] + 60, pause_image.get_width(), pause_image.get_height()), pause_image, "PAUSE")
 
         call_wave_image = pygame.image.load(self.image_path + "CallWave.gif")
-        call_wave_button = (pygame.Rect(control_start[0] + 10, control_start[1] + 110, pause_image.get_width(), pause_image.get_height()), call_wave_image, "CallWave")
+        call_wave_button = (pygame.Rect(control_start[0] + 10, control_start[1] + 110, pause_image.get_width(), pause_image.get_height()), call_wave_image, "CALLWAVE")
 
         control_Container = (play_button, pause_button, call_wave_button)
 

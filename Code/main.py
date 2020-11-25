@@ -22,6 +22,8 @@ def play_level(level_number, display):
     tower_names = ["Fire_Tower", "Ice_Tower", "Arrow_Tower"]
     selection_location = (0,0)
     wave = 0
+    skip_to_next_wave = False
+    previous_spawn_time = 0
 
     
     while run:
@@ -34,7 +36,9 @@ def play_level(level_number, display):
 
 
             if wave < len(level.waves):
-                if clock.get_external_time() > level.waves[wave][0]:
+                if (clock.get_external_time() - previous_spawn_time > level.waves[wave][0]) or skip_to_next_wave == True:
+                    skip_to_next_wave = False
+                    previous_spawn_time = clock.get_external_time()
                     spawn_wave_number(level, wave)
                     wave += 1
 
@@ -82,6 +86,8 @@ def play_level(level_number, display):
             clock.pause()
         elif user_input == "PLAY":
             clock.resume()
+        elif user_input == "CALLWAVE":
+            skip_to_next_wave = True
         elif isinstance(user_input, tuple):
             selection_location = user_input
             if selection_stage_one in tower_names:
