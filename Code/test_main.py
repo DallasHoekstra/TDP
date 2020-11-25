@@ -636,6 +636,18 @@ def test_apply_status_effect_fire_damages_entity_by_severity(severity):
 
     assert test_entity.current_health == 10 - severity
 
+def test_end_status_effect_ice_returns_move_speed_to_normal():
+    position = (100, 100)
+    test_entity = entity.Entity(position)
+    test_entity.default_move_speed = 4
+    test_entity.move_speed = 4
+
+    test_entity.apply_status_effect("Ice", 1, 2)
+    test_entity.end_status_effect("Ice", 0, 2)
+
+    assert test_entity.move_speed == test_entity.default_move_speed
+
+
 # Tower Tests
 @pytest.mark.parametrize("tower_position", [(100, 100), (145, 230)])
 def test_tower_draw_attack_returns_correct_data(tower_position):

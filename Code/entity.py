@@ -81,6 +81,9 @@ class Entity():
         else: 
             self.change_health_by(-1*severity)
 
+    def end_status_effect(self, effect_type, duration, severity):
+        self.move_speed = self.default_move_speed
+
     def set_position(self, position):
         pass
 
