@@ -90,30 +90,6 @@ class Creature(entity.Entity):
         percent_health = round(self.current_health/self.max_health, 2)
         return (self.image_postfix, (self.x, self.y), percent_health)
 
-#     def move(self):
-#         if len(self.path) > 0:
-#             x_diff = self.path[-1][0] - self.x
-#             y_diff = self.path[-1][1] - self.y
-#             if abs(x_diff) > self.move_speed or abs(y_diff) > self.move_speed:
-#                 if abs(x_diff) > self.move_speed:
-#                     if x_diff > 0:
-#                         self.x += self.move_speed
-#                     else:
-#                         self.x -= self.move_speed
-#                 else:
-#                     self.x = self.path[-1][0]
-#                 if abs(y_diff) > self.move_speed:
-#                     if y_diff > 0:
-#                         self.y += self.move_speed
-#                     else:
-#                         self.y -= self.move_speed
-#                 else:
-#                     self.y = self.path[-1][1]
-#             else:
-#                 self.x = self.path[-1][0]
-#                 self.y = self.path[-1][1]
-#                 self.path.pop()
-
 #     def apply_status(self, statusType, duration, severity):
 #         self.statuses[statusType][0] = True
 #         self.statuses[statusType][1] = duration
@@ -149,16 +125,15 @@ class Skeleton(Creature):
 #     attack = 5
 
 
-# class Troll(Creature):
-#     L0_Path = image_path + "L0Troll.gif"
-#     maxhealth = 500
-#     health = 500
+class Troll(Creature):
+    image_postfix = "L0Troll.gif"
+    max_health = 500
+    current_health = max_health
+    default_move_speed = 1
+    move_speed = default_move_speed
+    life_damage = 10
+    value = 100
 #     attack = 50
-#     default_move_speed = 1
-#     move_speed = default_move_speed
-#     foe = True
-#     life_damage = 10
-#     value = 100
 
 class Accelerator(Creature):
     max_health = 10

@@ -1137,7 +1137,6 @@ def test_game_tick_calls_tick_on_entities_with_cycle_time():
         mock_creature.tick.assert_called_with(cycle_time)
     for mock_tower in mock_towers:
         mock_tower.tick.assert_called_with(cycle_time)
-    
 
 # Creature Tests
 def test_creatures_initializes_correctly():
@@ -1192,8 +1191,28 @@ def test_accelerator_initializes_correctly():
     assert test_accelerator.path == test_path
     assert test_accelerator.acceleration_counter == 0
 
+def test_troll_initializes_correctly():
+    position = (150, 200)
+    path = [(300, 300)]
+    test_troll = creature.Troll(position, path)
+
+    assert test_troll.x == position[0]
+    assert test_troll.y == position[1]
+    assert len(test_troll.conditions) == 0
+    assert test_troll.foe == True
+
+    assert test_troll.max_health == 500
+    assert test_troll.current_health == test_troll.max_health
+    assert test_troll.default_move_speed == 1
+    assert test_troll.move_speed == test_troll.default_move_speed
+    assert test_troll.life_damage == 10
+    assert test_troll.value == 100
+    assert test_troll.image_postfix != ""
+    # assert test_accelerator.path == test_path
+
+
 @pytest.mark.parametrize("creature_type", creature_types_list)
-def test_creature_is_alive_returns_true_when_it_should(creature_type):
+def test_creature_is_alive_returns_False_after_death(creature_type):
     position, test_path = (0, 0), []
 
     test_creature = getattr(creature, creature_type)(position, test_path)
