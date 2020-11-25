@@ -2,6 +2,8 @@ import math
 
 class Entity():
     x, y = 0,0
+    default_move_speed = 0
+    move_speed = 0
     max_health = 0
     current_health = 0
     name = ""
@@ -19,9 +21,8 @@ class Entity():
  
 
     def __init__(self, position):
-        self.status_affects = []
+        self.status_effects = []
         self.x, self.y = position[0], position[1]
-        ## FOR FUTURE: Refactor name to target_list for clarity in boolean checks
         self.target_list = []
     
     def update_targets(self, entities):
@@ -47,7 +48,6 @@ class Entity():
                         self.target_list.append(entity)
                 break
             
-
     def can_attack(self):
         if self.cooldown_time_left > 0:
             return False
@@ -67,6 +67,19 @@ class Entity():
         spell_bolts = []
         self.cooldown_time_left = self.cooldown_time
         return spell_bolts
+
+    # FOR FUTURE: consider implementing with dictionary to have named keys instead of numbers
+    # FOR FUTURE: alternately, consider creating status class to manage more complex effects
+    def add_status_effect(self, effect_type, duration, severity):
+        self.status_effects.append([str(effect_type), duration, severity])
+
+    def apply_status_effect(self, effect_type, duration, severity):
+        if effect_type == "Ice":
+            new_slow_speed = self.default_move_speed/severity
+            if self.move_speed > new_slow_speed:
+                self.move_speed = new_slow_speed
+        else: 
+            self.change_health_by(-1*severity)
 
     def set_position(self, position):
         pass
@@ -91,8 +104,6 @@ class Entity():
                 self.current_health = 0
         elif self.current_health + number < self.max_health:
             self.current_health += number
-
-        
 
     def draw(self):
         return (self.image_postfix, (self.x, self.y))
@@ -126,6 +137,16 @@ class Entity():
 
     def tick(self, time_passed):
         self.cooldown_time_left -= time_passed
+
+        # FOR FUTURE: Is this pythonic?
+        counter = 0
+        while (counter < len(self.status_effects)):
+            effect = self.status_effects[counter]
+            effect[1] -= time_passed
+            if effect[1] > 0:
+                counter += 1
+            else:
+                self.status_effects.remove(effect)
 
     def is_foe(self):
         return self.foe

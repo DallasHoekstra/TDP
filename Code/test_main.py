@@ -268,7 +268,7 @@ def test_entity_initializes_correctly():
     assert test_entity.cooldown_time == round(1/test_entity.fire_rate, 5)
     assert test_entity.cooldown_time_left == 0
     assert test_entity.attack_draw_duration == 0
-    assert test_entity.status_affects == []
+    assert test_entity.status_effects == []
     assert test_entity.target_list == []
 
 def test_change_health_adds_number_to_health():
@@ -498,6 +498,60 @@ def test_entity_tick_reduces_cooldown_time_left():
 
     assert test_entity.cooldown_time_left == 1 - time_passed
 
+@pytest.mark.parametrize("time_passed", [1, 4])
+def test_entity_tick_reduces_duration_of_one_effect(time_passed):
+    position = (100, 100)
+    test_entity = entity.Entity(position)
+    duration = 10
+
+    test_entity.add_status_effect("Ice", duration, 2)
+    test_entity.tick(time_passed)
+    duration_remaining = test_entity.status_effects[0][1]
+    assert duration_remaining == duration - time_passed
+
+def test_entity_tick_reduces_duration_of_multiple_effects():
+    position = (100, 100)
+    test_entity = entity.Entity(position)
+    test_entity.add_status_effect("Ice", 10, 2)
+    test_entity.add_status_effect("Fire", 5, 15)
+
+    test_entity.tick(1)
+
+    assert test_entity.status_effects[0][1] == 9
+    assert test_entity.status_effects[1][1] == 4
+
+@pytest.mark.parametrize("time_passed", [5, 2])
+def test_entity_tick_removes_an_expired_effect(time_passed):
+    position = (200, 200)
+    test_entity = entity.Entity(position)
+    test_entity.add_status_effect("Ice", 2, 2)
+    
+    test_entity.tick(time_passed)
+
+    assert test_entity.status_effects == []
+
+def test_entity_tick_removes_expired_effects_but_not_nonexpired_ones():
+    position = (314, 159)
+    test_entity = entity.Entity(position)
+    test_entity.add_status_effect("Ice", 5, 1)
+    test_entity.add_status_effect("Fire", 2, .5)
+
+    test_entity.tick(3)
+
+    assert test_entity.status_effects == [["Ice", 2, 1]]
+
+def test_entity_tick_removes_multiple_expired_effects():
+    position = (100, 100)
+    test_entity = entity.Entity(position)
+    test_entity.add_status_effect("Fire", 2, 3)
+    test_entity.add_status_effect("Ice", 1, 15)
+
+    test_entity.tick(2)
+
+    assert test_entity.status_effects == []
+
+
+
 def test_entity_has_target_only_if_target_list_is_not_empty():
     test_entity_targeter = entity.Entity((100, 100))
     test_entity_targeted = entity.Entity((50,50))
@@ -528,6 +582,59 @@ def test_entity_has_target_handles_multitarget_lists():
     test_entity_targeter.target_list = test_entity_targeted.copy()
 
     assert test_entity_targeter.has_target() == True
+
+def test_add_status_effect_adds_status_to_list_by_default():
+    position = (100, 100)
+    test_entity = entity.Entity(position)
+
+    test_entity.add_status_effect("Ice", 10, 2)
+    assert test_entity.status_effects == [["Ice", 10, 2]]
+
+def test_add_status_effect_allows_adding_subsequent_effects():
+    position = (121, 122)
+    test_entity = entity.Entity(position)
+
+    test_entity.add_status_effect("Ice", 10, 2)
+    test_entity.add_status_effect("Fire", 5, 5)
+
+    assert test_entity.status_effects == [["Ice", 10, 2], ["Fire", 5, 5]]
+
+@pytest.mark.parametrize("move_speed, severity", [(4, 2), (8, 3)])
+def test_apply_status_effect_ice_divides_entity_speed_by_severity(move_speed, severity):
+    position = (100, 100)
+    test_entity = entity.Entity(position)
+    test_entity.default_move_speed = move_speed
+    test_entity.move_speed = move_speed
+
+    test_entity.apply_status_effect("Ice", 10, severity)
+
+    assert test_entity.move_speed == move_speed/severity
+
+def test_apply_status_effect_ice_uses_exactly_most_severe_effect():
+    position = (100, 100)
+    move_speed = 4
+    duration = 10
+    less_severe = 2 
+    more_severe = 4
+    test_entity = entity.Entity(position)
+    test_entity.default_move_speed = move_speed
+    test_entity.move_speed = move_speed
+
+
+    test_entity.apply_status_effect("Ice", duration, less_severe)
+    test_entity.apply_status_effect("Ice", duration, more_severe)
+
+    assert test_entity.move_speed == move_speed/more_severe
+
+@pytest.mark.parametrize("severity", [.01, .005])
+def test_apply_status_effect_fire_damages_entity_by_severity(severity):
+    position = (100, 100)
+    test_entity = entity.Entity(position)
+    test_entity.current_health = 10
+
+    test_entity.apply_status_effect("Fire", 10, severity)
+
+    assert test_entity.current_health == 10 - severity
 
 # Tower Tests
 @pytest.mark.parametrize("tower_position", [(100, 100), (145, 230)])
@@ -1193,8 +1300,8 @@ def test_accelerator_initializes_correctly():
 
 def test_troll_initializes_correctly():
     position = (150, 200)
-    path = [(300, 300)]
-    test_troll = creature.Troll(position, path)
+    test_path = [(300, 300)]
+    test_troll = creature.Troll(position, test_path)
 
     assert test_troll.x == position[0]
     assert test_troll.y == position[1]
@@ -1208,8 +1315,7 @@ def test_troll_initializes_correctly():
     assert test_troll.life_damage == 10
     assert test_troll.value == 100
     assert test_troll.image_postfix != ""
-    # assert test_accelerator.path == test_path
-
+    assert test_troll.path == test_path
 
 @pytest.mark.parametrize("creature_type", creature_types_list)
 def test_creature_is_alive_returns_False_after_death(creature_type):
