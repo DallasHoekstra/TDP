@@ -3,53 +3,20 @@ import entity
 import math
 
 class Creature(entity.Entity):
-#     L0_Path = ""
-#     L0_Image = ""
-#     x = 0
-#     y = 0
-#     maxhealth = 0
-#     attack = 0
     default_move_speed = 0
     move_speed = default_move_speed
     life_damage = 0
-#     foe = False
-#     path = []
-#     width = 0
-#     height = 0
-#     visible = False
     
     def __init__(self, position, path):
         self.x = position[0]
         self.y = position[1]
         self.conditions = []
 
-
         self.path = path.copy()
         if len(self.path) > 0:
             self.next_point = self.path[-1]
         else:
             self.next_point = None
-#         if self.L0_Path != "":
-#             self.L0_Image = pygame.image.load(self.L0_Path)
-#             self.width, self.height = self.L0_Image.get_rect().size
-
-#     def draw_creature(self, window):
-        
-#         if not self.visible:
-#             window_dimensions = window.get_size()        
-#             if self.x > 0 and self.x < window_dimensions[0]:
-#                 if self.y > 0 and self.y < window_dimensions[1]:
-#                     self.visible = True
-#         else:
-#             if self.L0_Image != "":
-#                 window.blit(self.L0_Image, (self.x, self.y))
-#                 pygame.draw.rect(window, (255,0,0), (self.x, self.y - 5, int((self.width/self.maxhealth)*self.health) + 1, 5))
-                        
-#     def set_path(self, path):
-#         self.path = path.copy() 
-
-#     def draw_attack(self):
-#         pass
 
     def update_next_point(self):
         if len(self.path) > 1:
@@ -85,6 +52,8 @@ class Creature(entity.Entity):
     
     def get_life_damage(self):
         return self.life_damage
+
+
 
     def draw(self):
         percent_health = round(self.current_health/self.max_health, 2)
@@ -144,33 +113,6 @@ class Accelerator(Creature):
     value = 20
     image_postfix = "L0Accelerator.gif"
     acceleration_counter = 0
-
 #     attack = 2
 
 
-#     def move(self):
-#         self.acceleration_counter += 1
-#         if len(self.path) > 0:
-#             x_diff = self.path[-1][0] - self.x
-#             y_diff = self.path[-1][1] - self.y
-            
-#             if abs(x_diff) > self.move_speed or abs(y_diff) > self.move_speed:
-#                 if abs(x_diff) > self.move_speed:
-#                     if x_diff > 0:
-#                         self.x += self.move_speed
-#                     else:
-#                         self.x -= self.move_speed
-#                 else:
-#                     self.x = self.path[-1][0]
-#                 if abs(y_diff) > self.move_speed:
-#                     if y_diff > 0:
-#                         self.y += self.move_speed
-#                     else:
-#                         self.y -= self.move_speed
-#                 else:
-#                     self.y = self.path[-1][1]
-                
-#             else:
-#                 self.x = self.path[-1][0]
-#                 self.y = self.path[-1][1]
-#                 self.path.pop()
