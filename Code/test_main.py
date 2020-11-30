@@ -1343,8 +1343,8 @@ def test_accelerator_initializes_correctly():
     assert test_accelerator.path == test_path
     assert test_accelerator.acceleration_counter == 0
 
-    # assert test_accelerator.width == 5
-    # assert test_accelerator.height == 5
+    assert test_accelerator.width == 5
+    assert test_accelerator.height == 5
 
 def test_troll_initializes_correctly():
     position = (150, 200)
@@ -1365,8 +1365,8 @@ def test_troll_initializes_correctly():
     assert test_troll.image_postfix != ""
     assert test_troll.path == test_path
 
-    # assert test_troll.width == 20
-    # assert test_troll.height == 40
+    assert test_troll.width == 20
+    assert test_troll.height == 40
 
 @pytest.mark.parametrize("creature_type", creature_types_list)
 def test_creature_is_alive_returns_False_after_death(creature_type):
