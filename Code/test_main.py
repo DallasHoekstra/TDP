@@ -964,7 +964,9 @@ def test_Arrow_Bolt_initializes_correctly():
     assert test_bolt.y == 100
     assert len(test_bolt.target_list) == 1
     assert test_bolt.target_list[0] == test_entity
-    assert test_bolt.damage == 2
+    assert test_bolt.damage == 5
+    assert test_bolt.crit_chance == .05
+    assert test_bolt.crit_mult == 2
     assert test_bolt.default_move_speed == 5
     assert test_bolt.move_speed == test_bolt.default_move_speed
 
@@ -1073,6 +1075,43 @@ def test_Ice_Bolt_generate_status_effect_returns_formatted_status_effect():
     assert status_effect[1] == test_Ice_Bolt.duration
     assert status_effect[2] == test_Ice_Bolt.severity
 
+@unittest.mock.patch('random.random')
+def test_Arrow_Bolt_does_not_crit_if_crit_chance_is_less_than_randint(random):
+    position = (100, 100)
+    test_entity = entity.Entity(position)
+    target = [test_entity]
+    test_arrow = attack.ArrowBolt(position, target)
+    random.return_value = .1
+
+    arrow_has_crit = test_arrow.has_crit()
+
+    assert arrow_has_crit == False
+
+@unittest.mock.patch('random.random')
+def test_Arrow_Bolt_crits_if_crit_chance_is_greater_than_randint(random):
+    position = (100, 100)
+    test_entity = entity.Entity(position)
+    target = [test_entity]
+    test_arrow = attack.ArrowBolt(position, target)
+    random.return_value = .01
+
+    arrow_has_crit = test_arrow.has_crit()
+
+    assert arrow_has_crit == True
+
+def test_Arrow_Bolt_does_extra_damage_if_it_crits():
+    position = (100, 100)
+    test_entity = entity.Entity(position)
+    test_entity.change_health_by = unittest.mock.MagicMock()
+    target = [test_entity]
+    test_arrow = attack.ArrowBolt(position, target)
+    test_arrow.has_crit = unittest.mock.MagicMock(name="has_crit", return_value=True)
+    crit_damage = test_arrow.damage*test_arrow.crit_mult
+
+    test_arrow.attack()
+
+    test_entity.change_health_by.assert_called_with(-1*crit_damage)
+    
 @pytest.mark.parametrize("entity_position", [(100, 100), (300, 300), (200, 100), (200, 300), (200, 200)])
 def test_SpellBolt_moves_toward_target(entity_position):
     test_entity = entity.Entity(entity_position)

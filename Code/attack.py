@@ -1,4 +1,5 @@
 import entity
+import random
 
 class SpellBolt(entity.Entity):
     damage = 0
@@ -76,7 +77,9 @@ class IceBolt(SpellBolt):
         return [self.element, self.duration, self.severity]
 
 class ArrowBolt(SpellBolt):
-    damage = 2
+    damage = 5
+    crit_chance = .05
+    crit_mult = 2
     element = "Piercing"
     image_postfix = "Arrow.gif"
     default_move_speed = 5
@@ -84,6 +87,15 @@ class ArrowBolt(SpellBolt):
     width = 5
     height = 5
 
-
+    def attack(self):
+        target = self.target_list[0]
+        if self.has_crit():
+            target.change_health_by(-1*self.damage*self.crit_mult)
+        else:
+            target.change_health_by(-1*self.damage)
+        self.target_list.remove(target)
+    
+    def has_crit(self):
+        return self.crit_chance > random.random()
 
 
