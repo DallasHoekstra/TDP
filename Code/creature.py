@@ -59,27 +59,6 @@ class Creature(entity.Entity):
         percent_health = round(self.current_health/self.max_health, 2)
         return (self.image_postfix, (self.x, self.y), percent_health)
 
-#     def apply_status(self, statusType, duration, severity):
-#         self.statuses[statusType][0] = True
-#         self.statuses[statusType][1] = duration
-#         self.statuses[statusType][2] = severity 
-
-#     def tick_status(self):
-#         for status in self.statuses:
-#             isActive = self.statuses[status][0]
-#             timeLeft = self.statuses[status][1]
-#             severity = self.statuses[status][2]
-#             if isActive == True:
-#                 if timeLeft > 0:
-#                     timeLeft -= 1
-#                 else:
-#                     isActive = False
-
-#                 # SWITCH based on status
-#                 # FOR FUTURE: find a way to do this without a SWITCH STYLE
-#                 if status == "Chilled":
-#                     self.move_speed = self.default_move_speed*severity
-
         
 class Skeleton(Creature):
     max_health = 25
@@ -102,6 +81,8 @@ class Troll(Creature):
     move_speed = default_move_speed
     life_damage = 10
     value = 100
+    width = 20
+    height = 40
 #     attack = 50
 
 class Accelerator(Creature):
@@ -113,6 +94,8 @@ class Accelerator(Creature):
     value = 20
     image_postfix = "L0Accelerator.gif"
     acceleration_counter = 0
+    width = 5
+    height = 5
 #     attack = 2
 
 
