@@ -10,7 +10,7 @@ class Creature(entity.Entity):
     def __init__(self, position, path):
         self.x = position[0]
         self.y = position[1]
-        self.conditions = []
+        self.status_effects = []
 
         self.path = path.copy()
         if len(self.path) > 0:

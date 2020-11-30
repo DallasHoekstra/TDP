@@ -15,7 +15,7 @@ class Tower(entity.Entity):
     height = 42
     
     def __init__(self, position):
-        self.status_affects = []
+        self.status_effects = []
         self.x, self.y = position[0], position[1]
         self.current_health = self.max_health
         self.target_list = []
@@ -64,7 +64,7 @@ class Fire_Tower(Tower):
 
     def __init__(self, position):
         self.current_health = self.max_health
-        self.status_affects = []
+        self.status_effects = []
         self.x, self.y = position[0], position[1]
         self.target_list = []
 
@@ -97,7 +97,7 @@ class Ice_Tower(Tower):
 
     def __init__(self, position):
         self.current_health = self.max_health
-        self.status_affects = []
+        self.status_effects = []
         self.x, self.y = position[0], position[1]
         self.target_list = []
         
@@ -127,7 +127,7 @@ class Arrow_Tower(Tower):
 
     def __init__(self, position):
         self.current_health = self.max_health
-        self.status_affects = []
+        self.status_effects = []
         self.x, self.y = position[0], position[1]
         self.target_list = []
 
