@@ -147,6 +147,7 @@ class Entity():
             effect = self.status_effects[counter]
             effect[1] -= time_passed
             if effect[1] > 0:
+                self.apply_status_effect(effect[0], effect[1], effect[2])
                 counter += 1
             else:
                 self.status_effects.remove(effect)

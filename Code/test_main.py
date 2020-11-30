@@ -550,8 +550,17 @@ def test_entity_tick_removes_multiple_expired_effects():
 
     assert test_entity.status_effects == []
 
+def test_entity_tick_applies_status_effects():
+    position = (100, 100)
+    test_entity = entity.Entity(position)
+    test_entity.status_effects = [["Ice", 5, 2], ["Fire", 5, .1]]
+    test_entity.apply_status_effect = unittest.mock.MagicMock(name="apply status")
 
+    test_entity.tick(1)
 
+    test_entity.apply_status_effect.assert_any_call("Ice", 4, 2)
+    test_entity.apply_status_effect.assert_any_call("Fire", 4, .1)
+    
 def test_entity_has_target_only_if_target_list_is_not_empty():
     test_entity_targeter = entity.Entity((100, 100))
     test_entity_targeted = entity.Entity((50,50))
@@ -674,7 +683,7 @@ def test_Fire_Tower_initializes_correctly():
     assert test_tower.x == tower_position[0]
     assert test_tower.y == tower_position[1]
     assert isinstance(test_tower, tower.Fire_Tower) == True
-    assert test_tower.status_affects == []
+    assert test_tower.status_effects == []
     assert test_tower.target_list == []
     assert test_tower.cost == 100
     assert test_tower.name == "FIRE_TOWER"
@@ -694,7 +703,7 @@ def test_Ice_Tower_initializes_correctly():
     assert test_tower.x == tower_position[0]
     assert test_tower.y == tower_position[1]
     assert isinstance(test_tower, tower.Ice_Tower) == True
-    assert test_tower.status_affects == []
+    assert test_tower.status_effects == []
     assert test_tower.target_list == []
     assert test_tower.cost == 150
     assert test_tower.name == "ICE_TOWER"
@@ -714,7 +723,7 @@ def test_Arrow_Tower_initializes_correctly():
     assert test_tower.x == tower_position[0]
     assert test_tower.y == tower_position[1]
     assert isinstance(test_tower, tower.Arrow_Tower) == True
-    assert test_tower.status_affects == []
+    assert test_tower.status_effects == []
     assert test_tower.target_list == []
     assert test_tower.cost == 150
     assert test_tower.name == "ARROW_TOWER"
@@ -939,6 +948,8 @@ def test_Ice_Bolt_initializes_correctly():
     assert isinstance(test_bolt, attack.SpellBolt) 
     assert test_bolt.damage == 10
     assert test_bolt.element == "Ice"
+    assert test_bolt.duration == 5
+    assert test_bolt.severity == 2
     assert test_bolt.default_move_speed == 5
     assert test_bolt.move_speed == test_bolt.default_move_speed
 
@@ -1039,6 +1050,28 @@ def test_spellBolt_removes_target_after_attacking_it():
 
     test_spellbolt.attack()
     assert test_spellbolt.target_list == []
+
+def test_Ice_Bolt_attack_applies_ice_status_effect():
+    position = (100, 100)
+    test_entity = entity.Entity(position)
+    target = [test_entity]
+    test_Ice_Bolt = attack.IceBolt(position, target)
+
+    test_Ice_Bolt.attack()
+
+    assert len(test_entity.status_effects) > 0
+    assert test_entity.status_effects[0][0] == "Ice"
+
+def test_Ice_Bolt_generate_status_effect_returns_formatted_status_effect():
+    position = (100, 100)
+    test_entity = entity.Entity(position)
+    test_Ice_Bolt = attack.IceBolt(position, [test_entity])
+
+    status_effect = test_Ice_Bolt.generate_status_effect()
+
+    assert status_effect[0] == "Ice"
+    assert status_effect[1] == test_Ice_Bolt.duration
+    assert status_effect[2] == test_Ice_Bolt.severity
 
 @pytest.mark.parametrize("entity_position", [(100, 100), (300, 300), (200, 100), (200, 300), (200, 200)])
 def test_SpellBolt_moves_toward_target(entity_position):
@@ -1258,7 +1291,7 @@ def test_game_tick_calls_tick_on_entities_with_cycle_time():
         mock_tower.tick.assert_called_with(cycle_time)
 
 # Creature Tests
-def test_creatures_initializes_correctly():
+def test_creature_initializes_correctly():
     position = (0, 0)
     test_path = [(100,100), (200,200)]
     test_creature = creature.Creature(position, test_path)
@@ -1266,7 +1299,7 @@ def test_creatures_initializes_correctly():
     assert isinstance(test_creature, entity.Entity)
     assert test_creature.x == position[0]
     assert test_creature.y == position[1]
-    assert len(test_creature.conditions) == 0
+    assert len(test_creature.status_effects) == 0
     assert test_creature.path == test_path
     test_path.append((300,300))
     assert test_creature.path != test_path
@@ -1278,7 +1311,7 @@ def test_skeleton_initializes_correctly():
 
     assert test_skeleton.x == position[0]
     assert test_skeleton.y == position[1]
-    assert len(test_skeleton.conditions) == 0
+    assert len(test_skeleton.status_effects) == 0
 
     assert test_skeleton.max_health == 25
     assert test_skeleton.current_health == test_skeleton.max_health
@@ -1297,7 +1330,7 @@ def test_accelerator_initializes_correctly():
 
     assert test_accelerator.x == position[0]
     assert test_accelerator.y == position[1]
-    assert len(test_accelerator.conditions) == 0
+    assert len(test_accelerator.status_effects) == 0
 
     assert test_accelerator.max_health == 10
     assert test_accelerator.current_health == test_accelerator.max_health
@@ -1310,6 +1343,9 @@ def test_accelerator_initializes_correctly():
     assert test_accelerator.path == test_path
     assert test_accelerator.acceleration_counter == 0
 
+    # assert test_accelerator.width == 5
+    # assert test_accelerator.height == 5
+
 def test_troll_initializes_correctly():
     position = (150, 200)
     test_path = [(300, 300)]
@@ -1317,7 +1353,7 @@ def test_troll_initializes_correctly():
 
     assert test_troll.x == position[0]
     assert test_troll.y == position[1]
-    assert len(test_troll.conditions) == 0
+    assert len(test_troll.status_effects) == 0
     assert test_troll.foe == True
 
     assert test_troll.max_health == 500
@@ -1328,6 +1364,9 @@ def test_troll_initializes_correctly():
     assert test_troll.value == 100
     assert test_troll.image_postfix != ""
     assert test_troll.path == test_path
+
+    # assert test_troll.width == 20
+    # assert test_troll.height == 40
 
 @pytest.mark.parametrize("creature_type", creature_types_list)
 def test_creature_is_alive_returns_False_after_death(creature_type):
