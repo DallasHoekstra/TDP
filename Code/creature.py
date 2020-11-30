@@ -53,8 +53,6 @@ class Creature(entity.Entity):
     def get_life_damage(self):
         return self.life_damage
 
-
-
     def draw(self):
         percent_health = round(self.current_health/self.max_health, 2)
         return (self.image_postfix, (self.x, self.y), percent_health)
@@ -98,4 +96,26 @@ class Accelerator(Creature):
     height = 5
 #     attack = 2
 
+    def accelerate(self, time_passed):
+        self.acceleration_counter += time_passed
+        if self.acceleration_counter >= 1:
+            self.move_speed += 1
+            self.acceleration_counter -= 1
+ 
+            
+
+    def tick(self, time_passed):
+        self.cooldown_time_left -= time_passed
+        self.accelerate(time_passed)
+
+        # FOR FUTURE: Is this pythonic?
+        counter = 0
+        while (counter < len(self.status_effects)):
+            effect = self.status_effects[counter]
+            effect[1] -= time_passed
+            if effect[1] > 0:
+                self.apply_status_effect(effect[0], effect[1], effect[2])
+                counter += 1
+            else:
+                self.status_effects.remove(effect)
 

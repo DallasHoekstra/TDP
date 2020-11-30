@@ -1346,6 +1346,66 @@ def test_accelerator_initializes_correctly():
     assert test_accelerator.width == 5
     assert test_accelerator.height == 5
 
+def test_accelerator_tick_calls_accelerate_with_time_passed():
+    position = (100, 100)
+    path = [(200, 200)]
+    test_accelerator = creature.Accelerator(position, path)
+    test_accelerator.accelerate = unittest.mock.MagicMock(name="accelerate")
+
+    test_accelerator.tick(1)
+
+    test_accelerator.accelerate.assert_called_with(1)
+    
+def test_acclerator_accelerate_waits_one_second_to_increase_move_speed():
+    position = (100, 100)
+    path = [(200, 200)]
+    test_accelerator = creature.Accelerator(position, path)
+    test_accelerator.move_speed = 1
+    original_move_speed = test_accelerator.move_speed
+
+    test_accelerator.accelerate(1-.00000001)
+
+    assert test_accelerator.move_speed == original_move_speed
+
+def test_accelerator_accelerate_increases_move_speed_every_second():
+    position = (100, 100)
+    path = [(200, 200)]
+    test_accelerator = creature.Accelerator(position, path)
+    test_accelerator.move_speed = 1
+
+    test_accelerator.accelerate(1)
+
+    assert test_accelerator.move_speed == 2
+
+def test_accelerator_accelerate_accumulates_fractions_of_seconds():
+    position = (100, 100)
+    path = [(200, 200)]
+    test_accelerator = creature.Accelerator(position, path)
+    test_accelerator.move_speed = 1
+    original_move_speed = test_accelerator.move_speed
+
+    test_accelerator.tick(.2)
+    test_accelerator.tick(.2)
+    test_accelerator.tick(.2)
+    test_accelerator.tick(.2)
+    test_accelerator.tick(.2)
+
+    assert test_accelerator.move_speed > original_move_speed
+
+def test_accelerator_accelerate_resets_accumulation_after_increasing_speed():
+    position = (100, 100)
+    path = [(200, 200)]
+    test_accelerator = creature.Accelerator(position, path)
+    test_accelerator.move_speed = 1
+
+    test_accelerator.accelerate(1)
+    modified_speed = test_accelerator.move_speed
+
+    test_accelerator.accelerate(.2)
+
+    assert test_accelerator.move_speed == modified_speed
+    
+
 def test_troll_initializes_correctly():
     position = (150, 200)
     test_path = [(300, 300)]
